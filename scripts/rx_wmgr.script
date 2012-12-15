@@ -124,6 +124,7 @@ function weapon_manager:initialize()
 	end
 	self.modes.max_pr_weapons = tonumber(self.modes.max_pr_weapons)
 	self.period = time_global()+3000
+	self.isrunning = false
 --	printf("initialize[%s] comm[%s], rank[%s]",self.npc:character_name(),self.npc:character_community(),ranks.get_obj_rank_name(self.npc))
 end
 
@@ -563,6 +564,13 @@ function weapon_manager:check_conditions(nam)
 end
 
 function weapon_manager:update_weapon_list(cut)
+
+	if (self.isrunning) then
+		u3_utils.printf("bind_monster failsafe to protect the C stack")
+		return
+	end
+	self.isrunning = true
+
 	local tslist,twlist = {},{}
 	local function weapon_iterator(id,item)
 		if id and not item then
@@ -641,6 +649,8 @@ function weapon_manager:update_weapon_list(cut)
 		end
 	end
 --	printf("update_weapon[%s]:cnt:[%s]", self.npc:character_name(), cnt)
+
+	self.isrunning = false
 	return cnt,sprm
 end
 

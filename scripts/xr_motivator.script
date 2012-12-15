@@ -223,7 +223,7 @@ function motivator_binder:hit_callback(obj, amount, local_direction, who, bone_i
 		xr_logic.issue_event(self.object, self.st.hit, "hit_callback", obj, amount, local_direction, who, bone_index)
 	end
 	if amount > 0 then
-		printf("HIT_CALLBACK: %s amount=%s bone=%s", obj:name(), amount, tostring(bone_index))
+		-- printf("HIT_CALLBACK: %s amount=%s bone=%s", obj:name(), amount, tostring(bone_index))
 		sr_territory.issue_event(self.object, "hit_callback", obj, amount, local_direction, who, bone_index)
 		xr_wounded.hit_callback(self.object:id())
 		if blowout_scheme then blowout_scheme.hit_callback(obj) end
@@ -293,6 +293,8 @@ end
 
 function motivator_binder:use_callback(obj, who)
 	if self.object == nil then return end
+	if obj == nil then return end
+	if who == nil then return end
 	if self.object:alive() then
 		xr_use.notify_on_use(obj, who)
 		if self.st.active_section then
@@ -304,9 +306,7 @@ function motivator_binder:use_callback(obj, who)
 			self.treasure_processed = true
 		end
 	end
-  -- added by xStream for AMK miniSDK
-  amk.on_use(obj, who)
-  -- end of addition  
+	amk.on_use(obj, who)
 end
 
 function motivator_binder:update(delta)

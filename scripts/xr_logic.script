@@ -516,6 +516,7 @@ function issue_event(npc, st, event_fn, ...)
 
 	for action_ptr, is_active in pairs(st.actions) do
 		if is_active and action_ptr[event_fn] then
+			u3_utils.printf("Issuing an event for NPC " .. npc.id() .. ", name " .. npc:name() .. ", event_fn " .. event_fn)
 			action_ptr[event_fn](action_ptr, ...)
 			activation_count = activation_count + 1
 		end

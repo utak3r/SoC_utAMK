@@ -55,12 +55,12 @@
 		<crouch_type>1</crouch_type>
 		<supplies>
 			[spawn] \n
-			wpn_walther \n
-			ammo_9x19_fmj \n
+			w_beretta918 \n
+			ammo_9x18_fmj \n
 			kruglov_flash \n			
 		</supplies>
 		
-#include "gameplay\character_criticals_3.xml"
+		<critical_wound_weights>100,50,10</critical_wound_weights>
 			
 		<start_dialog>yantar_help_scientist</start_dialog>
 		<actor_dialog>dm_help_wounded_medkit_dialog</actor_dialog>
@@ -86,8 +86,8 @@
 		<crouch_type>1</crouch_type>
 		<supplies>
 			[spawn] \n
-			wpn_walther \n
-			ammo_9x19_fmj \n
+			w_beretta918 \n
+			ammo_9x18_fmj \n
 			kruglov_flash \n			
 		</supplies>
 		
@@ -115,8 +115,8 @@
 		<crouch_type>1</crouch_type>
 		<supplies>
 			[spawn] \n
-			wpn_walther \n
-			ammo_9x19_fmj \n
+			w_beretta918 \n
+			ammo_9x18_fmj \n
 		</supplies>
 		
 #include "gameplay\character_criticals_3.xml"
@@ -145,8 +145,8 @@
 		<crouch_type>1</crouch_type>
 		<supplies>
 			[spawn] \n
-			wpn_walther \n
-			ammo_9x19_fmj \n
+			w_beretta918 \n
+			ammo_9x18_fmj \n
 			lab_x16_documents \n
 			outfit_stalker_m1 \n
 		</supplies>
@@ -163,7 +163,7 @@
 		<community>ecolog</community> <terrain_sect>stalker_ecolog_terrain</terrain_sect>
 
 		
-		<rank>10</rank>
+		<rank>200</rank>
 		<reputation>50</reputation>
 
 		<visual>actors\ecolog\stalker_ecolog</visual>
@@ -171,8 +171,10 @@
 		<crouch_type>1</crouch_type>
 		<supplies>
 			[spawn] \n
-			wpn_walther \n
-			ammo_9x19_fmj \n
+			w_beretta918 \n
+			ammo_9x18_fmj = 3 \n
+			wpn_lr300 \n
+			ammo_5.56x45_ss190 = 5 \n
 		</supplies>
 		
 #include "gameplay\character_criticals_3.xml"	
@@ -197,8 +199,10 @@
 		<crouch_type>1</crouch_type>
 		<supplies>
 			[spawn] \n
-			wpn_walther \n
-			ammo_9x19_fmj \n
+			w_beretta918 \n
+			ammo_9x18_fmj = 3 \n
+			wpn_lr300 \n
+			ammo_5.56x45_ss190 = 5 \n
 		</supplies>
 				
 #include "gameplay\character_criticals_3.xml"

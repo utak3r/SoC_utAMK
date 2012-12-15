@@ -358,67 +358,67 @@ end
 
 --генерируем оффлайн события
 function offline_alife()
-	
 	local lname = maps[math.random(table.getn(maps))]
---	update_tables(lname)
+	--	update_tables(lname)
 	--u3_utils.printf("Offline_alife - "..lname)
 	local st = 0
 	amk.oau_reason="cn offline_alife chp1"
 	if off_npcs[lname] then st = table.getn(off_npcs[lname].stalkers) end
+
 	if st>0 then
-	amk.oau_reason="cn offline_alife chp2"
+		amk.oau_reason="cn offline_alife chp2"
 		for search = 1,search_intensivity do
-	amk.oau_reason="cn offline_alife chp3"
+			amk.oau_reason="cn offline_alife chp3"
 			local rnd = math.random(st)
-	amk.oau_reason="cn offline_alife chp4"
+			amk.oau_reason="cn offline_alife chp4"
 			if off_npcs[lname].stalkers[rnd] then 
-	amk.oau_reason="cn offline_alife chp5"
+				amk.oau_reason="cn offline_alife chp5"
 				local victim = alife():object(off_npcs[lname].stalkers[rnd].id)
-	amk.oau_reason="cn offline_alife chp6"
+				amk.oau_reason="cn offline_alife chp6"
 				if victim and not victim.online and victim.health and victim.can_switch_online and victim:health()>0 and victim:can_switch_online() and victim:name() == off_npcs[lname].stalkers[rnd].name then
-	amk.oau_reason="cn offline_alife chp7 "..tostring(victim and victim:name())
+					amk.oau_reason="cn offline_alife chp7 "..tostring(victim and victim:name())
 					local vdata = collect_info(victim,lname)
-	amk.oau_reason="cn offline_alife chp8 "..tostring(victim and victim:name())
+					amk.oau_reason="cn offline_alife chp8 "..tostring(victim and victim:name())
 					if table.getn(vdata.enemies)>0 then
-					--есть вражина - воюем нах!
-	amk.oau_reason="cn offline_alife chp9 "..tostring(victim and victim:name())
+						--есть вражина - воюем нах!
+						amk.oau_reason="cn offline_alife chp9 "..tostring(victim and victim:name())
 						on_enemies_found(victim, vdata)
 						break	--прерываем цикл - событие отработано
 					elseif table.getn(vdata.monsters)>0 then
-					--есть монстрятина - видели, слышали, убили, сдохли...
-	amk.oau_reason="cn offline_alife chp10 "..tostring(victim and victim:name())
+						--есть монстрятина - видели, слышали, убили, сдохли...
+						amk.oau_reason="cn offline_alife chp10 "..tostring(victim and victim:name())
 						on_monsters_found(victim, vdata)
 						break	--прерываем цикл - событие отработано
 					elseif table.getn(vdata.corpses.stalkers)>0 then
-					--есть труп сталкера
-	amk.oau_reason="cn offline_alife chp11 "..tostring(victim and victim:name())
+						--есть труп сталкера
+						amk.oau_reason="cn offline_alife chp11 "..tostring(victim and victim:name())
 						on_npc_corpses_found(victim, vdata)
 						break	--прерываем цикл - событие отработано
 					elseif table.getn(vdata.corpses.monsters)>0 then
-					--есть труп монстра
-	amk.oau_reason="cn offline_alife chp12 "..tostring(victim and victim:name())
+						--есть труп монстра
+						amk.oau_reason="cn offline_alife chp12 "..tostring(victim and victim:name())
 						on_monster_corpses_found(victim, vdata)
 						break	--прерываем цикл - событие отработано
 					elseif table.getn(vdata.weapons.seen)>0 then
-					--есть бесхозное оружие
-	amk.oau_reason="cn offline_alife chp13 "..tostring(victim and victim:name())
+						--есть бесхозное оружие
+						amk.oau_reason="cn offline_alife chp13 "..tostring(victim and victim:name())
 						on_weapons_found(victim, vdata)
 						break	--прерываем цикл - событие отработано
 					elseif table.getn(vdata.artefacts)>0 then
-					--есть арты
-	amk.oau_reason="cn offline_alife chp14 "..tostring(victim and victim:name())
+						--есть арты
+						amk.oau_reason="cn offline_alife chp14 "..tostring(victim and victim:name())
 						on_artifacts_found(victim, vdata)
 						break	--прерываем цикл - событие отработано
 					elseif table.getn(vdata.inv_boxes)>0 then
-					--есть контейнеры. Надо обыскать.
-	amk.oau_reason="cn offline_alife chp18 "..tostring(victim and victim:name())
+						--есть контейнеры. Надо обыскать.
+						amk.oau_reason="cn offline_alife chp18 "..tostring(victim and victim:name())
 						on_inv_boxes_found(victim, vdata)
 						break	--прерываем цикл - событие отработано
 					elseif items[victim.id] and table.getn(items[victim.id]) > 0 then
-					--попробуем продать всякого
-	amk.oau_reason="cn offline_alife chp15 "..tostring(victim and victim:name())
+						--попробуем продать всякого
+						amk.oau_reason="cn offline_alife chp15 "..tostring(victim and victim:name())
 						--u3_utils.printf("Offline: lets trade")
-	amk.oau_reason="cn offline_alife chp17 "..tostring(victim and victim:name())
+						amk.oau_reason="cn offline_alife chp17 "..tostring(victim and victim:name())
 						process_trade(victim)
 						--u3_utils.printf("Offline: trade done")
 						break
@@ -1170,14 +1170,14 @@ function on_weapons_found(victim, vdata)
 	process_trade(victim)
 end
 
--- Моя прелесссть
+-- znaleziono artefakt
 function on_artifacts_found(victim, vdata)
 	if (victim == nil or vdata == nil) then return end
 	local obj, v_obj
 	local object
 	local v_id = victim.id
 	local b_stalker = false
-	-- Если сталкер - дадим опыт.
+	
 	if (IsStalker(victim) and victim.community) then
 		local m_comm  = victim:community()
 		if (m_comm == "stalker" or m_comm == "dolg" or m_comm == "freedom") then
@@ -1189,9 +1189,15 @@ function on_artifacts_found(victim, vdata)
 		if (v_obj) then
 			object = alife():object(v_obj.id)
 			if (object and object:name() == v_obj.name) then
+				if (amk.is_debug == true) then
+					u3_utils.printf("Stalker from "..victim:community().." community found an artefact "..object:name().." and is trying to pick it...")
+				end
 				obj = pick_item(victim, object)
 				if (obj) then
 					if (b_stalker == true) then
+						if (amk.is_debug == true) then
+							u3_utils.printf("Stalker picked an artefact and his rank is raied by "..rate_art_found.." points, resulting in "..victim:rank() + rate_art_found.." points in total.")
+						end
 						victim:set_rank(victim:rank() + rate_art_found)
 					end
 				end

@@ -153,44 +153,45 @@ end
 function keep_item(npc, item)
 	if npc == nil then return end
 	if item==nil or alife():object(item:id())==nil then return end
-    local section = item:section()
+	local section = item:section()
 
-    if section == "bolt" then
-        return false
-    end
+	if section == "bolt" then
+		return false
+	end
 
-    if always_keep_item[section] == true then
-        return true
-    end
+	if always_keep_item[section] == true then
+		return true
+	end
 
-    local item_id = item:id()
-    local item_in_slot = npc:item_in_slot(1)
-    if item_in_slot ~= nil and
-       item_in_slot:id() == item_id
-    then
-        item:unload_magazine()
-    --' Тут надо уменьшить кондишн оружия
+	local item_id = item:id()
+	local item_in_slot = npc:item_in_slot(1)
+	if item_in_slot ~= nil and
+		item_in_slot:id() == item_id
+	then
+		item:unload_magazine()
+		--' Тут надо уменьшить кондишн оружия
 		item:set_condition((math.random(15)+75)/100)
-        return true
-    end
-    item_in_slot = npc:item_in_slot(2)
-    if item_in_slot ~= nil and
-       item_in_slot:id() == item_id
-    then
-        item:unload_magazine()
-    --' Тут надо уменьшить кондишн оружия
+		return true
+	end
+	item_in_slot = npc:item_in_slot(2)
+	if item_in_slot ~= nil and
+		item_in_slot:id() == item_id
+	then
+		item:unload_magazine()
+		--' Тут надо уменьшить кондишн оружия
 		item:set_condition((math.random(15)+75)/100)
-        return true
-    end
+		return true
+	end
 	-- удалять ПДА, гитару\гармошку, фонарики и приборы ночного видения, рацию, бинокль.
 	if (section == "device_torch" or section == "device_pda" or section == "hand_radio" or 
-			section == "guitar_a" or section == "harmonica_a" or section == "binocular_a" or 
-			section =="wpn_knife" or section == "wpn_binoc" or section=="bolt") then
-		--if (npc.mark_item_dropped) then
---    npc:mark_item_dropped(item)
-		--end
-    alife():release(alife():object(item:id()), true)
-end
+		section == "guitar_a" or section == "harmonica_a" or section == "binocular_a" or 
+		section =="wpn_knife" or section == "wpn_binoc" or section=="bolt") then
+
+		if alife():object(item_id) ~= nil then
+			u3_utils.printf("Destroying item "..section.." from dead body.")
+			alife():release(alife():object(item_id), true)
+		end
+	end
 end
 
 --' Функция спавнит необходимое число предметов
@@ -200,11 +201,10 @@ function create_items(npc, section, number, rnd)
     if ammo_sections[section] == true then
         if number > 0 then
             se_respawn.create_ammo(section, 
-            npc:position(),
-            npc:level_vertex_id(),  
-            npc:game_vertex_id(),
-            npc:id(),
-                    number)
+				npc:position(),
+				npc:level_vertex_id(),  
+				npc:game_vertex_id(),
+				npc:id(), number)
         end
     else
         for i=1,number do

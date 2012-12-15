@@ -72,6 +72,13 @@ prevent_gulag_registration_for_id=0
 
 function generic_object_binder:update(delta)
 	object_binder.update(self, delta)
+	
+	
+		if (self.st.started) then
+			u3_utils.printf("bind_monster failsafe to protect the C stack")
+			return
+		end
+		self.st.started = true
 
 		if particles[self.object:id()] and table.getn(particles[self.object:id()])>0 then
 			for kk,vv in pairs(particles[self.object:id()]) do
@@ -92,13 +99,10 @@ function generic_object_binder:update(delta)
 							h.impulse = 0
 							h.draftsman = vv.target
 							h.direction = vv.dir
-							h:bone("bip01_spine") -- чтобы учитывалась броня
+							h:bone("bip01_spine")
 							h.power = math.random(10,50)/100
 							h.type = hit.strike --chemical_burn
 							vv.target:hit(h)
-							--h.power = math.random(10,50)/100
-							--h.type = hit.chemical_burn
-							--vv.target:hit(h)
 							vv:stop()
 						end
 					end
@@ -106,14 +110,15 @@ function generic_object_binder:update(delta)
 			end
 		end
 		
---	printf("_bp: generic_object_binder: UPDATE [name='%s' time=%d]",
---		self.object:name(), time_global())
-
-	-- Апдейт торговли
 	if self.object:clsid() == clsid.script_trader then
 		trade_manager.update(self.object)
 	end
 
+	if not self.object:alive() then
+		self.st.started = nil
+		return
+	end
+	
 	if self.object:alive() then
 		if self.object:is_talk_enabled() then
 			self.object:set_tip_text("character_use")
@@ -128,57 +133,27 @@ function generic_object_binder:update(delta)
 	
 	local act_scheme = db.storage[self.object:id()].active_section or ""
 	local is_fake = string.find(act_scheme, "mob_fake_death") or false
-	--[[
-	if self.object:section()=="zombie_beee" and time_global()>(self.charge_time or 0)+5000 and 3>(self.charges_done or 0) and not is_fake and self.object.health>0.1 then
-		local target = self.object:get_enemy() or db.actor
-		local dist = target:position():distance_to(self.object:position())
-		if dist < 10 and self.object:see(target) then
-			local dir=self.object:direction()
-			local delta=vector():set(self.object:position()):sub(target:position())
-			local scalarmul=(delta.x*dir.x+delta.z*dir.z)/math.sqrt(delta.x*delta.x+delta.z*delta.z) 
-			if scalarmul < -0.8 then
-				bind_monster.play_particle(self.object,
-				{
-					obj=self.object,
-					particle="amk\\zomb_beee",
-					pos=self.object:bone_position("bip01_head"),
-					dir=amk.sub(target:bone_position("bip01_head"),self.object:bone_position("bip01_head")),
-					gravity=vector():set(0,-0.01,0),
-					len=10,
-					life_time=2000,
-					give_dmg=true,
-					target=target,
-					sound="monsters\\zombie\\zombie_take_damage_3"
-				})
-				self.charge_time=time_global()
-				self.charges_done=(self.charges_done or 0) + 1
-			end
-		end
-	end
-	]]
 	
 	if self.chtime<time_global() then
 		self.chtime=time_global()+2000
 		if self.object:clsid()==clsid.controller_s and self.object:alive() then
-      amk.mylog("zombifying")
+			amk.mylog("zombifying")
 			local npc=self.object:get_enemy()
 			if npc then
 				if npc:id()~=db.actor:id() and npc:clsid()==clsid.script_stalker and self.object:see(npc) and 
-					npc:character_community()~="zombied" and self.object:position():distance_to(npc:position())<30 then
-        
-          local sobj=alife():object( npc:id() )
+						npc:character_community()~="zombied" and self.object:position():distance_to(npc:position())<30 then        
+					local sobj=alife():object( npc:id() )
 					if sobj and sobj.online then
-            local zomb=amk.load_table("zombies")
-            zomb[sobj.id]={master=self.object:id(),comm=npc:character_community(),gw=npc:goodwill(db.actor)}
-            amk.save_table("zombies",zomb)
-																		
-            npc:set_character_community("zombied",0,0)
-            local orgtbl=amk.read_stalker_params(sobj)
-            if (not string.find(orgtbl.profile,"_zombi")) then
-              orgtbl.profile=orgtbl.profile.."_zombi"
-            end
-            amk.mylog("zombied "..npc:name().." profile "..orgtbl.profile)
-            amk.write_stalker_params(orgtbl,sobj)
+						local zomb=amk.load_table("zombies")
+						zomb[sobj.id]={master=self.object:id(),comm=npc:character_community(),gw=npc:goodwill(db.actor)}
+						amk.save_table("zombies",zomb)																		
+						npc:set_character_community("zombied",0,0)
+						local orgtbl=amk.read_stalker_params(sobj)
+						if (not string.find(orgtbl.profile,"_zombi")) then
+							orgtbl.profile=orgtbl.profile.."_zombi"
+						end
+						amk.mylog("zombied "..npc:name().." profile "..orgtbl.profile)
+						amk.write_stalker_params(orgtbl,sobj)
 					end
 				end
 			end
@@ -188,13 +163,12 @@ function generic_object_binder:update(delta)
 			local npc=self.object:get_enemy()
 			if npc then
 				if npc:id()==db.actor:id() and db.actor:see(self.object) and self.object:see(db.actor) and math.random()<0.2 then
-					--level.add_pp_effector("radiation.ppe", 2012, false)
-					
+					--level.add_pp_effector("radiation.ppe", 2012, false)					
 					local h = hit()
 					h.type = hit.telepatic
 					h.power = 0.02
 					h.impulse = 0.0
-					h:bone("bip01_spine") -- чтобы учитывалась броня
+					h:bone("bip01_spine")
 					h.draftsman = self.object
 					h.direction = self.object:direction()
 					db.actor:hit(h)
@@ -220,32 +194,30 @@ function generic_object_binder:update(delta)
 					amk.actor_see_enemy(self.object,"monster") 
 				end
 			end
-      self.last_update = time_global()
+			self.last_update = time_global()
 		end
   
-  local blowout=amk.load_variable("blowout",0)
--- start fix
---  if blowout==3 and (not self.control_override) then
-  if blowout==3 and (not self.control_override) and no_suffer_indoor(level.name()) then
--- end fix
-    if not self.object:action() then
-      -- Захватываем зверушку
-      xr_logic.mob_capture(self.object,true)
-      self.control_override=true
-    end
-  elseif self.control_override and blowout==3 then
-    if not self.object:action() then
-      local snds={sound.take_damage,sound.panic,sound.idle}
-      local snd=snds[math.random(1,table.getn(snds))]
-      action(self.object, anim(anim.lie_idle, 0), sound(snd), cond(cond.sound_end))
-    end
-  elseif self.control_override and blowout~=3 then
-    -- отпускаем зверушку
-    self.control_override=nil
-    xr_logic.mob_release(self.object)
+	local blowout=amk.load_variable("blowout",0)
+	if blowout==3 and (not self.control_override) and no_suffer_indoor(level.name()) then
+		if not self.object:action() then
+			xr_logic.mob_capture(self.object,true)
+			self.control_override=true
+		end
+	elseif self.control_override and blowout==3 then
+		if not self.object:action() then
+			local snds={sound.take_damage,sound.panic,sound.idle}
+			local snd=snds[math.random(1,table.getn(snds))]
+			action(self.object, anim(anim.lie_idle, 0), sound(snd), cond(cond.sound_end))
+		end
+	elseif self.control_override and blowout~=3 then
+		self.control_override=nil
+		xr_logic.mob_release(self.object)
 	elseif self.st.active_section ~= nil then
 		xr_logic.issue_event(self.object, self.st[self.st.active_scheme], "update", delta)
 	end
+	
+	self.st.started = nil
+	
 end
 
 function generic_object_binder:anomaly_evade()
@@ -278,10 +250,8 @@ function generic_object_binder:extrapolate_callback()
     end    
     
 	if patrol(self.object:patrol()):flags(cur_pt):get() == 0 then
-		--printf("_bp: generic_object_binder: extrapolate_callback: cur_pt = %d: true", cur_pt)
 		return true
 	end
-	--printf("_bp: generic_object_binder: extrapolate_callback: cur_pt = %d: false", cur_pt)
 	return false
 end
 
@@ -310,7 +280,6 @@ function generic_object_binder:death_callback(victim, who)
 
 	smart_terrain.on_death( self.object:id() )
 
-	--' Наносим небольшой импульс вперед.
 	local h = hit()
 	h.draftsman = self.object
 	h.type = hit.fire_wound
@@ -320,18 +289,18 @@ function generic_object_binder:death_callback(victim, who)
 	h.impulse = 10
 	self.object:hit(h)
 
-  local mob=self.object
-  if mob:clsid()==clsid.controller_s then
-    local zomb=amk.load_table("zombies")
-    for k,v in pairs(zomb) do
-      if v.master==mob:id() then
-        if amk_mod.dezombify(k,v) then
-          zomb[k]=nil
-        end
-      end
-    end
-    amk.save_table("zombies",zomb)
-  end  
+	local mob=self.object
+	if mob:clsid()==clsid.controller_s then
+		local zomb=amk.load_table("zombies")
+		for k,v in pairs(zomb) do
+		  if v.master==mob:id() then
+			if amk_mod.dezombify(k,v) then
+			  zomb[k]=nil
+			end
+		  end
+		end
+		amk.save_table("zombies",zomb)
+	end  
 	
 	if table.getn(self.particles)>0 then
 		for kk,vv in pairs(self.particles) do
@@ -339,14 +308,14 @@ function generic_object_binder:death_callback(victim, who)
 		end
 	end
 	
-  -- added by xStream for AMK miniSDK
   amk.on_death(victim, who)
-  -- end of addition
 
 end
 
 function generic_object_binder:hit_callback(obj, amount, local_direction, who, bone_index)
-	u3_utils.printf("HIT_CALLBACK: [%s] amount[%s]  bone index[%s]", obj:name(), amount, bone_index)
+	if amk.is_debug then
+		u3_utils.printf("HIT_CALLBACK: [%s] amount[%s]  bone index[%s]", obj:name(), amount, bone_index)
+	end
 --	amk.logct(self.object:name().." hit ","mcbt")
 	if self.st.active_section then
 		xr_logic.issue_event(self.object, self.st[self.st.active_scheme], "hit_callback", obj, amount, local_direction, who, bone_index)
