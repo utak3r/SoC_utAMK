@@ -1,0 +1,183 @@
+[wpn_sten]:identity_immunities
+GroupControlSection			= spawn_group
+discovery_dependency 		= 
+$spawn                  	= "weapons\sten"					; option for Level Editor
+$npc			 			= on				; option for Level Editor
+$prefetch 					= 8
+scheduled            		= off              ; option for ALife Simulator
+cform                		= skeleton
+class                		= WP_VAL
+min_radius					= 30
+max_radius					= 100
+description					= "The Sten (or Sten gun) was a family of British 9 mm submachine guns used extensively by British and Commonwealth forces throughout World War II and the Korean War. They were notable for having a simple design and very low production cost. STEN is an acronym, cited as derived from the names of the weapon's chief designers, Major Reginald Shepherd and Harold Turpin, and EN for Enfield. Over 4 million Stens in various versions were made in the 1940s."
+
+ef_main_weapon_type			= 2
+ef_weapon_type				= 6
+
+;-----------------------------------------------------------------------------------
+holder_range_modifier	= 1.0		       ; во сколько раз увеличивается eye_range 
+holder_fov_modifier		= 0.7              ; во сколько раз увеличивается eye_fov
+;-----------------------------------------------------------------------------------
+
+cost		 	 			= 1500
+weapon_class				= assault_rifle
+
+ammo_limit					= 210
+ammo_current				= 180
+ammo_elapsed				= 20
+	
+ammo_mag_size				= 32
+ammo_class		 			= ammo_9x19_pbp,ammo_9x19_fmj
+fire_modes					= 1, -1
+f_mode				= 2
+
+hand_dependence		 		= 1
+single_handed				= 0
+	
+slot 				 		= 2		; // secondary
+animation_slot		 		= 2		; type of the animation that will be used
+
+inv_name	         		= "Sten"
+inv_name_short		 		= "Sten"
+inv_weight		 			= 2.8
+
+inv_grid_width				= 4
+inv_grid_height				= 2
+inv_grid_x					= 20
+inv_grid_y					= 5
+
+kill_msg_x			= 0
+kill_msg_y			= 154
+kill_msg_width		= 78
+kill_msg_height		= 21
+
+;-----------------------------------------------------------------------------------
+; base dispersion
+;
+; === Setting of the weapon shooting dispersal parameter ===
+;Dispersal consists from to basic constituents - dispersal of the weapon (relatively small). In fact, this is a dispersal of a weapon griped in a vice; - dispersal of the weapon behavior in the hands of the host (if he running, or walking or shoots in single shots or in a burst) is another, more significant factor of dispersal. 
+;Dispersal of the weapon depends only from basic dispersal, basket case factor ant time of the ammo.
+;Dispersal of the way the host shooting (standing, running and etc.)
+;Two types of shooting modes can be defined: - usual mode and zoomed mode.  
+;Usual mode: - depends from the position of the player while shooting (standing, sitting, walking and running)
+;Zoomed mode - depends from the dispersal of the weapon and do NOT depends from the position of the shooter. In that mode, dispersal of the weapon &laquo switches to;&raquo;  sight swinging (created be effector). 
+;Weapon recoil in the game also created by recoil effector. 
+;
+;-----------------------------------------------------------------------------------
+fire_dispersion_base		= 0.2	;угол (в градусах) базовой дисперсии оружия (оружия зажатого в тисках)
+control_inertion_factor		= 1.04f
+disp_rate = 1.75
+
+;отдача
+cam_relax_speed        		 	= 5	;скорость возврата в исходное положение
+cam_dispersion        		= 0.28	;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc			= 0.11	;увеличениe cam_dispersion с каждым выстрелом
+cam_dispertion_frac			= 0.9 ;1.0	;ствол будет подыматься на cam_dispersion*cam_dispertion_frac +- cam_dispersion*(1-cam_dispertion_frac)
+cam_max_angle					= 8.0	;максимальный угол отдачи
+cam_max_angle_horz				= 10.0	;(degree) maximum shot horizontal degree 
+cam_step_angle_horz				= 2.1	;(degree) size of step camera moved in horizontal position while shooting
+
+fire_dispersion_condition_factor 	= 4
+misfire_probability 	= 0.003
+misfire_condition_k 	= 0.1
+condition_shot_dec 		= 0.0007
+;-----------------------------------------------------------------------------------
+
+
+direction            	    = 0, 0, 1
+
+fire_point           	    = 0.0, 0.174, 0.562
+
+smoke_particles				= weapons\generic_shoot_00
+
+shell_point		 			= 0.0, 0.174, 0.078
+shell_dir		 			= 0.0, 1.0, 0.0
+shell_particles	 			= weapons\generic_shells
+
+rpm_empty_click 			= 200
+
+PDM_disp_base 			= 6.0
+PDM_disp_vel_factor 		= 1.5
+PDM_disp_accel_factor 		= 1.2
+PDM_crouch	 		= 1.0
+PDM_crouch_no_acc 		= 1.0
+
+; ttc
+hit_power        	= 0.6
+hit_impulse		 	= 60
+hit_type 			= fire_wound
+hit_rate	= 1.75
+
+fire_distance   	    = 200
+bullet_speed			= 300	;начальная скорость пули
+rpm             		= 500
+; end ttc
+
+use_aim_bullet				= false	;true		;Поддерживается ли первая суппер пуля
+time_to_aim					= 1.0	
+
+hud             	        = wpn_sten_hud
+normal          	        = 0, 1, 0
+position                = -0.026, -0.125, 0.0
+orientation             = 0, 0, 0
+
+
+;--STRAP PARAMETERS-----------------------------------------------------------------
+;под мишкой
+strap_position         		= -0.26,-0.11,0.25			; position (offset) and orientation of the weapon when it is strapped
+strap_orientation      		= -15,-9,110				; (3rd person view in degrees)
+strap_bone0					= bip01_spine2
+strap_bone1					= bip01_spine1
+
+startup_ammo    	        = 90
+visual                  = weapons\sten\wpn_sten.ogf
+
+light_color		 		= 0.6,0.5,0.3
+light_range		 		= 5
+light_var_color		 	= 0.05
+light_var_range		 	= 0.1
+light_time 		 		= 0.2
+
+ph_mass			 			= 3
+
+;addons
+scope_status				= 0
+silencer_status				= 0
+grenade_launcher_status		= 0
+
+zoom_enabled				= true
+scope_zoom_factor		    = 85
+scope_name 					= wpn_addon_scope
+scope_texture				= wpn\wpn_crosshair
+scope_x 					= 37						; offset in inventory icon
+scope_y 					= 0
+;звуки
+snd_draw			= weapons\generic_draw
+snd_holster			= weapons\generic_holster
+snd_shoot			= weapons\sten_shot
+snd_empty			= weapons\gen_empty, 0.5
+snd_reload			= weapons\sten_reload
+
+ 
+[wpn_sten_hud]
+shell_point			= -0.030000,-0.020000,0.050000
+shell_dir		 			= 0.0, 1.0, 0.0
+
+fire_point				= 0.68, 0.12, 0.21
+fire_bone               = connectbone04
+orientation             = 0, 0, 0
+position                = 0, 0, 0
+visual                  = weapons\sten\wpn_sten_hud.ogf
+
+anim_idle			= idle
+anim_idle_aim		= idle_aim
+anim_reload			= reload
+anim_draw			= draw
+anim_holster		= holster
+anim_shoot			= shoot
+anim_idle_sprint	= idle_sprint
+
+;HUD offset in zoom mode (to all)
+zoom_offset			= -0.083, 0.1025, -0.065
+zoom_rotate_x		= 0.0
+zoom_rotate_y		= 0.0

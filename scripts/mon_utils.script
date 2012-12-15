@@ -1,0 +1,554 @@
+------------------------------------
+-- Рабочие функции к Monnoroch's AI.
+-- Created by Monnoroch (кое что взято у AMK-team, Rulix (Bak), frags, malandrikus, Kirag, GSC).
+-- 15.07.09
+------------------------------------
+
+urodi = {
+["Sak"]	= true,
+["mil_stalker0012"]	= true,
+["yantar_ecolog_general"]	= true,
+["mil_freedom_member0021"]	= true,
+["doktor"]	= true,
+["doktor1"]	= true,
+["dolgovazyi"]	= true,
+["bar_docent"]	= true,
+["val_bandit_krisyk"]	= true,
+["esc_wolf"]	= true,
+["esc_fanat"]	= true,
+["esc_fox"]	= true,
+["esc_ranger"]	= true,
+["marsh_dan"]	= true,
+["esc_soldier_commander"]	= true,
+["esc_soldier_blockpost_commander"]	= true,
+["agr_krot"]	= true,
+["agr_nii_commander"]	= true,
+["agr_soldier_sniper_default1"]	= true,
+["bar_bar_osvedomitel"]	= true,
+["bar_bar_hunter"]	= true,
+["bar_bar_drunk_dolg"]	= true,
+["bar_bar_lisiy"]	= true,
+["bar_dolg_leader"]	= true,
+["bar_dolg_petrenko"]	= true,
+["bar_dolg_ivancov"]	= true,
+["bar_dolg_guard_commander"]	= true,
+["bar_stalker_freeman"]	= true,
+["val_bandit_borov"]	= true,
+["val_dolg_prisoner"]	= true,
+["gar_seriy"]	= true,
+["gar_dolg_blokpost_commander"]	= true,
+["gar_stalker_flame_quest"]	= true,
+["esc_shustryi"]	= true
+}
+
+function printf(str,...)
+	if not str then
+		str = "((string is nil))"
+	end
+	get_console():execute("load ~#I#:"..string.format(str,...))
+--	get_console():execute("flush")
+end
+
+--------------------------------------------------
+
+function get_camp(npc)
+  local hides=amk_hideouts.hide[level.name()]
+  local mindist=70
+  local lvid
+  if hides then
+    for i,o in ipairs(hides) do
+      if o.center and npc:accessible(o.center) then
+        local dist=level.vertex_position(o.center):distance_to(npc:position())
+        if o.community and o.community==npc:character_community() then dist=dist*0.7 end
+        if dist<mindist then
+          mindist=dist
+          lvid=o.center
+        end
+      end
+    end
+  end
+  return lvid
+end
+
+function bgwith(str,ptr)
+ local ps=string.find(str,ptr)
+ return ps~=nil and ps==1
+end
+
+function spawn_item_in_inv(spawn_item,npc)
+  if npc==nil then
+    npc=db.actor
+  end
+  return alife():create(spawn_item,
+      npc:position(),
+      npc:level_vertex_id(),
+      npc:game_vertex_id(),
+      npc:id())
+end
+
+function hit_armor()
+	armor_damage = 0.2
+	local armor = db.actor:item_in_slot(6)
+	if armor then
+		local protection = utils.cfg_get_number(system_ini(), armor:section(), "explosion_protection", nil, false, 0.4)
+		if protection <= 0 then protection = 0.05 end
+		local factor = math.pow(protection, 0.33) * (1-armor_damage)
+		armor:set_condition(armor:condition()*factor)
+	end
+end
+
+function hit_actor(a)
+	if a == nil then a = 1 end
+	local h = hit()
+    h.power = a
+    h.impulse = 1
+	h.draftsman = db.actor
+	h.direction = vector():set(0,0,0)
+	h:bone("bip01_spine")
+	h.type = hit.fire_wound
+	db.actor:hit(h)
+	level.add_pp_effector("amk_shoot.ppe", 2011, false)
+	local active_item = db.actor:active_item()
+	if active_item and active_item:section()~= "bolt" and active_item:section()~= "wpn_knife" then
+		db.actor:drop_item(active_item)
+	end
+end
+
+function hit_npc(obj)
+	local h = hit()
+    h.power = 3
+    h.impulse = 3
+	h.draftsman = obj
+	h.direction = vector():set(0,0,0)
+	h:bone("bip01_spine")
+	h.type = hit.fire_wound
+	obj:hit(h)
+	amk_particle.amk_particle({particle=[[explosions\explosion_dynamite]], pos=obj:position(), sound=[[weapons\rpg7_explode]]})
+	amk_particle.amk_particle({particle=[[anomaly2\body_tear_01]], pos=obj:position(), sound=[[anomaly\anomaly_body_tear_1]]})
+	amk_particle.amk_particle({particle=[[anomaly2\body_tear_00]], pos=obj:position(), sound=[[anomaly\anomaly_body_tear_1]]})
+end
+
+function hit_npc_sui(obj)
+	local h = hit()
+    h.power = 3
+    h.impulse = 3
+	h.draftsman = obj
+	h.direction = vector():set(0,0,0)
+	h:bone("bip01_spine")
+	h.type = hit.fire_wound
+	obj:hit(h)
+end
+
+function hit_stalkers(pos)
+	for i = 1,65535 do
+		local obj = level.object_by_id(i)
+		if obj and obj:alive() and IsStalker(obj) then
+			local pow = 1
+			local dist = obj:position():distance_to(pos)
+			if dist <= 7 then
+				pow = 0.1
+				if dist <= 6 then
+					pow = 0.3
+				end
+				if dist <= 5 then
+					pow = 0.5
+				end
+				if dist <= 4 then
+					pow = 0.8
+				end
+				if dist <= 3 then
+					pow = 1
+				end
+				if dist <= 3 then
+					pow = 1.2
+				end
+				if dist <= 2 then
+					pow = 1.5
+				end
+				if dist <= 1 then
+					pow = 2
+				end
+				local h = hit()
+				h.power = pow
+				h.impulse = 1
+				h.draftsman = obj
+				h.direction = vector():set(0,0,0)
+				h:bone("bip01_spine")
+				h.type = hit.fire_wound
+				obj:hit(h)
+			end
+		end
+	end
+end
+
+function load_variable(variable_name, value_if_not_found)
+  local vn=compress_name(variable_name)
+  return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+end
+
+function compress_name(name)
+  return name
+end
+
+function get_nearest_heli(npc, attack_dist_sqr)
+    local npc_position = npc:position()
+    local heli = nil
+    for k,v in pairs(db.heli) do
+        if v:position():distance_to_sqr(npc_position) <= attack_dist_sqr and is_hostile(npc:character_community(),v) and v:get_helicopter():isVisible(npc) and (heli == nil or v:position():distance_to_sqr(npc_position) < heli:position():distance_to_sqr(npc_position)) and is_heli_alive(v) then
+            heli = v
+        end
+    end
+    return heli
+end
+
+function is_hostile(comm,target)
+	if IsMonster(target) then
+		return true
+	end
+	local t_comm_number = 1
+	local t_comm = "actor"
+	if IsStalker(target) then
+		t_comm = target:character_community()
+	elseif string.find(target:section(),"helicopter") then
+		if target:spawn_ini():line_exist("logic","community") then
+			t_comm = ini:r_string("logic","community")
+		else
+			t_comm = "military"
+		end
+	elseif string.find(target:name(),"btr") then
+		t_comm = "military"
+	end
+	local hostile_treshold = tonumber(system_ini():r_string("game_relations", "attitude_neutal_threshold"))
+	local comm_attitude = parse_data(system_ini():r_string("communities_relations", comm))
+	local comm_list = parse_data(system_ini():r_string("game_relations", "communities"))
+	for k,v in pairs (comm_list) do
+		if t_comm == tostring(v) then
+			t_comm_number = (k+1)/2
+			break
+		end
+	end
+	attitude = tonumber(comm_attitude[t_comm_number]) or -5000
+	return attitude < hostile_treshold
+end
+
+function get_target_priority(obj)
+	if not obj then return 0 end
+	local prior = 1
+	if IsStalker(obj) then
+	local wpn = obj:item_in_slot(obj:active_slot())
+	if wpn then
+		local ammo, fm
+		if system_ini():line_exist(wpn:section(), "ammo_class") then
+			ammo = system_ini():r_string(wpn:section(), "ammo_class")
+			if (string.find(ammo, "9x18") -- пистолетные патроны
+				or string.find(ammo, "9x19")
+				or string.find(ammo, "7.62x25")
+				or string.find(ammo, "11.43x23")
+				or string.find(ammo, "357")
+				or string.find(ammo, "samopal")
+				or string.find(ammo, "bolt")
+					or string.find(ammo, "12x7"))
+				then
+				prior = prior + 1
+			elseif (string.find(ammo, "5.45x39")
+				or string.find(ammo, "5.56x45") 
+				or string.find(ammo, "7.62x39")
+				or string.find(ammo, "9x39"))
+				then
+				prior = prior + 2
+			elseif (string.find(ammo, "7.62x51")
+				or string.find(ammo, "7.62x54")
+				or string.find(ammo, "7.92x75"))
+				then
+				prior = prior + 3
+			else
+				prior = prior + 4
+			end
+		end
+		if system_ini():line_exist(wpn:section(), "fire_modes") then
+			fm = system_ini():r_string(wpn:section(), "fire_modes")
+			if string.sub(fm,-2,-1) == "-1" then
+				prior = prior + 1
+			end
+		end
+	end
+	elseif string.find(obj:name(),"btr") then
+		prior = 6
+	elseif string.find(obj:section(),"helicopter") then
+		prior = 7
+	end
+	return prior
+end
+
+function parse_data(str)
+	local string_parts = {}
+	if str == nil then
+		string_parts[1] = nil
+		return string_parts
+	end
+	local str_beg,str_end
+	str_end = str
+	local split_pos = find_split_pos(str_end)
+	while split_pos ~= nil do
+		str_beg, str_end = split_string(str_end,split_pos)
+		table.insert(string_parts,str_beg)
+		split_pos = find_split_pos(str_end)
+	end
+	table.insert(string_parts,str_end)
+	return string_parts
+end
+
+function IsMonster (object, class_id)
+return _g.IsMonster (object, class_id)
+end
+
+function IsStalker (object, class_id)
+    local id = class_id or get_clsid (object)
+    if id == clsid.actor or id == clsid.script_stalker then
+       return true
+    end
+    return false
+end
+
+function find_split_pos(str)
+	local split_pos = string.find(str,",")
+	if split_pos == nil then
+		return nil
+	end
+	local br1_pos = string.find(str,"(",1,true)
+	local br2_pos = string.find(str,")",1,true)
+	if br1_pos ~= nil and br2_pos ~= nil and br1_pos < br2_pos and split_pos > br1_pos then
+		local str_end1 = string.sub(str,(br2_pos +1),string.len(str))
+		if string.find(str_end1,",") ~= nil then
+			split_pos = br2_pos + string.find(str_end1,",")
+		else
+			split_pos = nil
+		end
+	end
+	return split_pos
+end
+
+function get_clsid(npc)
+	if npc == nil then return nil end
+	return npc:clsid()
+end
+
+function split_string(str,split_pos)
+	local str_beg = (string.sub(str,1,split_pos-1))
+	local str_end = string.sub(str,(split_pos+1),string.len(str))
+	return str_beg,str_end
+end
+
+function get_heli_health(heli, st)
+	local health
+	if st.invulnerable then
+		health = heli:GetfHealth()
+	else
+		health = heli:GetfHealth()
+		if health < 0 then
+			heli:SetfHealth( 0 )
+			health = 0
+		end
+	end
+	return health
+end
+
+function is_heli_alive(obj)
+	return get_heli_health( obj:get_helicopter(), db.storage[obj:id()] ) > 0.0001
+end
+
+function look_pos(heli, npc, bullet_speed)
+	local heli_speed_vec = heli:get_helicopter():GetCurrVelocityVec()
+	local heli_speed = heli_speed_vec:magnitude()
+	local heli_speed_2 = heli_speed*heli_speed
+	local bullet_speed_2 = bullet_speed*bullet_speed
+	local r1 = vector():sub(heli,npc)
+	local dist = r1:magnitude()
+	local a = heli_speed_2 - bullet_speed_2 -- <0
+	local b = r1:dotproduct(heli_speed_vec) -- >0
+	local c = dist*dist  -- >0
+	local dt = (-b - math.sqrt(b*b - a*c))/a
+	return heli:position():mad(heli_speed_vec, dt + 60)
+end
+
+function get_bs(npc)
+	if npc:active_item() then
+		return system_ini():r_float(npc:active_item():section(),"bullet_speed")
+	end
+	return 100
+end
+
+function parse_list(ini,sec,val,convert)
+	local tmp = str_explode(",",read_from_ini(ini,sec,val,"",1),true)
+	if convert and #tmp ~= 0 then
+		local t = {}
+		for i,v in ipairs(tmp) do
+			t[v] = true
+		end
+		return t
+	end
+	return tmp
+end
+
+function str_explode(div,str,clear)
+	local t = {}
+	local cpt = string.find(str,div,1,true)
+	if cpt then
+		repeat
+			if clear then
+				table.insert(t,trim(string.sub(str,1,cpt-1)))
+			else
+				table.insert(t,string.sub(str,1,cpt-1))
+			end
+			str = string.sub(str,cpt+string.len(div))
+			cpt = string.find(str,div,1,true)
+		until cpt == nil
+	end
+	if clear then
+		table.insert(t,trim(str))
+	else
+		table.insert(t,str)
+	end
+	return t
+end
+
+function read_from_ini(ini,sec,lin,def,typ)
+	if not ini then
+		ini = system_ini()
+	end
+	if sec and lin and ini:section_exist(sec) and ini:line_exist(sec,lin) then
+		if typ == 0 then
+			return ini:r_bool(sec,lin)
+		elseif typ == 1 then
+			return ini:r_string(sec,lin)
+		elseif typ == 2 then
+			return ini:r_string_wq(sec,lin)
+		else
+			return ini:r_float(sec,lin)
+		end
+	else
+		return def
+	end
+end
+
+function trim(s)
+	return (string.gsub(s,"^%s*(.-)%s*$","%1"))
+end
+
+function get_storage(id,name)
+	if not id then
+		return
+	end
+	local st = db.storage[id]
+	if not st then
+		return
+	end
+	if not st.mon_ai then
+		st.mon_ai = {}
+	end
+	if not name then
+		return st.mon_ai
+	end
+	if not st.mon_ai[name] then
+		st.mon_ai[name] = {}
+	end
+	return st.mon_ai[name]
+end
+
+function read_stalker_params(sobj)
+  local stpk=net_packet()
+  local uppk=net_packet()
+  sobj:STATE_Write(stpk)
+  sobj:UPDATE_Write(uppk)
+  local size=stpk:w_tell()
+  local size1=uppk:w_tell()
+  stpk:r_seek(0)
+  uppk:r_seek(0)
+  local ret = {}
+  ret.money=stpk:r_s32()
+  ret.profile=stpk:r_stringZ()
+  ret.infammo=stpk:r_s32()
+  ret.class=stpk:r_stringZ()
+  ret.communityid=stpk:r_s32()
+  ret.rank=stpk:r_s32()
+  ret.reputation=stpk:r_s32()
+  ret.charname=stpk:r_stringZ()
+  ret.gvid=stpk:r_u16()
+  ret.obf32u1=stpk:r_float()
+  ret.obs32u2=stpk:r_s32()
+  ret.lvid=stpk:r_s32()
+  ret.oflags=stpk:r_s32()
+  ret.custom=stpk:r_stringZ()
+  ret.sid=stpk:r_s32()
+  ret.obs32u3=stpk:r_s32()
+  ret.visual=stpk:r_stringZ()
+  ret.vsu8u1=stpk:r_u8()
+  ret.team=stpk:r_u8()
+  ret.squad=stpk:r_u8()
+  ret.group=stpk:r_u8()
+  ret.health=stpk:r_float()
+  ret.crvu32u16u1=readvu32u16(stpk)
+  ret.crvu32u16u2=readvu32u16(stpk)  
+  ret.killerid=stpk:r_u16()
+  ret.game_death_time=readvu8u8(stpk)
+  ret.updhealth=updpk:r_float()
+  ret.upds32u1=updpk:r_s32()
+  ret.updu8u2=updpk:r_u8()
+  ret.updpos={} -- или поставить вектор? ладно потом
+  ret.updpos.x=updpk:r_float()
+  ret.updpos.y=updpk:r_float()
+  ret.updpos.z=updpk:r_float()
+  ret.updmodel=updpk:r_float()
+  ret.upddir={}
+  ret.upddir.x=updpk:r_float()
+  ret.upddir.y=updpk:r_float()
+  ret.upddir.z=updpk:r_float()
+  ret.updteam=updpk:r_u8()
+  ret.updsquad=updpk:r_u8()
+  ret.updgroup=updpk:r_u8()  
+  ret.baseoutr=stpk:r_stringZ()
+  ret.baseinr=stpk:r_stringZ()
+  ret.smtrid=stpk:r_u16()
+  ret.smtrtaskactive=stpk:r_u8()
+  ret.updu16u1=updpk:r_u16()
+  ret.updu16u2=updpk:r_u16()
+  ret.upds32u3=updpk:r_s32()
+  ret.upds32u4=updpk:r_s32()
+  ret.huvu32u8u1=readvu32u8(stpk)
+  ret.huvu32u8u2=readvu32u8(stpk)
+  ret.skeleton=stpk:r_stringZ()
+  ret.skeleton_flags=stpk:r_u8()
+  ret.source_id=stpk:r_u16()
+  ret.hellodlg=updpk:r_stringZ()
+  ret.stunk1={}
+  for i=stpk:r_tell(),size-1,1 do
+    table.insert(ret.stunk1,stpk:r_u8())
+  end
+  return ret
+end
+
+function get_breakable_data(sobj)
+  local stpk=net_packet()
+  local uppk=net_packet()
+  sobj:STATE_Write(stpk)
+  sobj:UPDATE_Write(uppk)
+  local size=stpk:w_tell()
+  local size1=uppk:w_tell()
+  stpk:r_seek(0)
+  uppk:r_seek(0)
+  local ret={}
+  ret.gvid=stpk:r_u16()
+  ret.obf32u1=stpk:r_float()
+  ret.obs32u2=stpk:r_s32()
+  ret.lvid=stpk:r_s32()
+  ret.oflags=stpk:r_s32()
+  ret.custom=stpk:r_stringZ()
+  ret.sid=stpk:r_s32()
+  ret.obs32u3=stpk:r_s32()
+  ret.visual=stpk:r_stringZ()
+  ret.vsu8u1=stpk:r_u8()
+  ret.physic_type=stpk:r_s32()
+  ret.mass=stpk:r_float()
+  ret.fixed_bones=stpk:r_stringZ()
+  return ret
+end

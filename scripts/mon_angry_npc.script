@@ -1,0 +1,73 @@
+------------------------------------
+-- Модуль "Злая непися".
+-- Created by Monnoroch.
+-- 27.02.10
+------------------------------------
+
+local npcs = {}
+
+class "evaluator_angry_npc" (property_evaluator)
+function evaluator_angry_npc:__init(npc,name,storage) super (nil,name)
+	self.npc = npc
+end
+function evaluator_angry_npc:evaluate()
+	if (not self.npc:see(db.actor)) or (db.actor:relation(self.npc) == game_object.enemy) then
+		return false
+	end
+	for k,v in pairs(npcs) do
+		if self.npc:relation(level.object_by_id(v)) ~= game_object.enemy then
+			return true
+		end
+	end
+	return false
+end
+function evaluator_angry_npc:on_death_by_actor(npc)
+	table.insert(npcs,npc:id())
+end
+
+class "action_angry_npc" (action_base)
+function action_angry_npc:__init (npc,action_name,storage) super (nil,action_name)
+	self.npc = npc
+end
+function action_angry_npc:initialize()
+	action_base.initialize(self)
+end
+function action_angry_npc:execute()
+	action_base.execute(self)
+	self.npc:set_relation(game_object.enemy, db.actor)
+end
+function action_angry_npc:finalize()
+	action_base.finalize(self)
+end
+
+evid_angry_npc = mon_ai.evid_mon_base + 10
+actid_angry_npc = evid_angry_npc
+
+function add_to_binder(npc,ini,scheme,section,storage)
+	local manager = npc:motivation_action_manager()
+	local com = npc:character_community()
+	if com == "zombied" or com == "trader" or mon_utils.urodi[npc:name()] or npc:story_id() ~= 4294967296 then
+		manager:add_evaluator(evid_angry_npc,property_evaluator_const(false))
+		return
+	end
+	manager:add_evaluator(evid_angry_npc,evaluator_angry_npc(npc,"eva_angry_npc",storage))
+	local action = action_angry_npc(npc,"act_angry_npc",storage)
+	action:add_precondition(world_property(stalker_ids.property_alive,true))
+	action:add_precondition(world_property(xr_evaluators_id.sidor_wounded_base,false))
+	action:add_precondition(world_property(evid_angry_npc,true))
+	action:add_effect(world_property(evid_angry_npc,false))
+	manager:add_action(actid_angry_npc,action)
+	action = manager:action(xr_actions_id.alife)
+	action:add_precondition(world_property(evid_angry_npc,false))
+end
+
+function set_scheme(npc,ini,scheme,section)
+	local st = xr_logic.assign_storage_and_bind(npc,ini,scheme,section)
+end
+
+function disable_scheme(npc, scheme)
+	local st = db.storage[npc:id()][scheme]
+	if st then
+		st.enabled = false
+	end
+end

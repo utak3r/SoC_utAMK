@@ -1,0 +1,9 @@
+
+local mod_news={
+"%c[255,160,160,160]utak3r:\\n%c[default] utAMK is the best mod ever!"
+}
+
+function get_strings()
+	local news=mod_news[math.random(table.getn(mod_news))]
+	return news
+end

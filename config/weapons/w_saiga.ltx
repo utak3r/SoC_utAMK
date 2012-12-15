@@ -1,0 +1,210 @@
+[wpn_saiga]:identity_immunities
+GroupControlSection		= spawn_group
+discovery_dependency 	= 
+$spawn                  = "weapons\saiga"					; option for Level Editor
+$npc			 		= on				; option for Level Editor
+$prefetch 		 		= 8
+scheduled               = off              ; option for ALife Simulator
+cform                   = skeleton
+class                   = WP_VAL
+min_radius              = 30
+max_radius              = 100
+description				= "The Saiga-12 is a Kalashnikov-pattern 12 gauge combat shotgun available in a wide range of configurations. Like the Kalashnikov rifle variants, it is a rotating bolt, gas-operated gun that feeds from a box magazine. The Saiga-12 is manufactured by the arms division of Izhmash, in Russia. It was previously imported into the US by European American Armories, although their agreement expired in 2005 and Izhmash is now exporting through the Russian-American Armory Company."
+
+ef_main_weapon_type		= 2
+ef_weapon_type			= 6
+
+;-----------------------------------------------------------------------------------
+holder_range_modifier	= 0.9
+holder_fov_modifier		= 1.3
+;-----------------------------------------------------------------------------------
+
+weapon_class			= assault_rifle
+
+cost					= 3400
+
+ammo_elapsed			= 7
+ammo_mag_size		 	= 30
+ammo_class		 		= ammo_5.45x39_fmj,ammo_5.45x39_ap
+fire_modes				= 1, -1
+f_mode					= 2
+launch_speed			= 0
+grenade_class			= ammo_vog-25, ammo_vog-25p			; name of the ltx-section of used grenades 
+
+hand_dependence		 	= 1
+single_handed			= 0
+
+inv_name				= Saiga-12K
+inv_name_short			= Saiga-12K
+inv_weight				= 3.6
+
+inv_grid_width			= 4
+inv_grid_height			= 1
+inv_grid_x				= 16
+inv_grid_y				= 34
+
+kill_msg_x			= 72
+kill_msg_y			= 82
+kill_msg_width		= 56
+kill_msg_height		= 23
+
+slot 					= 2
+animation_slot			= 2
+
+;-----------------------------------------------------------------------------------
+;params of weapon recoil
+fire_dispersion_base			= 0.15		;угол (в градусах) базовой дисперсии оружия (оружия зажатого в тисках)
+control_inertion_factor			= 1.25f
+
+;отдача
+cam_relax_speed         	= 5.5		;скорость возврата в исходное положение
+cam_relax_speed_ai         	= 120.75
+cam_dispersion          	= 0.62		;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc			= 0.16		;увеличениe cam_dispersion с каждым выстрелом
+cam_dispertion_frac			= 0.7		;ствол будет подыматься на cam_dispersion*cam_dispertion_frac +- cam_dispersion*(1-cam_dispertion_frac)
+cam_max_angle				= 8	    	;максимальный угол отдачи
+cam_max_angle_horz			= 20.0		;(degree) maximum shot horizontal degree 
+cam_step_angle_horz			= 2.3;1		;(degree) size of step camera moved in horizontal position while shooting
+
+fire_dispersion_condition_factor 	= 1.2		;увеличение дисперсии в процентах при максимальном износе 
+misfire_probability 	= 0.0002	;вероятность осечки при максимальном износе 
+misfire_condition_k		= 0.015
+condition_shot_dec 		= 0.00003	;увеличение износа при каждом выстреле
+;-----------------------------------------------------------------------------------
+
+direction               = 0, 0, 1
+
+fire_point             	=  0,0.216,0.615
+flame_particles			= weapons\generic_weapon05
+smoke_particles				= weapons\generic_shoot_00
+grenade_flame_particles		= weapons\generic_weapon01
+shell_particles	 			= weapons\generic_shells
+
+shell_point		 		= 0,0.216,0.174
+shell_dir		 		= 0.0, 1.0, 0.0
+
+rpm_empty_click 	 	= 200
+
+PDM_disp_base 			= 2.25
+PDM_disp_vel_factor 		= 0.8
+PDM_disp_accel_factor 		= 0.8
+PDM_crouch	 		= 1.0
+PDM_crouch_no_acc 		= 1.0
+
+hit_power                	= 0.8		; size of damage by bullet
+hit_impulse		 			= 100		; size of physic impulse by bullet	
+hit_type 					= fire_wound 	; [] type of the wound
+fire_distance            	= 200		; maximum fire distance that bullet can fly
+bullet_speed				= 560		; starting bullet speed
+rpm                      	= 500		; max round per minute
+
+use_aim_bullet			= false		;Поддерживается ли первая суппер пуля
+time_to_aim					= 1.0
+
+silencer_hit_power       	= 0.72
+silencer_hit_impulse	 	= 25
+silencer_fire_distance   	= 100
+silencer_bullet_speed	 	= 260
+
+hud                     = wpn_saiga_hud
+normal                  = 0, 1, 0
+position         	    = -0.026,-0.172,0
+orientation             = 0, 0, 0
+
+;--STRAP PARAMETERS-----------------------------------------------------------------
+strap_position         		= -0.16,-0.36,0.15			; position (offset) and orientation of the weapon when it is strapped
+strap_orientation      		= -10,-5,10					; (3rd person view in degrees)
+strap_bone0					= bip01_spine2
+strap_bone1					= bip01_spine1
+
+visual                  = weapons\saiga\wpn_saiga.ogf
+
+light_color		 		= 0.6,0.5,0.3
+light_range		 		= 5
+light_var_color		 	= 0.05
+light_var_range		 	= 0.1
+light_time 		 		= 0.2
+
+;addons
+scope_status			= 0
+silencer_status			= 2
+grenade_launcher_status	= 0
+
+scope_name 					= wpn_addon_scope			; section name for the attachable scope
+scope_x 					= 50						; offset in inventory icon
+scope_y 					= -4
+
+silencer_name  				= wpn_addon_silencer
+silencer_x 					= 194
+silencer_y 					= 8
+
+;silencer_flame_particles 	= weapons\generic_weapon01
+silencer_smoke_particles 	= weapons\generic_shoot_00
+
+silencer_light_color		= 1.0, 0.1, 0.0
+silencer_light_range		= 0.01
+silencer_light_var_color	= 0.05
+silencer_light_var_range	= 0.5
+silencer_light_time 		= 0.2
+
+zoom_enabled		= true
+scope_zoom_factor	= 93.3
+
+;звуки
+snd_draw			= weapons\generic_draw
+snd_holster			= weapons\generic_holster
+snd_shoot			= weapons\saiga_shot
+snd_empty			= weapons\gen_empty, 0.5
+snd_reload			= weapons\saiga_reload
+snd_silncer_shot	= weapons\ak74_silenced
+snd_shoot_grenade			= weapons\gen_grenshoot
+snd_reload_grenade			= weapons\gen_grenload, 1.0, 0.8
+snd_switch					= weapons\groza_switch, 1.0, 0.5
+
+;params when silencer is attached 
+;similar to corresponding params without prefix silencer_
+
+[wpn_saiga_hud]
+allow_inertion				= true
+zoom_hide_crosshair	= true
+
+shell_point         = 0.00, 0.00, 0.00
+shell_dir		    = 0.0, 0.0, 0.0
+
+fire_point          = 0.080000,-0.007000,-0.006000
+fire_bone           = wpn_body
+orientation         = 0, 0, 0
+position            = 0, 0, 0
+visual              = weapons\saiga\wpn_saiga_hud.ogf
+
+grenade_bone            	= wpn_silencer
+
+anim_idle			= idle
+anim_idle_aim		= idle_aim
+anim_reload			= reload
+anim_draw			= draw
+anim_holster		= holster
+anim_shoot			= shoot
+anim_idle_sprint	= idle_sprint
+
+anim_idle_g					= idle
+anim_idle_g_aim				= idle_aim
+anim_reload_g				= reload
+anim_shoot_g				= shoot
+anim_switch_grenade_on		= idle
+anim_switch_grenade_off		= idle
+anim_draw_g					= draw
+anim_holster_g				= holster
+
+anim_idle_gl				= idle
+anim_idle_gl_aim			= idle
+anim_reload_gl				= reload
+anim_draw_gl				= draw
+anim_holster_gl				= holster
+anim_shoot_gl				= shoot
+anim_idle_sprint			= idle_sprint
+
+;смещения HUD для режима приближения
+zoom_offset			= -0.127051,0.025,-0.145000
+zoom_rotate_x		= -0.000001
+zoom_rotate_y		= 0.000001

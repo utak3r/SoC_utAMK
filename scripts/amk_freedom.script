@@ -1,0 +1,9 @@
+
+local freedom_news={
+"%c[255,160,160,160]FREEDOM:\\n%c[default]Join Freedom! Together we will make the Zone better!",
+}
+
+function get_strings()
+	local news=freedom_news[math.random(table.getn(freedom_news))]
+	return news
+end

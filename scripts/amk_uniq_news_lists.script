@@ -1,0 +1,13 @@
+
+local news_uniq={
+
+
+"%c[255,160,160,160]Yuri Semetsky:\\n%c[default] People... Don't listen to Him... all he tells is lies... He tricked me... I... can't..."
+
+}
+
+
+function get_strings()
+	local uniq=news_uniq[math.random(table.getn(news_uniq))]
+	return uniq
+end

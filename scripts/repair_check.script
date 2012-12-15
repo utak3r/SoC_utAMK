@@ -1,0 +1,426 @@
+--------------------------------------------------------------------------------------------------------
+-- Advanced Trader Weapon Repair v.1.2
+
+-- Basic version made by AMK Team
+-- then quite heavily modified by Black 777 Team (Wlad777 and BlackyBPG)
+-- and finally modified again by utak3r
+--------------------------------------------------------------------------------------------------------
+
+local weapon_profit_margin = 3
+local armor_profit_margin = 2
+
+-- names of technicians in SMS
+
+repairmaster = {
+		hnd_weap_01  = { "Sidorovich" },
+		hnd_weap_02  = { "Dan" },
+		hnd_weap_03  = { "Sak" },
+		hnd_weap_04  = { "Lanky" },
+		hnd_weap_05  = { "Barkeep" },
+		hnd_weap_06  = { "Skinflint" },
+		hnd_weap_07  = { "prof. Sacharov" }
+}
+
+local wpnsec=nil
+local stcode=0
+local check_sec = 0
+local tmpcode = 0
+local recheck
+local tt = 12
+
+
+-- 1=Variablenname; 2=weapon_profit_margin; 3=armor_profit_margin
+
+local repairmasterlist = {
+	escape_trader			= {"hnd_weap_01",4,4},
+	escape_trader_zombie	= {"hnd_weap_01",4,4},
+	esc_dan				= {"hnd_weap_02",4,4},
+	Sak					= {"hnd_weap_03",3,3},
+	dolgovazyi			= {"hnd_weap_04",1.6,1.5},
+	bar_barman			= {"hnd_weap_05",1.6,1.5},
+	bar_barman_zombi		= {"hnd_weap_05",1.6,1.5},
+	mil_Svoboda_trader		= {"hnd_weap_06",2,1.9},
+	mil_freedom_member0021	= {"hnd_weap_06",2,1.9},
+	mil_Svoboda_trader_zombi	= {"hnd_weap_06",2,1.9},
+	yantar_ecolog_general	= {"hnd_weap_07",1.8,1.7},
+	yan_general_ecolog		= {"hnd_weap_07",1.8,1.7},
+	yan_general_ecolog_zombi	= {"hnd_weap_07",1.8,1.7}
+}
+
+-- for DEBUGging
+
+function printf(str,...)
+	if not str then
+		str = "((string is nil))"
+	end
+	get_console():execute("load ~#I#:"..string.format(str,...))
+end
+
+
+-- does your weapon require repairing?
+
+function trader_repair_precond(actor, trader)
+	printf("trader_repair_precond. Trader name: "..trader:name())
+	wpnsec=nil
+	stcode=0
+	local var = repairmasterlist[trader:name()][1]
+	get_vars(var)
+	if stcode>=1 and wpnsec~=nil then return false end
+	local item_in_slot_1 = db.actor:item_in_slot(1)
+	local item_in_slot_2 = db.actor:item_in_slot(2)
+	local item_in_slot_6 = db.actor:item_in_slot(6)
+	if item_in_slot_1 ~= nil and 0.76 > item_in_slot_1:condition() + 0.01 then return true
+	elseif item_in_slot_2 ~= nil and 0.76 > item_in_slot_2:condition() + 0.01 then return true
+	elseif item_in_slot_6 ~= nil and 1 > item_in_slot_6:condition() + 0.01 then return true
+	else return false
+	end	 
+end
+
+-- does actor have enough money for the repair?
+
+function trader_check_money_s1(actor, trader)
+	local item_in_slot = db.actor:item_in_slot(1)
+	if item_in_slot ~= nil and 0.20 < item_in_slot:condition() + 0.01 then 
+		weapon_profit_margin = repairmasterlist[trader:name()][2]
+		printf("Weapon profit margin for trader "..trader:name().." is "..repairmasterlist[trader:name()][2])
+		local item_repair_cost = math.floor( (1-item_in_slot:condition()) * item_in_slot:cost() * weapon_profit_margin )
+		if item_repair_cost > 0 and db.actor:money() >= item_repair_cost then
+		-- and 0.76 > item_in_slot:condition() then
+			tmpcode = 0
+			return true
+		end 
+	end
+	return false
+end
+
+function trader_check_money_s2(actor, trader)
+	local item_in_slot = db.actor:item_in_slot(2)
+	if item_in_slot ~= nil and 0.20 < item_in_slot:condition() + 0.01 then 
+		weapon_profit_margin = repairmasterlist[trader:name()][2]
+		printf("Weapon profit margin for trader "..trader:name().." is "..repairmasterlist[trader:name()][2])
+		local item_repair_cost = math.floor( (1-item_in_slot:condition()) * item_in_slot:cost() * weapon_profit_margin )
+		if item_repair_cost > 0 and db.actor:money() >= item_repair_cost then 
+		-- and 0.76 > item_in_slot:condition() then
+			tmpcode = 0
+			return true
+		end 
+	end
+	return false
+end
+
+function trader_check_money_s6(trader, actor)
+	local item_in_slot = db.actor:item_in_slot(6)
+	if item_in_slot ~= nil then 
+		local item_repair_cost = math.floor( (1-item_in_slot:condition()) * item_in_slot:cost() * armor_profit_margin )
+		if item_repair_cost > 0 and db.actor:money() >= item_repair_cost and 1 > item_in_slot:condition() then
+			return true
+		end 
+	end
+	return false
+end
+
+-- take the weapon away, pay for it and start the timer
+
+function trader_repiar_weapon_s1(actor, trader)
+	printf("trader_repiar_weapon_s1")
+	local item_in_slot = db.actor:item_in_slot(1)
+	if item_in_slot ~= nil then
+		local wpn = item_in_slot:section()
+		local var = repairmasterlist[trader:name()][1]
+		weapon_profit_margin = repairmasterlist[trader:name()][2]
+		local item_repair_cost = math.floor( (1-item_in_slot:condition()) * item_in_slot:cost() * weapon_profit_margin )
+		dialogs.relocate_money(actor, item_repair_cost, "out")
+		tt = 1
+		if item_repair_cost > 3000 and item_repair_cost < 6001 then tt = 2
+		elseif item_repair_cost > 6000 and item_repair_cost < 12001 then tt = 3
+		elseif item_repair_cost > 12000 then tt = 5
+		end
+		printf("Repairing time = "..tt)
+		remove_repairitem(1)
+		amk.save_variable(var,("1"..wpn))
+		amk.g_start_timer(var,0,tt,0)
+	end
+end
+
+function trader_repiar_weapon_s2(actor, trader)
+	printf("trader_repiar_weapon_s2")
+	local item_in_slot = db.actor:item_in_slot(2)
+	if item_in_slot ~= nil then
+		local wpn = item_in_slot:section()
+		local var = repairmasterlist[trader:name()][1]
+		weapon_profit_margin = repairmasterlist[trader:name()][2]
+		local item_repair_cost = math.floor( (1-item_in_slot:condition()) * item_in_slot:cost() * weapon_profit_margin )
+		dialogs.relocate_money(actor, item_repair_cost, "out")
+		tt = 1
+		if item_repair_cost > 3000 and item_repair_cost < 6001 then tt = 2
+		elseif item_repair_cost > 6000 and item_repair_cost < 12001 then tt = 3
+		elseif item_repair_cost > 12000 then tt = 5
+		end
+		printf("Repairing time = "..tt)
+		remove_repairitem(2)
+		amk.save_variable(var,("1"..wpn))
+		amk.g_start_timer(var,0,tt,0)
+	end
+end
+
+function trader_repiar_armor_s6(trader, actor)
+	local item_in_slot = db.actor:item_in_slot(6)
+	if item_in_slot ~= nil then
+		local item_repair_cost = math.floor( (1-item_in_slot:condition()) * item_in_slot:cost() * armor_profit_margin )
+		amk_mod.repair_armor(1)
+		dialogs.relocate_money(actor, item_repair_cost, "out")
+	end	
+end
+
+-- give away the weapon for repairing
+
+function remove_repairitem(slt)
+	if slt ~= nil then
+		local iis = db.actor:item_in_slot(slt)
+		local wpn = iis:section()
+		recheck = iis:id()
+		release_addons(alife():object(iis:id()),wpn,iis) 
+		alife():release(alife():object(iis:id()), true)
+		news_manager.relocate_item(db.actor, "out", wpn)
+		tmpcode = 0
+		recheck=nil
+	end
+end
+
+-- repairing is done. Let's send an SMS
+
+function do_release_action(par)
+	if par ~= nil then
+		wpnsec=nil
+		stcode=0
+		get_vars(par)
+		amk.save_variable(par,("2"..wpnsec))
+		local name = read_string_if_exist(system_ini(),wpnsec,"inv_name",nil)
+		local repmas = repairmaster[par][1]
+		local sms = "Marked One, it's "..tostring(repmas)..".\\n If you will be somewhere around, come to me, I've repaired your "
+		if name ~= nil then
+			sms = sms..game.translate_string(name)
+		else
+			sms = sms.."weapon"
+		end
+		sms = sms..". You can get it back.\\n See you!"
+		news_manager.send_tip(db.actor, sms, nil, "weaprep", 10000)
+	end
+end
+
+function can_give_weapon(actor, trader)
+	wpnsec=nil
+	stcode=0
+	local var = repairmasterlist[trader:name()][1]
+	get_vars(var)
+	if stcode >= 2 and wpnsec ~= nil then return true end
+	return false
+end
+
+-- get all the attached addons off and unload the weapon before repairing
+
+function release_addons(sobj,wpn,obj)
+	if sobj ~= nil then
+		local t = amk.get_weapon_data(sobj)
+		local h_scope = read_if_exist(system_ini(),wpn,"scope_status",nil)
+		local h_sil = read_if_exist(system_ini(),wpn,"silencer_status",nil)
+		local h_gren = read_if_exist(system_ini(),wpn,"grenade_launcher_status",nil)
+		if h_scope == 2 then
+			h_scope = read_string_if_exist(system_ini(),wpn,"scope_name",nil)
+			if h_scope ~= nil and (t.addon_flags == 1 or t.addon_flags == 3 or t.addon_flags == 5 or t.addon_flags == 7) then
+				h_scope = alife():create(h_scope, db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id(),db.actor:id())
+			end
+		end
+		if h_sil == 2 then
+			h_sil = read_string_if_exist(system_ini(),wpn,"silencer_name",nil)
+			if h_sil ~= nil and t.addon_flags >= 4 then
+				h_sil = alife():create(h_sil, db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id(),db.actor:id())
+			end
+		end
+		if h_gren == 2 then
+			h_gren = read_string_if_exist(system_ini(),wpn,"grenade_launcher_name",nil)
+			if h_gren ~= nil and (t.addon_flags == 2 or t.addon_flags == 3 or t.addon_flags == 6 or t.addon_flags == 7) then
+				h_gren = alife():create(h_gren, db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id(),db.actor:id())
+			end
+		end
+		-- obj:unload_magazine()
+		-- local ammo = obj:get_ammo_in_magazine()
+		-- local name = obj:name()
+		-- local ammoT = t.ammo_type
+		-- printf("ammo: "..obj:get_ammo_in_magazine().."; name: "..obj:name().."; ammoT: "..t.ammo_type)
+		-- local section_ammo = restriction_stock.weapons_ammo_sections(name,ammoT)
+		-- if section_ammo ~= nil and ammo >= 1 then
+		-- 	amk.spawn_ammo_in_inv(section_ammo, ammo, db.actor)
+		-- end
+	end
+end
+
+-- give a brand new weapon to the player
+
+function give_weapon_to_player(trader, actor)
+	wpnsec=nil
+	stcode=0
+	local var = repairmasterlist[trader:name()][1]
+	get_vars(var)
+	if wpnsec ~= nil then
+		amk.del_variable(var)
+		local wpn_c = alife():create(wpnsec, db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id(), db.actor:id())
+		-- dialogs.relocate_item_section(db.actor, wpnsec, "in")
+		amk.start_timer("unload_rep_weapon",1,wpn_c.id)
+		news_manager.relocate_item(db.actor, "in", wpnsec)
+	end
+end
+
+function weapon_unload(objid)
+	if objid ~= nil then
+		local wpn = level.object_by_id(objid)
+		wpn:unload_magazine()
+	end
+end
+
+-- timers
+
+function show_timer1(actor,trader)
+	if tt == 1 then return true end
+	return false
+end
+function show_timer2(actor,trader)
+	if tt == 2 then return true end
+	return false
+end
+function show_timer3(actor,trader)
+	if tt == 3 then return true end
+	return false
+end
+function show_timer4(actor,trader)
+	if tt == 5 then return true end
+	return false
+end
+
+-- checking the repairs possibilities
+
+function repair_costs(first_speaker, second_speaker)
+	printf("repair_costs start")
+	local task_texture, task_rect = get_texture_info("ui_iconsTotal_lost_money")
+	
+	local item_name_and_price1
+	local item_name_and_price2
+	if db.actor ~= nil then 
+		local item_in_slot_1 = db.actor:item_in_slot(1)
+		local item_in_slot_2 = db.actor:item_in_slot(2)
+		local item_in_slot_6 = db.actor:item_in_slot(6)
+
+		if item_in_slot_1 ~= nil then 
+			local item_repair_cost1 = math.floor( (1-item_in_slot_1:condition()) * item_in_slot_1:cost() * weapon_profit_margin )
+			tmpcode = 0
+			local name1 = read_string_if_exist(system_ini(),item_in_slot_1:section(),"inv_name",nil)
+			if (item_repair_cost1 > 0) then
+				if (db.actor:money() >= item_repair_cost1) and (0.20 < item_in_slot_1:condition() + 0.01) then
+					item_name_and_price1 = "Repairing "..game.translate_string(name1).." will cost you %c[255,238,155,23]"..item_repair_cost1.." Rubel%c[default] in advance."
+				elseif (db.actor:money() < item_repair_cost1) and (0.20 < item_in_slot_1:condition() + 0.01) then
+					item_name_and_price1 = "Repairing "..game.translate_string(name1).." would cost you %c[255,255,32,23]"..item_repair_cost1.."  Rubel%c[default], but you don't have enough cash, as I take it in advance."
+				elseif (0.20 > item_in_slot_1:condition() + 0.01) then
+					item_name_and_price1 = "Uh, I'm not able to repair "..game.translate_string(name1)..", it's a crap already... I can buy it from you for, let's say... 200 Rubel."
+				end
+				if item_name_and_price1 ~= nil then
+					db.actor:give_talk_message(item_name_and_price1, task_texture, task_rect, "iconed_trade_info")
+				end
+			end
+		end
+		if item_in_slot_2 ~= nil then
+			local item_repair_cost2 = math.floor( (1-item_in_slot_2:condition()) * item_in_slot_2:cost() * weapon_profit_margin )
+			tmpcode = 0
+			local name2 = read_string_if_exist(system_ini(),item_in_slot_2:section(),"inv_name",nil)
+			if (item_repair_cost2 > 0) then
+				if (db.actor:money() >= item_repair_cost2) and (0.20 < item_in_slot_2:condition() + 0.01) then
+					item_name_and_price2 = "Repairing "..game.translate_string(name2).." will cost you %c[255,238,155,23]"..item_repair_cost2.." Rubel%c[default] in advance."
+				elseif (db.actor:money() < item_repair_cost2) and (0.20 < item_in_slot_2:condition() + 0.01) then
+					item_name_and_price2 = "Repairing "..game.translate_string(name2).." would cost you %c[255,255,32,23]"..item_repair_cost2.."  Rubel%c[default], but you don't have enough cash, as I take it in advance."
+				elseif (0.20 > item_in_slot_2:condition() + 0.01) then
+					item_name_and_price2 = "Uh, I'm not able to repair "..game.translate_string(name2)..", it's a crap already... I can buy it from you for, let's say... 200 Rubel."
+				end
+				if item_name_and_price2 ~= nil then
+					db.actor:give_talk_message(item_name_and_price2, task_texture, task_rect, "iconed_trade_info")
+				end
+			end
+		end
+		if item_in_slot_6 ~= nil then
+			local item_repair_cost = math.floor( (1-item_in_slot_6:condition()) * item_in_slot_6:cost() * armor_profit_margin )
+			if item_repair_cost > 0 then
+				local item_name_and_price = game.translate_string("list_trader_repair_2").." %c[255,238,155,23]"..item_repair_cost.." Rubel%c[default]"
+				db.actor:give_talk_message(item_name_and_price, task_texture, task_rect, "iconed_trade_info")
+			end
+		end
+	end
+end
+
+-- check if the weapon isn't already a crap
+
+function check_damaged1(actor, trader)
+	local item_in_slot = db.actor:item_in_slot(1)
+	if item_in_slot ~= nil then
+		if (0.20 > item_in_slot:condition() + 0.01) then return true end
+	end
+	return false
+end
+
+function check_damaged2(actor, trader)
+	local item_in_slot = db.actor:item_in_slot(2)
+	if item_in_slot ~= nil then
+		if (0.20 > item_in_slot:condition() + 0.01) then return true end
+	end
+	return false
+end
+
+-- sell the crap for few dollars...
+
+function pay_damaged1(actor, trader)
+	local item_in_slot = db.actor:item_in_slot(1)
+	if item_in_slot ~= nil then
+		news_manager.relocate_item(db.actor, "out", item_in_slot:section())
+		alife():release(alife():object(item_in_slot:id()), true)
+		dialogs.relocate_money(db.actor, 200, "in")
+	end
+	return false
+end
+
+function pay_damaged2(actor, trader)
+	local item_in_slot = db.actor:item_in_slot(2)
+	if item_in_slot ~= nil then
+		news_manager.relocate_item(db.actor, "out", item_in_slot:section())
+		alife():release(alife():object(item_in_slot:id()), true)
+		dialogs.relocate_money(db.actor, 200, "in")
+	end
+	return false
+end
+
+------------------------------------------------------------------
+------------------------ UTILITY FUNCTIONS ------------------------
+------------------------------------------------------------------
+function get_vars(amkvar)
+	local strg = amk.load_variable(amkvar,nil)
+	if strg ~= nil then
+		wpnsec = string.sub(strg,2,string.len(strg))
+		stcode = tonumber(string.sub(strg,1,1))
+	else
+		wpnsec = nil
+		stcode = 0
+	end
+end
+
+function read_if_exist(ltx, section, value, default)
+	if ltx:line_exist(section,value) then
+		return ltx:r_float(section,value)
+	else
+		return default
+	end
+end
+
+function read_string_if_exist(ltx, section, value, default)
+	if ltx:line_exist(section,value) then
+		return ltx:r_string(section,value)
+	else
+		return default
+	end
+end
+

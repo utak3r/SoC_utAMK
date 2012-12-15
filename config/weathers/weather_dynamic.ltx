@@ -1,0 +1,2343 @@
+;*
+;* weather_dynamic.ltx:
+;*     7 cycles loaded
+;*   295 transitions generated
+;*
+
+
+#include "weather_beta.ltx"
+#include "weather_dry.ltx"
+#include "weather_foggy.ltx"
+#include "weather_rainy.ltx"
+#include "weather_grey.ltx"
+#include "weather_stormy.ltx"
+#include "weather_thunder.ltx"
+
+
+[weather_cycles]
+;id = name, # to, # from, weight to, weight from
+1 = beta, 49, 53, 86, 80
+2 = dry, 35, 41, 120, 103
+3 = foggy, 36, 28, 117, 151
+4 = grey, 43, 45, 98, 94
+5 = rainy, 50, 38, 84, 111
+6 = stormy, 38, 31, 111, 136
+7 = thunder, 44, 59, 96, 71
+
+
+[weather_transition_times]
+0    = weather_transition_list0000    ; 00:00
+60   = weather_transition_list0100    ; 01:00
+120  = weather_transition_list0200    ; 02:00
+180  = weather_transition_list0300    ; 03:00
+240  = weather_transition_list0400    ; 04:00
+300  = weather_transition_list0500    ; 05:00
+301  = weather_transition_list0501    ; 05:01
+360  = weather_transition_list0600    ; 06:00
+420  = weather_transition_list0700    ; 07:00
+480  = weather_transition_list0800    ; 08:00
+540  = weather_transition_list0900    ; 09:00
+600  = weather_transition_list1000    ; 10:00
+660  = weather_transition_list1100    ; 11:00
+720  = weather_transition_list1200    ; 12:00
+780  = weather_transition_list1300    ; 13:00
+840  = weather_transition_list1400    ; 14:00
+900  = weather_transition_list1500    ; 15:00
+960  = weather_transition_list1600    ; 16:00
+1020 = weather_transition_list1700    ; 17:00
+1080 = weather_transition_list1800    ; 18:00
+1140 = weather_transition_list1900    ; 19:00
+1200 = weather_transition_list2000    ; 20:00
+1215 = weather_transition_list2015    ; 20:15
+1260 = weather_transition_list2100    ; 21:00
+1320 = weather_transition_list2200    ; 22:00
+1380 = weather_transition_list2300    ; 23:00
+
+
+[weather_transition_list0000]
+transition230000 = dry
+transition230001 = beta
+transition230002 = thunder
+transition230003 = stormy
+transition230004 = rainy
+transition230005 = stormy
+foggy = transition000000:7
+rainy = transition000001:5
+stormy = transition000002:4, transition000003:5
+thunder = transition000004:3
+
+
+[weather_transition_list0100]
+transition000000 = thunder
+transition000001 = grey
+transition000002 = rainy
+transition000003 = grey
+transition000004 = foggy
+foggy = transition010000:7
+stormy = transition010001:5, transition010002:4
+thunder = transition010003:3
+
+
+[weather_transition_list0200]
+transition010000 = thunder
+transition010001 = grey
+transition010002 = rainy
+transition010003 = foggy
+beta = transition020000:7, transition020001:2
+dry = transition020002:1
+foggy = transition020003:7
+grey = transition020004:6
+rainy = transition020005:6
+thunder = transition020006:6, transition020007:3, transition020008:1, transition020009:5
+
+
+[weather_transition_list0300]
+transition020000 = thunder
+transition020001 = dry
+transition020002 = beta
+transition020003 = thunder
+transition020004 = stormy
+transition020005 = stormy
+transition020006 = stormy
+transition020007 = foggy
+transition020008 = beta
+transition020009 = grey
+beta = transition030000:7, transition030001:2
+dry = transition030002:1, transition030003:7
+foggy = transition030004:7
+grey = transition030005:6, transition030006:4, transition030007:7
+rainy = transition030008:6
+thunder = transition030009:1, transition03000A:5
+
+
+[weather_transition_list0400]
+transition030000 = thunder
+transition030001 = dry
+transition030002 = beta
+transition030003 = thunder
+transition030004 = thunder
+transition030005 = stormy
+transition030006 = rainy
+transition030007 = thunder
+transition030008 = stormy
+transition030009 = beta
+transition03000A = grey
+beta = transition040000:5, transition040001:2, transition040002:7, transition040003:6, transition040004:4
+dry = transition040005:1, transition040006:5, transition040007:4, transition040008:6
+grey = transition040009:7, transition04000A:3
+rainy = transition04000B:6
+thunder = transition04000C:1, transition04000D:4, transition04000E:2, transition04000F:6, transition040010:5, transition040011:3
+
+
+[weather_transition_list0500]
+transition040000 = grey
+transition040001 = dry
+transition040002 = thunder
+transition040003 = stormy
+transition040004 = rainy
+transition040005 = beta
+transition040006 = grey
+transition040007 = rainy
+transition040008 = stormy
+transition040009 = thunder
+transition04000A = foggy
+transition04000B = stormy
+transition04000C = beta
+transition04000D = rainy
+transition04000E = dry
+transition04000F = stormy
+transition040010 = grey
+transition040011 = foggy
+
+
+[weather_transition_list0501]
+beta = transition050100:2, transition050101:6, transition050102:3, transition050103:7, transition050104:4, transition050105:5
+dry = transition050106:3, transition050107:7, transition050108:5, transition050109:4, transition05010A:1, transition05010B:6
+foggy = transition05010C:5
+grey = transition05010D:3
+rainy = transition05010E:5, transition05010F:3, transition050110:6, transition050111:1
+thunder = transition050112:3, transition050113:6, transition050114:5, transition050115:2
+foggy = transition050116:4
+grey = transition050117:4
+stormy = transition050118:4, transition050119:7, transition05011A:3, transition05011B:1, transition05011C:5
+thunder = transition05011D:4, transition05011E:1
+
+
+[weather_transition_list0600]
+transition050100 = dry
+transition050101 = stormy
+transition050102 = foggy
+transition050103 = thunder
+transition050104 = rainy
+transition050105 = grey
+transition050106 = foggy
+transition050107 = thunder
+transition050108 = grey
+transition050109 = rainy
+transition05010A = beta
+transition05010B = stormy
+transition05010C = grey
+transition05010D = foggy
+transition05010E = grey
+transition05010F = foggy
+transition050110 = stormy
+transition050111 = beta
+transition050112 = foggy
+transition050113 = stormy
+transition050114 = grey
+transition050115 = dry
+beta = transition060000:3, transition060001:5, transition060002:7, transition060003:4
+dry = transition060004:6, transition060005:1
+foggy = transition060006:5, transition060007:4
+grey = transition060008:3
+rainy = transition060009:1, transition06000A:3
+stormy = transition06000B:3, transition06000C:4, transition06000D:5, transition06000E:1, transition06000F:7
+thunder = transition060010:5, transition060011:1
+
+
+[weather_transition_list0700]
+transition050116 = rainy
+transition050117 = rainy
+transition050118 = rainy
+transition050119 = thunder
+transition05011A = foggy
+transition05011B = beta
+transition05011C = grey
+transition05011D = rainy
+transition05011E = beta
+transition060000 = foggy
+transition060001 = grey
+transition060002 = thunder
+transition060003 = rainy
+transition060004 = stormy
+transition060005 = beta
+transition060006 = grey
+transition060007 = rainy
+transition060008 = foggy
+transition060009 = beta
+transition06000A = foggy
+transition06000B = foggy
+transition06000C = rainy
+transition06000D = grey
+transition06000E = beta
+transition06000F = thunder
+transition060010 = grey
+transition060011 = beta
+beta = transition070000:5, transition070001:7, transition070002:4
+dry = transition070003:4, transition070004:1
+foggy = transition070005:4, transition070006:6
+grey = transition070007:6
+rainy = transition070008:7, transition070009:5, transition07000A:3, transition07000B:1, transition07000C:6
+stormy = transition07000D:5, transition07000E:7, transition07000F:4
+thunder = transition070010:6
+
+
+[weather_transition_list0800]
+transition070000 = grey
+transition070001 = thunder
+transition070002 = rainy
+transition070003 = rainy
+transition070004 = beta
+transition070005 = rainy
+transition070006 = stormy
+transition070007 = stormy
+transition070008 = thunder
+transition070009 = grey
+transition07000A = foggy
+transition07000B = beta
+transition07000C = stormy
+transition07000D = grey
+transition07000E = thunder
+transition07000F = rainy
+transition070010 = stormy
+beta = transition080000:4, transition080001:6, transition080002:5, transition080003:7
+dry = transition080004:7, transition080005:5, transition080006:4
+foggy = transition080007:6
+grey = transition080008:3, transition080009:6
+rainy = transition08000A:5, transition08000B:2, transition08000C:3, transition08000D:1, transition08000E:7, transition08000F:6
+thunder = transition080010:5, transition080011:6, transition080012:4
+
+
+[weather_transition_list0900]
+transition080000 = rainy
+transition080001 = stormy
+transition080002 = grey
+transition080003 = thunder
+transition080004 = thunder
+transition080005 = grey
+transition080006 = rainy
+transition080007 = stormy
+transition080008 = foggy
+transition080009 = stormy
+transition08000A = grey
+transition08000B = dry
+transition08000C = foggy
+transition08000D = beta
+transition08000E = thunder
+transition08000F = stormy
+transition080010 = grey
+transition080011 = stormy
+transition080012 = rainy
+beta = transition090000:4
+dry = transition090001:4, transition090002:5
+foggy = transition090003:6
+grey = transition090004:2
+rainy = transition090005:7, transition090006:5
+thunder = transition090007:5, transition090008:4
+
+
+[weather_transition_list1000]
+transition090000 = rainy
+transition090001 = rainy
+transition090002 = grey
+transition090003 = stormy
+transition090004 = dry
+transition090005 = thunder
+transition090006 = grey
+transition090007 = grey
+transition090008 = rainy
+beta = transition100000:5
+dry = transition100001:5, transition100002:1
+foggy = transition100003:5
+grey = transition100004:2, transition100005:7, transition100006:1
+rainy = transition100007:2, transition100008:1, transition100009:7, transition10000A:5, transition10000B:3
+stormy = transition10000C:4
+thunder = transition10000D:2
+
+
+[weather_transition_list1100]
+transition100000 = grey
+transition100001 = grey
+transition100002 = beta
+transition100003 = grey
+transition100004 = dry
+transition100005 = thunder
+transition100006 = beta
+transition100007 = dry
+transition100008 = beta
+transition100009 = thunder
+transition10000A = grey
+transition10000B = foggy
+transition10000C = rainy
+transition10000D = dry
+beta = transition110000:5, transition110001:4, transition110002:2
+dry = transition110003:7, transition110004:1, transition110005:5
+foggy = transition110006:4
+grey = transition110007:4, transition110008:2, transition110009:1
+rainy = transition11000A:1
+thunder = transition11000B:5, transition11000C:1, transition11000D:2
+
+
+[weather_transition_list1200]
+transition110000 = grey
+transition110001 = rainy
+transition110002 = dry
+transition110003 = thunder
+transition110004 = beta
+transition110005 = grey
+transition110006 = rainy
+transition110007 = rainy
+transition110008 = dry
+transition110009 = beta
+transition11000A = beta
+transition11000B = grey
+transition11000C = beta
+transition11000D = dry
+beta = transition120000:6
+dry = transition120001:5
+foggy = transition120002:4
+grey = transition120003:2, transition120004:7
+rainy = transition120005:3
+thunder = transition120006:6, transition120007:1, transition120008:5
+
+
+[weather_transition_list1300]
+transition120000 = stormy
+transition120001 = grey
+transition120002 = rainy
+transition120003 = dry
+transition120004 = thunder
+transition120005 = foggy
+transition120006 = stormy
+transition120007 = beta
+transition120008 = grey
+beta = transition130000:7, transition130001:4
+dry = transition130002:1
+foggy = transition130003:4
+grey = transition130004:1, transition130005:7, transition130006:4
+rainy = transition130007:1, transition130008:3
+stormy = transition130009:1
+thunder = transition13000A:5, transition13000B:1
+
+
+[weather_transition_list1400]
+transition130000 = thunder
+transition130001 = rainy
+transition130002 = beta
+transition130003 = rainy
+transition130004 = beta
+transition130005 = thunder
+transition130006 = rainy
+transition130007 = beta
+transition130008 = foggy
+transition130009 = beta
+transition13000A = grey
+transition13000B = beta
+beta = transition140000:4, transition140001:2, transition140002:6
+dry = transition140003:1
+foggy = transition140004:4
+rainy = transition140005:3, transition140006:7, transition140007:6
+thunder = transition140008:6
+
+
+[weather_transition_list1500]
+transition140000 = rainy
+transition140001 = dry
+transition140002 = stormy
+transition140003 = beta
+transition140004 = rainy
+transition140005 = foggy
+transition140006 = thunder
+transition140007 = stormy
+transition140008 = stormy
+beta = transition150000:7, transition150001:2
+dry = transition150002:1, transition150003:7
+foggy = transition150004:4, transition150005:5, transition150006:7
+grey = transition150007:7, transition150008:1, transition150009:2
+rainy = transition15000A:3, transition15000B:5, transition15000C:7
+stormy = transition15000D:5, transition15000E:2, transition15000F:3, transition150010:1
+thunder = transition150011:5, transition150012:4, transition150013:1, transition150014:3, transition150015:2
+
+
+[weather_transition_list1600]
+transition150000 = thunder
+transition150001 = dry
+transition150002 = beta
+transition150003 = thunder
+transition150004 = rainy
+transition150005 = grey
+transition150006 = thunder
+transition150007 = thunder
+transition150008 = beta
+transition150009 = dry
+transition15000A = foggy
+transition15000B = grey
+transition15000C = thunder
+transition15000D = grey
+transition15000E = dry
+transition15000F = foggy
+transition150010 = beta
+transition150011 = grey
+transition150012 = rainy
+transition150013 = beta
+transition150014 = foggy
+transition150015 = dry
+beta = transition160000:3, transition160001:2, transition160002:7, transition160003:4
+dry = transition160004:1
+foggy = transition160005:7, transition160006:4
+rainy = transition160007:7
+thunder = transition160008:4, transition160009:6
+
+
+[weather_transition_list1700]
+transition160000 = foggy
+transition160001 = dry
+transition160002 = thunder
+transition160003 = rainy
+transition160004 = beta
+transition160005 = thunder
+transition160006 = rainy
+transition160007 = thunder
+transition160008 = rainy
+transition160009 = stormy
+beta = transition170000:3, transition170001:2
+dry = transition170002:1
+foggy = transition170003:2
+rainy = transition170004:2, transition170005:1, transition170006:7
+stormy = transition170007:7
+thunder = transition170008:3, transition170009:1, transition17000A:2
+
+
+[weather_transition_list1800]
+transition170000 = foggy
+transition170001 = dry
+transition170002 = beta
+transition170003 = dry
+transition170004 = dry
+transition170005 = beta
+transition170006 = thunder
+transition170007 = thunder
+transition170008 = foggy
+transition170009 = beta
+transition17000A = dry
+beta = transition180000:6
+dry = transition180001:3
+foggy = transition180002:2
+grey = transition180003:7, transition180004:3, transition180005:2
+rainy = transition180006:1
+thunder = transition180007:5, transition180008:6, transition180009:1
+
+
+[weather_transition_list1900]
+transition180000 = stormy
+transition180001 = foggy
+transition180002 = dry
+transition180003 = thunder
+transition180004 = foggy
+transition180005 = dry
+transition180006 = beta
+transition180007 = grey
+transition180008 = stormy
+transition180009 = beta
+beta = transition190000:2, transition190001:5, transition190002:3, transition190003:7
+dry = transition190004:3
+grey = transition190005:2, transition190006:3, transition190007:7
+stormy = transition190008:3, transition190009:2, transition19000A:5, transition19000B:1
+thunder = transition19000C:2, transition19000D:1, transition19000E:5, transition19000F:3
+
+
+[weather_transition_list2000]
+transition190000 = dry
+transition190001 = grey
+transition190002 = foggy
+transition190003 = thunder
+transition190004 = foggy
+transition190005 = dry
+transition190006 = foggy
+transition190007 = thunder
+transition190008 = foggy
+transition190009 = dry
+transition19000A = grey
+transition19000B = beta
+transition19000C = dry
+transition19000D = beta
+transition19000E = grey
+transition19000F = foggy
+beta = transition200000:2
+dry = transition200001:5, transition200002:6, transition200003:1
+grey = transition200004:6, transition200005:2, transition200006:1
+
+
+[weather_transition_list2015]
+thunder = transition201500:4
+
+
+[weather_transition_list2100]
+transition200000 = dry
+transition200001 = grey
+transition200002 = stormy
+transition200003 = beta
+transition200004 = stormy
+transition200005 = dry
+transition200006 = beta
+foggy = transition210000:7, transition210001:1, transition210002:6
+thunder = transition210003:1, transition210004:5
+
+
+[weather_transition_list2200]
+transition201500 = rainy
+transition210000 = thunder
+transition210001 = beta
+transition210002 = stormy
+transition210003 = beta
+transition210004 = grey
+beta = transition220000:2
+dry = transition220001:1
+rainy = transition220002:6
+stormy = transition220003:4, transition220004:5, transition220005:3
+thunder = transition220006:5
+
+
+[weather_transition_list2300]
+transition220000 = dry
+transition220001 = beta
+transition220002 = stormy
+transition220003 = rainy
+transition220004 = grey
+transition220005 = foggy
+transition220006 = grey
+beta = transition230000:2
+dry = transition230001:1
+foggy = transition230002:7
+grey = transition230003:6, transition230004:4
+rainy = transition230005:6
+
+
+[weather_dynamic]
+beta = sect_beta_weather
+dry = sect_dry_weather
+foggy = sect_foggy_weather
+rainy = sect_rainy_weather
+grey = sect_grey_weather
+stormy = sect_stormy_weather
+thunder = sect_thunder_weather
+transition000000 = sect_transition000000
+transition000001 = sect_transition000001
+transition000002 = sect_transition000002
+transition000003 = sect_transition000003
+transition000004 = sect_transition000004
+transition010000 = sect_transition010000
+transition010001 = sect_transition010001
+transition010002 = sect_transition010002
+transition010003 = sect_transition010003
+transition020000 = sect_transition020000
+transition020001 = sect_transition020001
+transition020002 = sect_transition020002
+transition020003 = sect_transition020003
+transition020004 = sect_transition020004
+transition020005 = sect_transition020005
+transition020006 = sect_transition020006
+transition020007 = sect_transition020007
+transition020008 = sect_transition020008
+transition020009 = sect_transition020009
+transition030000 = sect_transition030000
+transition030001 = sect_transition030001
+transition030002 = sect_transition030002
+transition030003 = sect_transition030003
+transition030004 = sect_transition030004
+transition030005 = sect_transition030005
+transition030006 = sect_transition030006
+transition030007 = sect_transition030007
+transition030008 = sect_transition030008
+transition030009 = sect_transition030009
+transition03000A = sect_transition03000A
+transition040000 = sect_transition040000
+transition040001 = sect_transition040001
+transition040002 = sect_transition040002
+transition040003 = sect_transition040003
+transition040004 = sect_transition040004
+transition040005 = sect_transition040005
+transition040006 = sect_transition040006
+transition040007 = sect_transition040007
+transition040008 = sect_transition040008
+transition040009 = sect_transition040009
+transition04000A = sect_transition04000A
+transition04000B = sect_transition04000B
+transition04000C = sect_transition04000C
+transition04000D = sect_transition04000D
+transition04000E = sect_transition04000E
+transition04000F = sect_transition04000F
+transition040010 = sect_transition040010
+transition040011 = sect_transition040011
+transition050100 = sect_transition050100
+transition050101 = sect_transition050101
+transition050102 = sect_transition050102
+transition050103 = sect_transition050103
+transition050104 = sect_transition050104
+transition050105 = sect_transition050105
+transition050106 = sect_transition050106
+transition050107 = sect_transition050107
+transition050108 = sect_transition050108
+transition050109 = sect_transition050109
+transition05010A = sect_transition05010A
+transition05010B = sect_transition05010B
+transition05010C = sect_transition05010C
+transition05010D = sect_transition05010D
+transition05010E = sect_transition05010E
+transition05010F = sect_transition05010F
+transition050110 = sect_transition050110
+transition050111 = sect_transition050111
+transition050112 = sect_transition050112
+transition050113 = sect_transition050113
+transition050114 = sect_transition050114
+transition050115 = sect_transition050115
+transition050116 = sect_transition050116
+transition050117 = sect_transition050117
+transition050118 = sect_transition050118
+transition050119 = sect_transition050119
+transition05011A = sect_transition05011A
+transition05011B = sect_transition05011B
+transition05011C = sect_transition05011C
+transition05011D = sect_transition05011D
+transition05011E = sect_transition05011E
+transition060000 = sect_transition060000
+transition060001 = sect_transition060001
+transition060002 = sect_transition060002
+transition060003 = sect_transition060003
+transition060004 = sect_transition060004
+transition060005 = sect_transition060005
+transition060006 = sect_transition060006
+transition060007 = sect_transition060007
+transition060008 = sect_transition060008
+transition060009 = sect_transition060009
+transition06000A = sect_transition06000A
+transition06000B = sect_transition06000B
+transition06000C = sect_transition06000C
+transition06000D = sect_transition06000D
+transition06000E = sect_transition06000E
+transition06000F = sect_transition06000F
+transition060010 = sect_transition060010
+transition060011 = sect_transition060011
+transition070000 = sect_transition070000
+transition070001 = sect_transition070001
+transition070002 = sect_transition070002
+transition070003 = sect_transition070003
+transition070004 = sect_transition070004
+transition070005 = sect_transition070005
+transition070006 = sect_transition070006
+transition070007 = sect_transition070007
+transition070008 = sect_transition070008
+transition070009 = sect_transition070009
+transition07000A = sect_transition07000A
+transition07000B = sect_transition07000B
+transition07000C = sect_transition07000C
+transition07000D = sect_transition07000D
+transition07000E = sect_transition07000E
+transition07000F = sect_transition07000F
+transition070010 = sect_transition070010
+transition080000 = sect_transition080000
+transition080001 = sect_transition080001
+transition080002 = sect_transition080002
+transition080003 = sect_transition080003
+transition080004 = sect_transition080004
+transition080005 = sect_transition080005
+transition080006 = sect_transition080006
+transition080007 = sect_transition080007
+transition080008 = sect_transition080008
+transition080009 = sect_transition080009
+transition08000A = sect_transition08000A
+transition08000B = sect_transition08000B
+transition08000C = sect_transition08000C
+transition08000D = sect_transition08000D
+transition08000E = sect_transition08000E
+transition08000F = sect_transition08000F
+transition080010 = sect_transition080010
+transition080011 = sect_transition080011
+transition080012 = sect_transition080012
+transition090000 = sect_transition090000
+transition090001 = sect_transition090001
+transition090002 = sect_transition090002
+transition090003 = sect_transition090003
+transition090004 = sect_transition090004
+transition090005 = sect_transition090005
+transition090006 = sect_transition090006
+transition090007 = sect_transition090007
+transition090008 = sect_transition090008
+transition100000 = sect_transition100000
+transition100001 = sect_transition100001
+transition100002 = sect_transition100002
+transition100003 = sect_transition100003
+transition100004 = sect_transition100004
+transition100005 = sect_transition100005
+transition100006 = sect_transition100006
+transition100007 = sect_transition100007
+transition100008 = sect_transition100008
+transition100009 = sect_transition100009
+transition10000A = sect_transition10000A
+transition10000B = sect_transition10000B
+transition10000C = sect_transition10000C
+transition10000D = sect_transition10000D
+transition110000 = sect_transition110000
+transition110001 = sect_transition110001
+transition110002 = sect_transition110002
+transition110003 = sect_transition110003
+transition110004 = sect_transition110004
+transition110005 = sect_transition110005
+transition110006 = sect_transition110006
+transition110007 = sect_transition110007
+transition110008 = sect_transition110008
+transition110009 = sect_transition110009
+transition11000A = sect_transition11000A
+transition11000B = sect_transition11000B
+transition11000C = sect_transition11000C
+transition11000D = sect_transition11000D
+transition120000 = sect_transition120000
+transition120001 = sect_transition120001
+transition120002 = sect_transition120002
+transition120003 = sect_transition120003
+transition120004 = sect_transition120004
+transition120005 = sect_transition120005
+transition120006 = sect_transition120006
+transition120007 = sect_transition120007
+transition120008 = sect_transition120008
+transition130000 = sect_transition130000
+transition130001 = sect_transition130001
+transition130002 = sect_transition130002
+transition130003 = sect_transition130003
+transition130004 = sect_transition130004
+transition130005 = sect_transition130005
+transition130006 = sect_transition130006
+transition130007 = sect_transition130007
+transition130008 = sect_transition130008
+transition130009 = sect_transition130009
+transition13000A = sect_transition13000A
+transition13000B = sect_transition13000B
+transition140000 = sect_transition140000
+transition140001 = sect_transition140001
+transition140002 = sect_transition140002
+transition140003 = sect_transition140003
+transition140004 = sect_transition140004
+transition140005 = sect_transition140005
+transition140006 = sect_transition140006
+transition140007 = sect_transition140007
+transition140008 = sect_transition140008
+transition150000 = sect_transition150000
+transition150001 = sect_transition150001
+transition150002 = sect_transition150002
+transition150003 = sect_transition150003
+transition150004 = sect_transition150004
+transition150005 = sect_transition150005
+transition150006 = sect_transition150006
+transition150007 = sect_transition150007
+transition150008 = sect_transition150008
+transition150009 = sect_transition150009
+transition15000A = sect_transition15000A
+transition15000B = sect_transition15000B
+transition15000C = sect_transition15000C
+transition15000D = sect_transition15000D
+transition15000E = sect_transition15000E
+transition15000F = sect_transition15000F
+transition150010 = sect_transition150010
+transition150011 = sect_transition150011
+transition150012 = sect_transition150012
+transition150013 = sect_transition150013
+transition150014 = sect_transition150014
+transition150015 = sect_transition150015
+transition160000 = sect_transition160000
+transition160001 = sect_transition160001
+transition160002 = sect_transition160002
+transition160003 = sect_transition160003
+transition160004 = sect_transition160004
+transition160005 = sect_transition160005
+transition160006 = sect_transition160006
+transition160007 = sect_transition160007
+transition160008 = sect_transition160008
+transition160009 = sect_transition160009
+transition170000 = sect_transition170000
+transition170001 = sect_transition170001
+transition170002 = sect_transition170002
+transition170003 = sect_transition170003
+transition170004 = sect_transition170004
+transition170005 = sect_transition170005
+transition170006 = sect_transition170006
+transition170007 = sect_transition170007
+transition170008 = sect_transition170008
+transition170009 = sect_transition170009
+transition17000A = sect_transition17000A
+transition180000 = sect_transition180000
+transition180001 = sect_transition180001
+transition180002 = sect_transition180002
+transition180003 = sect_transition180003
+transition180004 = sect_transition180004
+transition180005 = sect_transition180005
+transition180006 = sect_transition180006
+transition180007 = sect_transition180007
+transition180008 = sect_transition180008
+transition180009 = sect_transition180009
+transition190000 = sect_transition190000
+transition190001 = sect_transition190001
+transition190002 = sect_transition190002
+transition190003 = sect_transition190003
+transition190004 = sect_transition190004
+transition190005 = sect_transition190005
+transition190006 = sect_transition190006
+transition190007 = sect_transition190007
+transition190008 = sect_transition190008
+transition190009 = sect_transition190009
+transition19000A = sect_transition19000A
+transition19000B = sect_transition19000B
+transition19000C = sect_transition19000C
+transition19000D = sect_transition19000D
+transition19000E = sect_transition19000E
+transition19000F = sect_transition19000F
+transition200000 = sect_transition200000
+transition200001 = sect_transition200001
+transition200002 = sect_transition200002
+transition200003 = sect_transition200003
+transition200004 = sect_transition200004
+transition200005 = sect_transition200005
+transition200006 = sect_transition200006
+transition201500 = sect_transition201500
+transition210000 = sect_transition210000
+transition210001 = sect_transition210001
+transition210002 = sect_transition210002
+transition210003 = sect_transition210003
+transition210004 = sect_transition210004
+transition220000 = sect_transition220000
+transition220001 = sect_transition220001
+transition220002 = sect_transition220002
+transition220003 = sect_transition220003
+transition220004 = sect_transition220004
+transition220005 = sect_transition220005
+transition220006 = sect_transition220006
+transition230000 = sect_transition230000
+transition230001 = sect_transition230001
+transition230002 = sect_transition230002
+transition230003 = sect_transition230003
+transition230004 = sect_transition230004
+transition230005 = sect_transition230005
+
+
+[sect_transition000000]
+00:00:00 = foggy_weather_00
+01:00:00 = thunder_weather_01
+
+
+[sect_transition000001]
+00:00:00 = rainy_weather_00
+01:00:00 = grey_weather_01
+
+
+[sect_transition000002]
+00:00:00 = stormy_weather_00
+01:00:00 = rainy_weather_01
+
+
+[sect_transition000003]
+00:00:00 = stormy_weather_00
+01:00:00 = grey_weather_01
+
+
+[sect_transition000004]
+00:00:00 = thunder_weather_00
+01:00:00 = foggy_weather_01
+
+
+[sect_transition010000]
+01:00:00 = foggy_weather_01
+02:00:00 = thunder_weather_02
+
+
+[sect_transition010001]
+01:00:00 = stormy_weather_01
+02:00:00 = grey_weather_02
+
+
+[sect_transition010002]
+01:00:00 = stormy_weather_01
+02:00:00 = rainy_weather_02
+
+
+[sect_transition010003]
+01:00:00 = thunder_weather_01
+02:00:00 = foggy_weather_02
+
+
+[sect_transition020000]
+02:00:00 = beta_weather_02
+03:00:00 = thunder_weather_03
+
+
+[sect_transition020001]
+02:00:00 = beta_weather_02
+03:00:00 = dry_weather_03
+
+
+[sect_transition020002]
+02:00:00 = dry_weather_02
+03:00:00 = beta_weather_03
+
+
+[sect_transition020003]
+02:00:00 = foggy_weather_02
+03:00:00 = thunder_weather_03
+
+
+[sect_transition020004]
+02:00:00 = grey_weather_02
+03:00:00 = stormy_weather_03
+
+
+[sect_transition020005]
+02:00:00 = rainy_weather_02
+03:00:00 = stormy_weather_03
+
+
+[sect_transition020006]
+02:00:00 = thunder_weather_02
+03:00:00 = stormy_weather_03
+
+
+[sect_transition020007]
+02:00:00 = thunder_weather_02
+03:00:00 = foggy_weather_03
+
+
+[sect_transition020008]
+02:00:00 = thunder_weather_02
+03:00:00 = beta_weather_03
+
+
+[sect_transition020009]
+02:00:00 = thunder_weather_02
+03:00:00 = grey_weather_03
+
+
+[sect_transition030000]
+03:00:00 = beta_weather_03
+04:00:00 = thunder_weather_04
+
+
+[sect_transition030001]
+03:00:00 = beta_weather_03
+04:00:00 = dry_weather_04
+
+
+[sect_transition030002]
+03:00:00 = dry_weather_03
+04:00:00 = beta_weather_04
+
+
+[sect_transition030003]
+03:00:00 = dry_weather_03
+04:00:00 = thunder_weather_04
+
+
+[sect_transition030004]
+03:00:00 = foggy_weather_03
+04:00:00 = thunder_weather_04
+
+
+[sect_transition030005]
+03:00:00 = grey_weather_03
+04:00:00 = stormy_weather_04
+
+
+[sect_transition030006]
+03:00:00 = grey_weather_03
+04:00:00 = rainy_weather_04
+
+
+[sect_transition030007]
+03:00:00 = grey_weather_03
+04:00:00 = thunder_weather_04
+
+
+[sect_transition030008]
+03:00:00 = rainy_weather_03
+04:00:00 = stormy_weather_04
+
+
+[sect_transition030009]
+03:00:00 = thunder_weather_03
+04:00:00 = beta_weather_04
+
+
+[sect_transition03000A]
+03:00:00 = thunder_weather_03
+04:00:00 = grey_weather_04
+
+
+[sect_transition040000]
+04:00:00 = beta_weather_04
+05:00:00 = grey_weather_05
+
+
+[sect_transition040001]
+04:00:00 = beta_weather_04
+05:00:00 = dry_weather_05
+
+
+[sect_transition040002]
+04:00:00 = beta_weather_04
+05:00:00 = thunder_weather_05
+
+
+[sect_transition040003]
+04:00:00 = beta_weather_04
+05:00:00 = stormy_weather_05
+
+
+[sect_transition040004]
+04:00:00 = beta_weather_04
+05:00:00 = rainy_weather_05
+
+
+[sect_transition040005]
+04:00:00 = dry_weather_04
+05:00:00 = beta_weather_05
+
+
+[sect_transition040006]
+04:00:00 = dry_weather_04
+05:00:00 = grey_weather_05
+
+
+[sect_transition040007]
+04:00:00 = dry_weather_04
+05:00:00 = rainy_weather_05
+
+
+[sect_transition040008]
+04:00:00 = dry_weather_04
+05:00:00 = stormy_weather_05
+
+
+[sect_transition040009]
+04:00:00 = grey_weather_04
+05:00:00 = thunder_weather_05
+
+
+[sect_transition04000A]
+04:00:00 = grey_weather_04
+05:00:00 = foggy_weather_05
+
+
+[sect_transition04000B]
+04:00:00 = rainy_weather_04
+05:00:00 = stormy_weather_05
+
+
+[sect_transition04000C]
+04:00:00 = thunder_weather_04
+05:00:00 = beta_weather_05
+
+
+[sect_transition04000D]
+04:00:00 = thunder_weather_04
+05:00:00 = rainy_weather_05
+
+
+[sect_transition04000E]
+04:00:00 = thunder_weather_04
+05:00:00 = dry_weather_05
+
+
+[sect_transition04000F]
+04:00:00 = thunder_weather_04
+05:00:00 = stormy_weather_05
+
+
+[sect_transition040010]
+04:00:00 = thunder_weather_04
+05:00:00 = grey_weather_05
+
+
+[sect_transition040011]
+04:00:00 = thunder_weather_04
+05:00:00 = foggy_weather_05
+
+
+[sect_transition050100]
+05:01:00 = beta_weather_05_01
+06:00:00 = dry_weather_06
+
+
+[sect_transition050101]
+05:01:00 = beta_weather_05_01
+06:00:00 = stormy_weather_06
+
+
+[sect_transition050102]
+05:01:00 = beta_weather_05_01
+06:00:00 = foggy_weather_06
+
+
+[sect_transition050103]
+05:01:00 = beta_weather_05_01
+06:00:00 = thunder_weather_06
+
+
+[sect_transition050104]
+05:01:00 = beta_weather_05_01
+06:00:00 = rainy_weather_06
+
+
+[sect_transition050105]
+05:01:00 = beta_weather_05_01
+06:00:00 = grey_weather_06
+
+
+[sect_transition050106]
+05:01:00 = dry_weather_05_01
+06:00:00 = foggy_weather_06
+
+
+[sect_transition050107]
+05:01:00 = dry_weather_05_01
+06:00:00 = thunder_weather_06
+
+
+[sect_transition050108]
+05:01:00 = dry_weather_05_01
+06:00:00 = grey_weather_06
+
+
+[sect_transition050109]
+05:01:00 = dry_weather_05_01
+06:00:00 = rainy_weather_06
+
+
+[sect_transition05010A]
+05:01:00 = dry_weather_05_01
+06:00:00 = beta_weather_06
+
+
+[sect_transition05010B]
+05:01:00 = dry_weather_05_01
+06:00:00 = stormy_weather_06
+
+
+[sect_transition05010C]
+05:01:00 = foggy_weather_05_01
+06:00:00 = grey_weather_06
+
+
+[sect_transition05010D]
+05:01:00 = grey_weather_05_01
+06:00:00 = foggy_weather_06
+
+
+[sect_transition05010E]
+05:01:00 = rainy_weather_05_01
+06:00:00 = grey_weather_06
+
+
+[sect_transition05010F]
+05:01:00 = rainy_weather_05_01
+06:00:00 = foggy_weather_06
+
+
+[sect_transition050110]
+05:01:00 = rainy_weather_05_01
+06:00:00 = stormy_weather_06
+
+
+[sect_transition050111]
+05:01:00 = rainy_weather_05_01
+06:00:00 = beta_weather_06
+
+
+[sect_transition050112]
+05:01:00 = thunder_weather_05_01
+06:00:00 = foggy_weather_06
+
+
+[sect_transition050113]
+05:01:00 = thunder_weather_05_01
+06:00:00 = stormy_weather_06
+
+
+[sect_transition050114]
+05:01:00 = thunder_weather_05_01
+06:00:00 = grey_weather_06
+
+
+[sect_transition050115]
+05:01:00 = thunder_weather_05_01
+06:00:00 = dry_weather_06
+
+
+[sect_transition050116]
+05:01:00 = foggy_weather_05_01
+07:00:00 = rainy_weather_07
+
+
+[sect_transition050117]
+05:01:00 = grey_weather_05_01
+07:00:00 = rainy_weather_07
+
+
+[sect_transition050118]
+05:01:00 = stormy_weather_05_01
+07:00:00 = rainy_weather_07
+
+
+[sect_transition050119]
+05:01:00 = stormy_weather_05_01
+07:00:00 = thunder_weather_07
+
+
+[sect_transition05011A]
+05:01:00 = stormy_weather_05_01
+07:00:00 = foggy_weather_07
+
+
+[sect_transition05011B]
+05:01:00 = stormy_weather_05_01
+07:00:00 = beta_weather_07
+
+
+[sect_transition05011C]
+05:01:00 = stormy_weather_05_01
+07:00:00 = grey_weather_07
+
+
+[sect_transition05011D]
+05:01:00 = thunder_weather_05_01
+07:00:00 = rainy_weather_07
+
+
+[sect_transition05011E]
+05:01:00 = thunder_weather_05_01
+07:00:00 = beta_weather_07
+
+
+[sect_transition060000]
+06:00:00 = beta_weather_06
+07:00:00 = foggy_weather_07
+
+
+[sect_transition060001]
+06:00:00 = beta_weather_06
+07:00:00 = grey_weather_07
+
+
+[sect_transition060002]
+06:00:00 = beta_weather_06
+07:00:00 = thunder_weather_07
+
+
+[sect_transition060003]
+06:00:00 = beta_weather_06
+07:00:00 = rainy_weather_07
+
+
+[sect_transition060004]
+06:00:00 = dry_weather_06
+07:00:00 = stormy_weather_07
+
+
+[sect_transition060005]
+06:00:00 = dry_weather_06
+07:00:00 = beta_weather_07
+
+
+[sect_transition060006]
+06:00:00 = foggy_weather_06
+07:00:00 = grey_weather_07
+
+
+[sect_transition060007]
+06:00:00 = foggy_weather_06
+07:00:00 = rainy_weather_07
+
+
+[sect_transition060008]
+06:00:00 = grey_weather_06
+07:00:00 = foggy_weather_07
+
+
+[sect_transition060009]
+06:00:00 = rainy_weather_06
+07:00:00 = beta_weather_07
+
+
+[sect_transition06000A]
+06:00:00 = rainy_weather_06
+07:00:00 = foggy_weather_07
+
+
+[sect_transition06000B]
+06:00:00 = stormy_weather_06
+07:00:00 = foggy_weather_07
+
+
+[sect_transition06000C]
+06:00:00 = stormy_weather_06
+07:00:00 = rainy_weather_07
+
+
+[sect_transition06000D]
+06:00:00 = stormy_weather_06
+07:00:00 = grey_weather_07
+
+
+[sect_transition06000E]
+06:00:00 = stormy_weather_06
+07:00:00 = beta_weather_07
+
+
+[sect_transition06000F]
+06:00:00 = stormy_weather_06
+07:00:00 = thunder_weather_07
+
+
+[sect_transition060010]
+06:00:00 = thunder_weather_06
+07:00:00 = grey_weather_07
+
+
+[sect_transition060011]
+06:00:00 = thunder_weather_06
+07:00:00 = beta_weather_07
+
+
+[sect_transition070000]
+07:00:00 = beta_weather_07
+08:00:00 = grey_weather_08
+
+
+[sect_transition070001]
+07:00:00 = beta_weather_07
+08:00:00 = thunder_weather_08
+
+
+[sect_transition070002]
+07:00:00 = beta_weather_07
+08:00:00 = rainy_weather_08
+
+
+[sect_transition070003]
+07:00:00 = dry_weather_07
+08:00:00 = rainy_weather_08
+
+
+[sect_transition070004]
+07:00:00 = dry_weather_07
+08:00:00 = beta_weather_08
+
+
+[sect_transition070005]
+07:00:00 = foggy_weather_07
+08:00:00 = rainy_weather_08
+
+
+[sect_transition070006]
+07:00:00 = foggy_weather_07
+08:00:00 = stormy_weather_08
+
+
+[sect_transition070007]
+07:00:00 = grey_weather_07
+08:00:00 = stormy_weather_08
+
+
+[sect_transition070008]
+07:00:00 = rainy_weather_07
+08:00:00 = thunder_weather_08
+
+
+[sect_transition070009]
+07:00:00 = rainy_weather_07
+08:00:00 = grey_weather_08
+
+
+[sect_transition07000A]
+07:00:00 = rainy_weather_07
+08:00:00 = foggy_weather_08
+
+
+[sect_transition07000B]
+07:00:00 = rainy_weather_07
+08:00:00 = beta_weather_08
+
+
+[sect_transition07000C]
+07:00:00 = rainy_weather_07
+08:00:00 = stormy_weather_08
+
+
+[sect_transition07000D]
+07:00:00 = stormy_weather_07
+08:00:00 = grey_weather_08
+
+
+[sect_transition07000E]
+07:00:00 = stormy_weather_07
+08:00:00 = thunder_weather_08
+
+
+[sect_transition07000F]
+07:00:00 = stormy_weather_07
+08:00:00 = rainy_weather_08
+
+
+[sect_transition070010]
+07:00:00 = thunder_weather_07
+08:00:00 = stormy_weather_08
+
+
+[sect_transition080000]
+08:00:00 = beta_weather_08
+09:00:00 = rainy_weather_09
+
+
+[sect_transition080001]
+08:00:00 = beta_weather_08
+09:00:00 = stormy_weather_09
+
+
+[sect_transition080002]
+08:00:00 = beta_weather_08
+09:00:00 = grey_weather_09
+
+
+[sect_transition080003]
+08:00:00 = beta_weather_08
+09:00:00 = thunder_weather_09
+
+
+[sect_transition080004]
+08:00:00 = dry_weather_08
+09:00:00 = thunder_weather_09
+
+
+[sect_transition080005]
+08:00:00 = dry_weather_08
+09:00:00 = grey_weather_09
+
+
+[sect_transition080006]
+08:00:00 = dry_weather_08
+09:00:00 = rainy_weather_09
+
+
+[sect_transition080007]
+08:00:00 = foggy_weather_08
+09:00:00 = stormy_weather_09
+
+
+[sect_transition080008]
+08:00:00 = grey_weather_08
+09:00:00 = foggy_weather_09
+
+
+[sect_transition080009]
+08:00:00 = grey_weather_08
+09:00:00 = stormy_weather_09
+
+
+[sect_transition08000A]
+08:00:00 = rainy_weather_08
+09:00:00 = grey_weather_09
+
+
+[sect_transition08000B]
+08:00:00 = rainy_weather_08
+09:00:00 = dry_weather_09
+
+
+[sect_transition08000C]
+08:00:00 = rainy_weather_08
+09:00:00 = foggy_weather_09
+
+
+[sect_transition08000D]
+08:00:00 = rainy_weather_08
+09:00:00 = beta_weather_09
+
+
+[sect_transition08000E]
+08:00:00 = rainy_weather_08
+09:00:00 = thunder_weather_09
+
+
+[sect_transition08000F]
+08:00:00 = rainy_weather_08
+09:00:00 = stormy_weather_09
+
+
+[sect_transition080010]
+08:00:00 = thunder_weather_08
+09:00:00 = grey_weather_09
+
+
+[sect_transition080011]
+08:00:00 = thunder_weather_08
+09:00:00 = stormy_weather_09
+
+
+[sect_transition080012]
+08:00:00 = thunder_weather_08
+09:00:00 = rainy_weather_09
+
+
+[sect_transition090000]
+09:00:00 = beta_weather_09
+10:00:00 = rainy_weather_10
+
+
+[sect_transition090001]
+09:00:00 = dry_weather_09
+10:00:00 = rainy_weather_10
+
+
+[sect_transition090002]
+09:00:00 = dry_weather_09
+10:00:00 = grey_weather_10
+
+
+[sect_transition090003]
+09:00:00 = foggy_weather_09
+10:00:00 = stormy_weather_10
+
+
+[sect_transition090004]
+09:00:00 = grey_weather_09
+10:00:00 = dry_weather_10
+
+
+[sect_transition090005]
+09:00:00 = rainy_weather_09
+10:00:00 = thunder_weather_10
+
+
+[sect_transition090006]
+09:00:00 = rainy_weather_09
+10:00:00 = grey_weather_10
+
+
+[sect_transition090007]
+09:00:00 = thunder_weather_09
+10:00:00 = grey_weather_10
+
+
+[sect_transition090008]
+09:00:00 = thunder_weather_09
+10:00:00 = rainy_weather_10
+
+
+[sect_transition100000]
+10:00:00 = beta_weather_10
+11:00:00 = grey_weather_11
+
+
+[sect_transition100001]
+10:00:00 = dry_weather_10
+11:00:00 = grey_weather_11
+
+
+[sect_transition100002]
+10:00:00 = dry_weather_10
+11:00:00 = beta_weather_11
+
+
+[sect_transition100003]
+10:00:00 = foggy_weather_10
+11:00:00 = grey_weather_11
+
+
+[sect_transition100004]
+10:00:00 = grey_weather_10
+11:00:00 = dry_weather_11
+
+
+[sect_transition100005]
+10:00:00 = grey_weather_10
+11:00:00 = thunder_weather_11
+
+
+[sect_transition100006]
+10:00:00 = grey_weather_10
+11:00:00 = beta_weather_11
+
+
+[sect_transition100007]
+10:00:00 = rainy_weather_10
+11:00:00 = dry_weather_11
+
+
+[sect_transition100008]
+10:00:00 = rainy_weather_10
+11:00:00 = beta_weather_11
+
+
+[sect_transition100009]
+10:00:00 = rainy_weather_10
+11:00:00 = thunder_weather_11
+
+
+[sect_transition10000A]
+10:00:00 = rainy_weather_10
+11:00:00 = grey_weather_11
+
+
+[sect_transition10000B]
+10:00:00 = rainy_weather_10
+11:00:00 = foggy_weather_11
+
+
+[sect_transition10000C]
+10:00:00 = stormy_weather_10
+11:00:00 = rainy_weather_11
+
+
+[sect_transition10000D]
+10:00:00 = thunder_weather_10
+11:00:00 = dry_weather_11
+
+
+[sect_transition110000]
+11:00:00 = beta_weather_11
+12:00:00 = grey_weather_12
+
+
+[sect_transition110001]
+11:00:00 = beta_weather_11
+12:00:00 = rainy_weather_12
+
+
+[sect_transition110002]
+11:00:00 = beta_weather_11
+12:00:00 = dry_weather_12
+
+
+[sect_transition110003]
+11:00:00 = dry_weather_11
+12:00:00 = thunder_weather_12
+
+
+[sect_transition110004]
+11:00:00 = dry_weather_11
+12:00:00 = beta_weather_12
+
+
+[sect_transition110005]
+11:00:00 = dry_weather_11
+12:00:00 = grey_weather_12
+
+
+[sect_transition110006]
+11:00:00 = foggy_weather_11
+12:00:00 = rainy_weather_12
+
+
+[sect_transition110007]
+11:00:00 = grey_weather_11
+12:00:00 = rainy_weather_12
+
+
+[sect_transition110008]
+11:00:00 = grey_weather_11
+12:00:00 = dry_weather_12
+
+
+[sect_transition110009]
+11:00:00 = grey_weather_11
+12:00:00 = beta_weather_12
+
+
+[sect_transition11000A]
+11:00:00 = rainy_weather_11
+12:00:00 = beta_weather_12
+
+
+[sect_transition11000B]
+11:00:00 = thunder_weather_11
+12:00:00 = grey_weather_12
+
+
+[sect_transition11000C]
+11:00:00 = thunder_weather_11
+12:00:00 = beta_weather_12
+
+
+[sect_transition11000D]
+11:00:00 = thunder_weather_11
+12:00:00 = dry_weather_12
+
+
+[sect_transition120000]
+12:00:00 = beta_weather_12
+13:00:00 = stormy_weather_13
+
+
+[sect_transition120001]
+12:00:00 = dry_weather_12
+13:00:00 = grey_weather_13
+
+
+[sect_transition120002]
+12:00:00 = foggy_weather_12
+13:00:00 = rainy_weather_13
+
+
+[sect_transition120003]
+12:00:00 = grey_weather_12
+13:00:00 = dry_weather_13
+
+
+[sect_transition120004]
+12:00:00 = grey_weather_12
+13:00:00 = thunder_weather_13
+
+
+[sect_transition120005]
+12:00:00 = rainy_weather_12
+13:00:00 = foggy_weather_13
+
+
+[sect_transition120006]
+12:00:00 = thunder_weather_12
+13:00:00 = stormy_weather_13
+
+
+[sect_transition120007]
+12:00:00 = thunder_weather_12
+13:00:00 = beta_weather_13
+
+
+[sect_transition120008]
+12:00:00 = thunder_weather_12
+13:00:00 = grey_weather_13
+
+
+[sect_transition130000]
+13:00:00 = beta_weather_13
+14:00:00 = thunder_weather_14
+
+
+[sect_transition130001]
+13:00:00 = beta_weather_13
+14:00:00 = rainy_weather_14
+
+
+[sect_transition130002]
+13:00:00 = dry_weather_13
+14:00:00 = beta_weather_14
+
+
+[sect_transition130003]
+13:00:00 = foggy_weather_13
+14:00:00 = rainy_weather_14
+
+
+[sect_transition130004]
+13:00:00 = grey_weather_13
+14:00:00 = beta_weather_14
+
+
+[sect_transition130005]
+13:00:00 = grey_weather_13
+14:00:00 = thunder_weather_14
+
+
+[sect_transition130006]
+13:00:00 = grey_weather_13
+14:00:00 = rainy_weather_14
+
+
+[sect_transition130007]
+13:00:00 = rainy_weather_13
+14:00:00 = beta_weather_14
+
+
+[sect_transition130008]
+13:00:00 = rainy_weather_13
+14:00:00 = foggy_weather_14
+
+
+[sect_transition130009]
+13:00:00 = stormy_weather_13
+14:00:00 = beta_weather_14
+
+
+[sect_transition13000A]
+13:00:00 = thunder_weather_13
+14:00:00 = grey_weather_14
+
+
+[sect_transition13000B]
+13:00:00 = thunder_weather_13
+14:00:00 = beta_weather_14
+
+
+[sect_transition140000]
+14:00:00 = beta_weather_14
+15:00:00 = rainy_weather_15
+
+
+[sect_transition140001]
+14:00:00 = beta_weather_14
+15:00:00 = dry_weather_15
+
+
+[sect_transition140002]
+14:00:00 = beta_weather_14
+15:00:00 = stormy_weather_15
+
+
+[sect_transition140003]
+14:00:00 = dry_weather_14
+15:00:00 = beta_weather_15
+
+
+[sect_transition140004]
+14:00:00 = foggy_weather_14
+15:00:00 = rainy_weather_15
+
+
+[sect_transition140005]
+14:00:00 = rainy_weather_14
+15:00:00 = foggy_weather_15
+
+
+[sect_transition140006]
+14:00:00 = rainy_weather_14
+15:00:00 = thunder_weather_15
+
+
+[sect_transition140007]
+14:00:00 = rainy_weather_14
+15:00:00 = stormy_weather_15
+
+
+[sect_transition140008]
+14:00:00 = thunder_weather_14
+15:00:00 = stormy_weather_15
+
+
+[sect_transition150000]
+15:00:00 = beta_weather_15
+16:00:00 = thunder_weather_16
+
+
+[sect_transition150001]
+15:00:00 = beta_weather_15
+16:00:00 = dry_weather_16
+
+
+[sect_transition150002]
+15:00:00 = dry_weather_15
+16:00:00 = beta_weather_16
+
+
+[sect_transition150003]
+15:00:00 = dry_weather_15
+16:00:00 = thunder_weather_16
+
+
+[sect_transition150004]
+15:00:00 = foggy_weather_15
+16:00:00 = rainy_weather_16
+
+
+[sect_transition150005]
+15:00:00 = foggy_weather_15
+16:00:00 = grey_weather_16
+
+
+[sect_transition150006]
+15:00:00 = foggy_weather_15
+16:00:00 = thunder_weather_16
+
+
+[sect_transition150007]
+15:00:00 = grey_weather_15
+16:00:00 = thunder_weather_16
+
+
+[sect_transition150008]
+15:00:00 = grey_weather_15
+16:00:00 = beta_weather_16
+
+
+[sect_transition150009]
+15:00:00 = grey_weather_15
+16:00:00 = dry_weather_16
+
+
+[sect_transition15000A]
+15:00:00 = rainy_weather_15
+16:00:00 = foggy_weather_16
+
+
+[sect_transition15000B]
+15:00:00 = rainy_weather_15
+16:00:00 = grey_weather_16
+
+
+[sect_transition15000C]
+15:00:00 = rainy_weather_15
+16:00:00 = thunder_weather_16
+
+
+[sect_transition15000D]
+15:00:00 = stormy_weather_15
+16:00:00 = grey_weather_16
+
+
+[sect_transition15000E]
+15:00:00 = stormy_weather_15
+16:00:00 = dry_weather_16
+
+
+[sect_transition15000F]
+15:00:00 = stormy_weather_15
+16:00:00 = foggy_weather_16
+
+
+[sect_transition150010]
+15:00:00 = stormy_weather_15
+16:00:00 = beta_weather_16
+
+
+[sect_transition150011]
+15:00:00 = thunder_weather_15
+16:00:00 = grey_weather_16
+
+
+[sect_transition150012]
+15:00:00 = thunder_weather_15
+16:00:00 = rainy_weather_16
+
+
+[sect_transition150013]
+15:00:00 = thunder_weather_15
+16:00:00 = beta_weather_16
+
+
+[sect_transition150014]
+15:00:00 = thunder_weather_15
+16:00:00 = foggy_weather_16
+
+
+[sect_transition150015]
+15:00:00 = thunder_weather_15
+16:00:00 = dry_weather_16
+
+
+[sect_transition160000]
+16:00:00 = beta_weather_16
+17:00:00 = foggy_weather_17
+
+
+[sect_transition160001]
+16:00:00 = beta_weather_16
+17:00:00 = dry_weather_17
+
+
+[sect_transition160002]
+16:00:00 = beta_weather_16
+17:00:00 = thunder_weather_17
+
+
+[sect_transition160003]
+16:00:00 = beta_weather_16
+17:00:00 = rainy_weather_17
+
+
+[sect_transition160004]
+16:00:00 = dry_weather_16
+17:00:00 = beta_weather_17
+
+
+[sect_transition160005]
+16:00:00 = foggy_weather_16
+17:00:00 = thunder_weather_17
+
+
+[sect_transition160006]
+16:00:00 = foggy_weather_16
+17:00:00 = rainy_weather_17
+
+
+[sect_transition160007]
+16:00:00 = rainy_weather_16
+17:00:00 = thunder_weather_17
+
+
+[sect_transition160008]
+16:00:00 = thunder_weather_16
+17:00:00 = rainy_weather_17
+
+
+[sect_transition160009]
+16:00:00 = thunder_weather_16
+17:00:00 = stormy_weather_17
+
+
+[sect_transition170000]
+17:00:00 = beta_weather_17
+18:00:00 = foggy_weather_18
+
+
+[sect_transition170001]
+17:00:00 = beta_weather_17
+18:00:00 = dry_weather_18
+
+
+[sect_transition170002]
+17:00:00 = dry_weather_17
+18:00:00 = beta_weather_18
+
+
+[sect_transition170003]
+17:00:00 = foggy_weather_17
+18:00:00 = dry_weather_18
+
+
+[sect_transition170004]
+17:00:00 = rainy_weather_17
+18:00:00 = dry_weather_18
+
+
+[sect_transition170005]
+17:00:00 = rainy_weather_17
+18:00:00 = beta_weather_18
+
+
+[sect_transition170006]
+17:00:00 = rainy_weather_17
+18:00:00 = thunder_weather_18
+
+
+[sect_transition170007]
+17:00:00 = stormy_weather_17
+18:00:00 = thunder_weather_18
+
+
+[sect_transition170008]
+17:00:00 = thunder_weather_17
+18:00:00 = foggy_weather_18
+
+
+[sect_transition170009]
+17:00:00 = thunder_weather_17
+18:00:00 = beta_weather_18
+
+
+[sect_transition17000A]
+17:00:00 = thunder_weather_17
+18:00:00 = dry_weather_18
+
+
+[sect_transition180000]
+18:00:00 = beta_weather_18
+19:00:00 = stormy_weather_19
+
+
+[sect_transition180001]
+18:00:00 = dry_weather_18
+19:00:00 = foggy_weather_19
+
+
+[sect_transition180002]
+18:00:00 = foggy_weather_18
+19:00:00 = dry_weather_19
+
+
+[sect_transition180003]
+18:00:00 = grey_weather_18
+19:00:00 = thunder_weather_19
+
+
+[sect_transition180004]
+18:00:00 = grey_weather_18
+19:00:00 = foggy_weather_19
+
+
+[sect_transition180005]
+18:00:00 = grey_weather_18
+19:00:00 = dry_weather_19
+
+
+[sect_transition180006]
+18:00:00 = rainy_weather_18
+19:00:00 = beta_weather_19
+
+
+[sect_transition180007]
+18:00:00 = thunder_weather_18
+19:00:00 = grey_weather_19
+
+
+[sect_transition180008]
+18:00:00 = thunder_weather_18
+19:00:00 = stormy_weather_19
+
+
+[sect_transition180009]
+18:00:00 = thunder_weather_18
+19:00:00 = beta_weather_19
+
+
+[sect_transition190000]
+19:00:00 = beta_weather_19
+20:00:00 = dry_weather_20
+
+
+[sect_transition190001]
+19:00:00 = beta_weather_19
+20:00:00 = grey_weather_20
+
+
+[sect_transition190002]
+19:00:00 = beta_weather_19
+20:00:00 = foggy_weather_20
+
+
+[sect_transition190003]
+19:00:00 = beta_weather_19
+20:00:00 = thunder_weather_20
+
+
+[sect_transition190004]
+19:00:00 = dry_weather_19
+20:00:00 = foggy_weather_20
+
+
+[sect_transition190005]
+19:00:00 = grey_weather_19
+20:00:00 = dry_weather_20
+
+
+[sect_transition190006]
+19:00:00 = grey_weather_19
+20:00:00 = foggy_weather_20
+
+
+[sect_transition190007]
+19:00:00 = grey_weather_19
+20:00:00 = thunder_weather_20
+
+
+[sect_transition190008]
+19:00:00 = stormy_weather_19
+20:00:00 = foggy_weather_20
+
+
+[sect_transition190009]
+19:00:00 = stormy_weather_19
+20:00:00 = dry_weather_20
+
+
+[sect_transition19000A]
+19:00:00 = stormy_weather_19
+20:00:00 = grey_weather_20
+
+
+[sect_transition19000B]
+19:00:00 = stormy_weather_19
+20:00:00 = beta_weather_20
+
+
+[sect_transition19000C]
+19:00:00 = thunder_weather_19
+20:00:00 = dry_weather_20
+
+
+[sect_transition19000D]
+19:00:00 = thunder_weather_19
+20:00:00 = beta_weather_20
+
+
+[sect_transition19000E]
+19:00:00 = thunder_weather_19
+20:00:00 = grey_weather_20
+
+
+[sect_transition19000F]
+19:00:00 = thunder_weather_19
+20:00:00 = foggy_weather_20
+
+
+[sect_transition200000]
+20:00:00 = beta_weather_20
+21:00:00 = dry_weather_21
+
+
+[sect_transition200001]
+20:00:00 = dry_weather_20
+21:00:00 = grey_weather_21
+
+
+[sect_transition200002]
+20:00:00 = dry_weather_20
+21:00:00 = stormy_weather_21
+
+
+[sect_transition200003]
+20:00:00 = dry_weather_20
+21:00:00 = beta_weather_21
+
+
+[sect_transition200004]
+20:00:00 = grey_weather_20
+21:00:00 = stormy_weather_21
+
+
+[sect_transition200005]
+20:00:00 = grey_weather_20
+21:00:00 = dry_weather_21
+
+
+[sect_transition200006]
+20:00:00 = grey_weather_20
+21:00:00 = beta_weather_21
+
+
+[sect_transition201500]
+20:15:00 = thunder_weather_20_15
+22:00:00 = rainy_weather_22
+
+
+[sect_transition210000]
+21:00:00 = foggy_weather_21
+22:00:00 = thunder_weather_22
+
+
+[sect_transition210001]
+21:00:00 = foggy_weather_21
+22:00:00 = beta_weather_22
+
+
+[sect_transition210002]
+21:00:00 = foggy_weather_21
+22:00:00 = stormy_weather_22
+
+
+[sect_transition210003]
+21:00:00 = thunder_weather_21
+22:00:00 = beta_weather_22
+
+
+[sect_transition210004]
+21:00:00 = thunder_weather_21
+22:00:00 = grey_weather_22
+
+
+[sect_transition220000]
+22:00:00 = beta_weather_22
+23:00:00 = dry_weather_23
+
+
+[sect_transition220001]
+22:00:00 = dry_weather_22
+23:00:00 = beta_weather_23
+
+
+[sect_transition220002]
+22:00:00 = rainy_weather_22
+23:00:00 = stormy_weather_23
+
+
+[sect_transition220003]
+22:00:00 = stormy_weather_22
+23:00:00 = rainy_weather_23
+
+
+[sect_transition220004]
+22:00:00 = stormy_weather_22
+23:00:00 = grey_weather_23
+
+
+[sect_transition220005]
+22:00:00 = stormy_weather_22
+23:00:00 = foggy_weather_23
+
+
+[sect_transition220006]
+22:00:00 = thunder_weather_22
+23:00:00 = grey_weather_23
+
+
+[sect_transition230000]
+23:00:00 = beta_weather_23
+00:00:00 = dry_weather_00
+
+
+[sect_transition230001]
+23:00:00 = dry_weather_23
+00:00:00 = beta_weather_00
+
+
+[sect_transition230002]
+23:00:00 = foggy_weather_23
+00:00:00 = thunder_weather_00
+
+
+[sect_transition230003]
+23:00:00 = grey_weather_23
+00:00:00 = stormy_weather_00
+
+
+[sect_transition230004]
+23:00:00 = grey_weather_23
+00:00:00 = rainy_weather_00
+
+
+[sect_transition230005]
+23:00:00 = rainy_weather_23
+00:00:00 = stormy_weather_00

@@ -1,0 +1,120 @@
+------------------------------------
+-- Модуль "Охотник на Больших птиц".
+-- Created by Monnoroch.
+-- 2.08.09
+------------------------------------
+
+class "evaluator_hunter_heli" (property_evaluator)
+function evaluator_hunter_heli:__init(npc,name,storage) super (nil,name)
+	self.st = storage
+	self.st.attack_heli = 40000
+	self.st.attack_mob = 9
+end
+function evaluator_hunter_heli:evaluate()
+	local npc = self.object
+	if self.delay and self.delay >= time_global() then
+		return false
+	end
+	self.danger = npc:best_danger()
+	self.firepow = mon_utils.get_target_priority(npc)
+	self.st.heli = mon_utils.get_nearest_heli(npc, self.st.attack_heli)
+	self.st.camp = mon_utils.get_camp(npc)
+	if self.st.heli then
+		if not mon_utils.is_heli_alive(self.st.heli) or self.st.heli:position():distance_to_sqr(npc:position()) > self.st.attack_heli then
+			self.st.heli = nil
+		end
+	end
+	if not self.st.heli then
+		self.st.need_cov = nil
+		self.st.need_hunt = nil
+		self.delay = time_global() + 500
+		return false
+	end
+	if  self.firepow < 3 then
+		if self.st.camp then
+			self.st.need_cov = true
+		else
+			self.st.need_hunt = true
+		end
+	end
+	if self.danger and self.danger ~= self.st.heli and self.danger:position():distance_to_sqr(npc:position()) < self.st.attack_mob then
+		return false
+	end
+	self.st.need_hunt = true
+	return true
+end
+
+class "action_hunter_heli" (action_base)
+function action_hunter_heli:__init (npc,action_name,storage) super (nil,action_name)
+	self.st = storage
+end
+function action_hunter_heli:initialize()
+	action_base.initialize(self)
+	local npc = self.object
+	npc:set_desired_position()
+	npc:set_desired_direction()
+	npc:set_detail_path_type(move.curve)
+	npc:set_path_type(game_object.level_path)
+end
+function action_hunter_heli:execute()
+	action_base.execute(self)
+	local npc = self.object
+	if npc:active_item() and ((not self.actit) or (self.actit and self.actit ~= npc:active_item():section())) then
+		self.actit = npc:active_item():section()
+		self.bs = mon_utils.get_bs(npc)
+	end
+	if self.bs then
+		self.lookpos = mon_utils.look_pos(self.st.heli,npc,self.bs)
+	end
+	if self.st.need_hunt and self.lookpos then
+		if self.delay and self.delay >= time_global() then
+			return
+		end
+		state_mgr.set_state(npc, "raid_fire", nil, nil, {look_position = self.lookpos}, nil, nil, {yaw_delta=10})
+		self.delay = time_global() + 400
+	elseif self.st.need_cov or not self.lookpos then
+		npc:set_dest_level_vertex_id(self.st.camp)
+		if state_mgr.get_state(npc) ~= "sprint" then
+			state_mgr.set_state(npc,"sprint",nil,nil,nil,{animation = true})
+		end
+	end		
+end
+function action_hunter_heli:finalize()
+	action_base.finalize(self)
+	self.st.heli = nil
+	self.delay = nil
+	self.st.need_cov = nil
+	self.st.need_hunt = nil
+	self.st.camp = nil
+	self.lookpos = nil
+end
+
+evid_hunter_heli = mon_ai.evid_mon_base + 3
+actid_hunter_heli = evid_hunter_heli
+
+function add_to_binder(npc,ini,scheme,section,storage)
+	local manager = npc:motivation_action_manager()
+	manager:add_evaluator(evid_hunter_heli,evaluator_hunter_heli(npc,"eva_hunter_heli",storage))
+	local action = action_hunter_heli(npc,"act_hunter_heli",storage)
+	action:add_precondition(world_property(stalker_ids.property_alive,true))
+	action:add_precondition(world_property(xr_evaluators_id.sidor_wounded_base,false))
+	if blowout_scheme then
+		action:add_precondition(world_property(blowout_scheme.evid_blowout,false))
+	end
+	action:add_precondition(world_property(evid_hunter_heli,true))
+	action:add_effect(world_property(evid_hunter_heli,false))
+	manager:add_action(actid_hunter_heli,action)
+	action = manager:action(xr_actions_id.alife)
+	action:add_precondition(world_property(evid_hunter_heli,false))
+end
+
+function set_scheme(npc,ini,scheme,section)
+	local st = xr_logic.assign_storage_and_bind(npc,ini,scheme,section)
+end
+
+function disable_scheme(npc, scheme)
+	local st = db.storage[npc:id()][scheme]
+	if st then
+		st.enabled = false
+	end
+end

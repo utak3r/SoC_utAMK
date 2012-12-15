@@ -1,0 +1,206 @@
+------------------------------------
+-- Модуль "Сон НПС".
+-- Created by Bak (Rulix), Monnoroch.
+-- 15.07.09
+------------------------------------
+
+class "evaluator_sleep" (property_evaluator)
+function evaluator_sleep:__init(npc,name,storage) super (nil,name)
+	self.st = storage
+	self.delay = time_global()+math.random(3000,12000)
+	mon_ai.subscribe_for_events(npc,self)
+	self.start_hour_rnd = 1
+	self.end_hour_rnd = 6
+	self.minute_rnd = math.random(59)
+end
+function evaluator_sleep:evaluate()
+	local npc = self.object
+	if self.delay and self.delay > time_global() then
+		return self.res
+	elseif not self.st.camp then
+		self.st.camp = mon_utils.get_camp(npc)
+	end
+	local htime = level.get_time_hours()
+	if htime > 7 then
+		self.not_sleep = true
+	end
+	if not self.st.camp then
+		self.not_sleep = true
+	end
+	local stor = db.storage[npc:id()]
+	if stor.active_scheme and stor[stor.active_scheme].no_sleep then
+		self.not_sleep = true
+	end
+	if self.not_sleep then
+		self.not_sleep = nil
+		self.delay = time_global()+math.random(10000,60000)
+		self.res = false
+		return self.res
+	end
+	local mtime = level.get_time_minutes()
+	if (htime < self.start_hour_rnd or htime == self.start_hour_rnd and mtime < self.minute_rnd) or (htime > self.end_hour_rnd or htime == self.end_hour_rnd and mtime > self.minute_rnd) then
+		self.st.sit = true
+	else
+		self.st.sit = nil
+	end
+	self.delay = time_global()+math.random(5000,15000)
+	self.res = true
+	return self.res
+end
+
+function evaluator_sleep:hit_callback(amount, dir, who)
+	--u3_utils.printf("evaluator_sleep:hit_callback started - "..who:name())
+	self.not_sleep = true
+	self.delay = time_global()+math.random(10000, 30000)
+	self.res = false
+	return self.res
+end
+
+/*
+function evaluator_sleep:hear_callback(self, who, sound_type, sound_position, sound_power)
+	if who:id() == self:id() then
+		return
+	end
+	u3_utils.printf("evaluator_sleep:hear_callback started")
+	if bit_and(sound_type, snd_type.weapon) == snd_type.weapon then
+		if bit_and(sound_type, snd_type.weapon_shoot) == snd_type.weapon_shoot then
+			self.res = false
+			self.delay = time_global()+math.random(2000, 5000)
+		end
+	end
+	if bit_and(sound_type, snd_type.monster) == snd_type.monster then
+		if bit_and(sound_type, snd_type.monster_attack) == snd_type.monster_attack then
+			self.res = false
+			self.delay = time_global()+math.random(5000, 10000)
+		end
+	end
+end
+*/
+
+class "action_sleep" (action_base)
+function action_sleep:__init (npc,action_name,storage) super (nil,action_name)
+	self.st = storage
+	self.dist_rnd_sleep = math.random(1,2)
+	self.dist_rnd_sit = math.random(15,25)
+end
+function action_sleep:initialize()
+	action_base.initialize(self)
+	local npc = self.object
+	self.torch = npc:object("device_torch")
+	if self.st.camp and level.vertex_position(self.st.camp):distance_to(npc:position()) < self.dist_rnd_sleep then
+		self.sleep = true
+	else	
+		self.delay = time_global()+1000
+	end
+	self.look_pos = npc:position():add(vector():set(math.random()*6-3,0,math.random()*6-3))
+	npc:set_desired_position()
+	npc:set_desired_direction()
+	npc:set_detail_path_type(move.curve)
+	npc:set_path_type(game_object.level_path)
+end
+function action_sleep:execute()
+	action_base.execute(self)
+	local npc = self.object
+	local htime = level.get_time_hours()
+	if not self.st.camp then
+		return
+	end
+	if self.sleep then
+		if self.torch then
+			self.torch:enable_attachable_item(false)
+		end
+		if self.st.sit then
+			if state_mgr.get_state(npc) ~= "sleep_sit" then
+				state_mgr.set_state(npc,"sleep_sit",nil,nil,{look_position = self.look_pos},{animation = true})
+				xr_sound.set_sound(npc,"sleep")
+			end
+		else
+			if state_mgr.get_state(npc) ~= "sleep" then
+				state_mgr.set_state(npc,"sleep",nil,nil,{look_position = self.look_pos},{animation = true})
+				xr_sound.set_sound(self.object,nil)
+			end
+		end
+	else
+		local tg = time_global()
+		if self.wfa and self.wfa < tg then
+			self.sleep = true
+		elseif self.delay < tg then
+			local dist = level.vertex_position(self.st.camp):distance_to(npc:position())
+			local ddist = self.dist_rnd_sleep
+			if self.st.sit then
+				ddist = self.dist_rnd_sit
+			end
+			if dist < ddist then
+				self.sleep = true
+				return
+			end
+			state_mgr.set_state(npc,"walk")
+			npc:set_dest_level_vertex_id(self.st.camp)
+			self.delay = tg+4000
+			if dist < 10 and not self.wfa then
+				self.wfa = tg+20000
+			end
+		end		
+	end
+end
+function action_sleep:finalize()
+    action_base.finalize(self)
+	self.sleep = nil
+	self.delay = nil
+	self.st.camp = nil
+	self.wfa = nil
+	xr_sound.set_sound(self.object,nil)
+end
+
+evid_sleep = mon_ai.evid_mon_base
+actid_sleep = evid_sleep
+
+function add_to_binder(npc,ini,scheme,section,storage)
+	local manager = npc:motivation_action_manager()
+	local com = npc:character_community()
+	local aaa = true
+	if mon_utils.urodi[npc:name()] then
+		aaa = nil
+	end
+	if com == "zombied" or com == "arena_enemy" or com == "trader" or not aaa or npc:story_id() ~= 4294967296 then
+		manager:add_evaluator(evid_sleep,property_evaluator_const(false))
+		printf("sleep[%s]:",npc:character_name())
+		return
+	end
+	manager:add_evaluator(evid_sleep,evaluator_sleep(npc,"eva_sleep",storage))
+	local action = action_sleep(npc,"act_sleep",storage)
+	action:add_precondition(world_property(stalker_ids.property_alive,true))
+	action:add_precondition(world_property(stalker_ids.property_danger,false))
+	action:add_precondition(world_property(stalker_ids.property_enemy,false))
+	action:add_precondition(world_property(xr_evaluators_id.sidor_wounded_base,false))
+	if rx_reload and rx_reload.evid_reload then
+		action:add_precondition(world_property(rx_reload.evid_reload,false))
+	end
+	if xrs_medic and xrs_medic.evid_self_medic then
+		action:add_precondition(world_property(xrs_medic.evid_self_medic,false))
+	end
+	if watcher_act then
+		action:add_precondition(world_property(watcher_act.evid_see_stuff,false))
+		action:add_precondition(world_property(watcher_act.evid_near_stuff,false))
+	end
+	if blowout_scheme then
+		action:add_precondition(world_property(blowout_scheme.evid_anomaly,false))
+		action:add_precondition(world_property(blowout_scheme.evid_blowout,false))
+	end
+	action:add_precondition(world_property(evid_sleep,true))
+	action:add_effect(world_property(evid_sleep,false))
+	manager:add_action(actid_sleep,action)
+	action = manager:action(xr_actions_id.alife)
+	action:add_precondition(world_property(evid_sleep,false))
+end
+
+function set_scheme(npc,ini,scheme,section)
+	local st = xr_logic.assign_storage_and_bind(npc,ini,scheme,section)
+end
+
+function disable_scheme(npc, scheme)
+	local st = db.storage[npc:id()][scheme]
+	if st then
+		st.enabled = false
+	end
+end

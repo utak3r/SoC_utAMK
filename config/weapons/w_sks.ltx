@@ -1,0 +1,195 @@
+[wpn_sks]:identity_immunities
+weapon_class				= sniper_rifle
+$spawn                   	= "weapons\sks"
+$npc                     	= off
+$prefetch 		         	= 8
+scheduled                	= off
+cform                    	= skeleton
+class                    	= WP_VINT
+min_radius               	= 20
+max_radius               	= 125
+
+inv_name	        		= SKS
+inv_name_short				= SKS
+description					= SKS
+
+cost						= 10250
+inv_weight					= 3.85
+
+visual                   	= weapons\sks\wpn_sks.ogf
+
+ef_main_weapon_type			= 3
+ef_weapon_type				= 8
+
+holder_range_modifier		= 1
+holder_fov_modifier			= 1
+
+hand_dependence		    	= 1
+single_handed				= 0
+
+sprint_allowed				= true
+
+slot 			         	= 2
+animation_slot			 	= 8
+
+inv_grid_width				= 6
+inv_grid_height				= 2
+inv_grid_x					= 17
+inv_grid_y					= 36
+
+kill_msg_x					= 98
+kill_msg_y					= 0
+kill_msg_width				= 78
+kill_msg_height				= 25
+
+ammo_limit		         	= 100
+ammo_current		     	= 50
+ammo_elapsed		     	= 10
+
+ph_mass						= 5
+
+
+;-----Ballistics, Handling & Accuracy-----;
+hit_power                	= 1.09
+hit_impulse		        	= 1
+hit_type 					= fire_wound
+
+fire_distance            	= 180
+bullet_speed				= 735
+rpm                      	= 40
+
+ammo_mag_size				= 10
+ammo_class					= ammo_7.62x54_ap, ammo_7.62x54_7h14, ammo_7.62x54_7h1, ammo_7.62x54r
+fire_modes					= 1
+	
+tri_state_reload			= off
+
+control_inertion_factor		= 1.00f
+
+fire_dispersion_base		= 0.25
+handling_factor				= 1.00
+use_aim_bullet				= true
+time_to_aim					= 0.50
+
+PDM_disp_base 				= 2.00
+PDM_disp_vel_factor 		= 0.75
+PDM_disp_accel_factor 		= 1.75
+PDM_crouch	 				= 0.50
+PDM_crouch_no_acc 			= 0.50
+
+cam_relax_speed        	 	= 0.0
+cam_relax_speed_ai      	= 360
+cam_dispersion         	 	= 2.40
+cam_step_angle_horz			= 1.50
+cam_dispersion_inc			= 0.25
+cam_dispertion_frac			= 1.50
+cam_max_angle				= 180.0
+cam_max_angle_horz			= 180.0
+
+fire_dispersion_condition_factor 	= 2.000
+misfire_probability 				= 0.0055
+misfire_condition_k					= 0.15
+condition_shot_dec 					= 0.00040
+
+
+;-----Sights & Attachments-----;
+;--Scope & Sight--
+zoom_enabled				= true
+
+scope_status				= 2
+scope_name 					= wpn_addon_scope
+scope_x 					= 42
+scope_y 					= 3
+
+scope_zoom_factor = 70;	    	= 90.0
+;max_zoom_factor			= 5
+;scope_texture				= wpn\wpn_crosshair_g36
+
+;--Silencer--
+silencer_status				= 0
+
+;silencer_name  			= wpn_addon_silencer
+;silencer_x 				= 37
+;silencer_y 				= -15
+
+;--Grenade Launcher--
+grenade_launcher_status		= 0
+;grenade_vel				= 76
+;grenade_class				= ammo_m209
+
+grenade_launcher_name 		= wpn_addon_grenade_launcher_m203
+grenade_launcher_x 			= 130
+grenade_launcher_y 			= 31
+
+
+;-----Sounds, Particles, Muzzleflash & Miscellaneous-----;
+
+snd_draw					= weapons\sks_draw
+snd_holster					= weapons\sniper_holster
+snd_shoot					= weapons\sks_shoot
+snd_empty					= weapons\rifle_empty
+snd_reload					= weapons\sks_reload
+
+rpm_empty_click 	 		= 200
+
+light_disabled				= false
+
+light_color					= 1.0,1.0,0.4
+light_range					= 2.0
+light_var_color				= 0.0
+light_var_range				= 1.0
+light_time 					= 0.1
+
+silencer_light_color		= 0.0,0.0,0.0
+silencer_light_range		= 0.00
+silencer_light_var_color	= 0.00
+silencer_light_var_range	= 0.0
+silencer_light_time 		= 0.0
+
+flame_particles				= weapons\generic_weapon06
+smoke_particles				= weapons\generic_shoot_00
+
+shell_point		 			= 0.0, 0.211, 0.99
+shell_dir		 			= 0.0, 1.0, 0.0
+shell_particles	 			= weapons\generic_shells
+
+normal                   	= 0, 1, 0
+position         	    	= -0.026,-0.172,0
+orientation              	= 0, 0, 0
+
+direction                	= 0, 0, 1
+
+fire_point               	= 0.0, 0.207, 0.474
+
+weapon_remove_time			= 1000
+
+strap_position         		= -0.26,-0.11,0.20
+strap_orientation      		= -15,-9,110
+strap_bone0					= bip01_spine2
+strap_bone1					= bip01_spine1
+
+
+hud                      	= wpn_sks_hud
+[wpn_sks_hud]
+shell_point          		= -0.15, -0.02, 0.05
+shell_dir			 		= 0.0, 1.0, 0.0
+
+fire_point               	= 0,0,-0.5
+fire_bone                	= muzzle
+orientation              	= 0, 0, 0
+position                	= 0.10,-0.06,-0.05
+visual                   	= weapons\sks\wpn_sks_hud.ogf
+
+anim_idle					= idle
+anim_idle_aim				= idle_aim
+anim_reload					= reload
+anim_draw					= draw
+anim_holster				= holster
+anim_shoot					= shoot
+anim_idle_sprint			= idle_sprint
+
+zoom_hide_crosshair			= true
+zoom_rotate_time			= 0.35
+zoom_offset					= -0.10,0.06,0.05
+zoom_rotate_x				= 0.0
+zoom_rotate_y				= 0.0

@@ -1,0 +1,183 @@
+
+-- file: ui_lua_console.script
+-- author: nova
+-- date: 2009-08-23
+-- edited by: barin
+-- last edited: 2009-09-18
+
+luaconsole = {}
+luaconsolehistory = {}
+lasthistoryselect = 0
+
+class "ConsoleListItem" (CUIListItemEx)
+
+function ConsoleListItem:__init(str, c) super()
+	self:SetWndRect(0, 0, 497, 18)
+	
+	self.item = CUIStatic()
+	self.item:SetAutoDelete(true)
+	self.item:SetWndRect(2, 0, 480, 18)
+	self.item:SetText(if_then_else(str ~= nil, str, ""))
+	self.item:SetTextAlign(CGameFont.alLeft)
+	self.item:SetFont(GetFontLetterica16Russian())
+	
+	if c == "in" then
+		self.item:SetTextColor(255, 0, 255, 0) -- green
+	elseif c == "out" then
+		self.item:SetTextColor(255, 255, 255, 255) -- white
+	elseif c == "err" then
+		self.item:SetTextColor(255, 255, 0, 0) -- red
+	else
+		self.item:SetTextColor(255, 128, 128, 128) -- grey
+	end
+	
+	self:AttachChild(self.item)
+end
+
+-- ************************************************************************* --
+
+class "Lua_Console" (CUIScriptWnd)
+
+function Lua_Console:__init() super()
+	self:InitControls()
+	self:InitCallBacks()
+	
+	for k, v in pairs(luaconsole) do 
+		self:GetListWnd("list_view_history"):AddItem(ConsoleListItem(v))
+	end
+end
+
+function Lua_Console:__finalize()
+end
+
+function Lua_Console:InitControls()
+	self.wnd_width = 500
+	self.wnd_height = 400
+	
+	self.wnd_x = 512 - self.wnd_width / 2
+	self.wnd_y = 384 - self.wnd_height / 2
+	
+	self:Init(0, 0, device().width, device().height)
+	self:SetWndRect(self.wnd_x, self.wnd_y, self.wnd_width, self.wnd_height + 50)
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile("ui_lua_console.xml")
+	
+	xml:InitFrameLine("caption", self)
+	xml:InitFrame("wnd_frame", self)
+	self:Register(xml:InitList("list_view_history", self), "list_view_history")
+	self:Register(xml:InitEditBox("code_name", self), "code_name")
+	self:Register(xml:Init3tButton("button_code_clear", self), "button_code_clear")
+end
+
+function Lua_Console:InitCallBacks()
+	self:AddCallback("code_name", ui_events.EDIT_TEXT_COMMIT, self.OnRunClicked, self)
+	self:AddCallback("button_code_clear",	ui_events.BUTTON_CLICKED,	self.OnClearClicked, self)
+end
+
+function Lua_Console:OnKeyboard(key, action)
+	CUIScriptWnd.OnKeyboard(self, key, action)
+	
+	if action == ui_events.WINDOW_KEY_PRESSED then
+		if key == DIK_keys.DIK_ESCAPE then
+			self:GetHolder():start_stop_menu(self, true)
+		elseif key == DIK_keys.DIK_UP then
+			lasthistoryselect = lasthistoryselect + 1
+			if luaconsolehistory[lasthistoryselect] then
+				self:GetEditBox("code_name"):SetText(luaconsolehistory[lasthistoryselect])
+			else
+				self:GetEditBox("code_name"):SetText("")
+				lasthistoryselect = 0
+			end
+		elseif key == DIK_keys.DIK_DOWN then
+			lasthistoryselect = lasthistoryselect - 1
+			if luaconsolehistory[lasthistoryselect] then
+				self:GetEditBox("code_name"):SetText(luaconsolehistory[lasthistoryselect])
+			else
+				self:GetEditBox("code_name"):SetText("")
+				lasthistoryselect = table.getn(luaconsolehistory) + 1
+			end
+		elseif key == DIK_keys.DIK_RETURN then
+			self:OnRunClicked()
+		end
+	end
+	
+	return true
+end
+
+function Lua_Console:OnRunClicked()
+	local code = self:GetEditBox("code_name"):GetText()
+	if code and code ~= "" then
+		--[[
+		if string.find(code, "return") ~= 1 then
+			code = "return " .. code
+		end
+		--]]
+		
+		self:GetListWnd("list_view_history"):AddItem(ConsoleListItem("<< " .. code, "in"))
+		
+		table.insert(luaconsolehistory, code)
+		table.insert(luaconsole, "<< " .. code)
+		
+		lasthistoryselect = table.getn(luaconsolehistory) + 1
+		local results = {pcall(function() return {assert(loadstring(code))()} end)}
+		
+		if results[1] == true then
+			if results[2] and results[2][1] then
+				returned = ">> "
+				for k, v in pairs(results[2]) do
+					if k == 1 then
+						returned = returned  .. tostring(v)
+					else
+						returned = returned .. ", " .. tostring(v)
+					end
+				end
+				self:GetListWnd("list_view_history"):AddItem(ConsoleListItem(returned, "out"))
+				table.insert(luaconsole, returned)
+			end
+		else
+			if results[2] then
+				if string.find (results[2], "\"]") then
+				local charstart, charend = string.find(results[2], "\"]")
+						local errorcode = string.sub(results[2], charend, -1)
+						self:GetListWnd("list_view_history"):AddItem(ConsoleListItem(errorcode, "err"))
+						table.insert(luaconsole, errorcode)
+				elseif string.find(results[2], "\\scripts\\") then
+					local charstart, charend = string.find (results[2], "\\scripts\\")
+					local errorcode = string.sub(results[2], charend, -1)
+					self:GetListWnd("list_view_history"):AddItem(ConsoleListItem(errorcode, "err"))
+					table.insert(luaconsole, errorcode)
+				else
+					self:GetListWnd("list_view_history"):AddItem(ConsoleListItem(results[2], "err"))
+					table.insert(luaconsole, results[2])
+				end
+			end
+		end
+		self:GetEditBox("code_name"):SetText("")
+	end
+end
+
+function Lua_Console:ConcatTable(data, txt)
+	for k,v in pairs(data) do
+		if type(v) == "table" then
+			txt = txt .. "{" .. k .. "="
+			txt = self.ConcatTable(v, txt)
+			txt = txt .. "},"
+		else
+			txt = txt .. tostring(v) .. ", "
+		end
+	end
+
+	return txt
+end
+
+function Lua_Console:OnClearClicked()
+	luaconsole = {}
+	self:GetListWnd("list_view_history"):RemoveAll()
+end
+
+-- ************************************************************************* --
+
+function load_lua_console()
+	level.start_stop_menu(Lua_Console(), true)
+end

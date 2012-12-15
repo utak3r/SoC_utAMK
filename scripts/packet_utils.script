@@ -1,0 +1,2856 @@
+
+-- file: packet_utils.script
+-- author: barin, Bardak (acdc.pl), xStream (xrs_utils.script)
+-- date: 2010-02-01
+-- edited by: barin
+-- last edited: 2010-02-09
+
+-- FIXME: if object using cse_ph_skeleton_properties is online then there are
+-- approx. 44 bytes saved right after skeleton properties and that makes any
+-- other data read after skeleton properties wrong; for instance for online
+-- physic_object data (physic_type, mass, fixed_bones) seems to be wrong,
+-- same as online helicopter data (cse_alife_helicopter__unk1_sz, engine_sound)
+-- in case of offline objects - problem doesn't exist
+-- 
+-- temporary solution:
+-- either stop reading after skeleton or make sure object is offline
+-- 
+-- => cse_ph_skeleton_properties (skeleton)
+-- => cse_alife_object_physic_properties (skeleton)
+-- => cse_alife_object_hanging_lamp_properties (ph_skeleton)
+-- => cse_alife_car_properties (skeleton)
+-- => cse_alife_helicopter_properties (skeleton)
+-- => cse_alife_creature_actor_properties (skeleton)
+-- => se_stalker_properties (skeleton)
+-- => se_monster_properties (skeleton)
+
+local read_se_script_data = true
+local write_se_script_data = false
+
+-- this affects only se_stalker_properties class; change to false
+-- if you are using "bug fix attempt" and either
+-- read_se_script_data or write_se_script_data is set to true
+local vanilla_se_stalker = true
+
+-- add your custom sections here:
+local section_to_class =
+{
+	["inventory_box"] = "cse_alife_inventory_box",
+	["respawn"] = "se_respawn",
+	
+	["space_restrictor"] = "cse_alife_space_restrictor",
+	["level_changer"] = "cse_alife_level_changer",
+	["smart_terrain"] = "se_smart_terrain",
+	
+	["physic_object"] = "cse_alife_object_physic",
+	["physic_destroyable_object"] = "cse_alife_object_physic",
+	["lights_hanging_lamp"] = "cse_alife_object_hanging_lamp",
+	
+	["breakable_object"] = "cse_alife_object_breakable",
+	["climable_object"] = "cse_alife_object_climable",
+	["search_light"] = "cse_alife_object_projector",
+	
+	["script_zone"] = "cse_alife_smart_zone",
+	["graph_point"] = "cse_alife_graph_point",
+	
+	["m_car"] = "cse_alife_car",
+	["helicopter"] = "cse_alife_helicopter",
+	
+	["actor"] = "cse_alife_creature_actor",
+	["m_trader"] = "cse_alife_trader",
+	
+	["stalker"] = "se_stalker",
+	["stalker_monolith"] = "se_stalker",
+	["stalker_zombied"] = "se_stalker",
+	["stalker_trader"] = "se_stalker",
+	["stalker_sakharov"] = "se_stalker",
+	["m_barman"] = "se_stalker",
+	["m_osoznanie"] = "se_stalker",
+	
+	["m_crow"] = "cse_alife_creature_crow",
+	["m_phantom"] = "cse_alife_creature_phantom",
+	
+	["m_bloodsucker_e"] = "se_monster",
+	["bloodsucker_weak"] = "se_monster",
+	["bloodsucker_normal"] = "se_monster",
+	["bloodsucker_strong"] = "se_monster",
+	["bloodsucker_arena"] = "se_monster",
+	["bloodsucker_mil"] = "se_monster",
+	
+	["m_boar_e"] = "se_monster",
+	["boar_weak"] = "se_monster",
+	["boar_normal"] = "se_monster",
+	["boar_strong"] = "se_monster",
+	
+	["m_burer_normal_black"] = "se_monster",
+	["m_burer_e"] = "se_monster",
+	["burer_normal"] = "se_monster",
+	["burer_arena"] = "se_monster",
+	["burer_indoor"] = "se_monster",
+	["burer_outdoor"] = "se_monster",
+	["burer_weak"] = "se_monster",
+	["burer_leader"] = "se_monster",
+	
+	["m_cat_e"] = "se_monster",
+	["cat_weak"] = "se_monster",
+	
+	["m_chimera"] = "se_monster",
+	["chimera_weak"] = "se_monster",
+	
+	["m_controller_e"] = "se_monster",
+	["m_controller_normal"] = "se_monster",
+	["m_controller_normal_fat"] = "se_monster",
+	["m_controller_old"] = "se_monster",
+	["m_controller_old_fat"] = "se_monster",
+	["controller_tubeman"] = "se_monster",
+	["controller_mainboss"] = "se_monster",
+	
+	["m_dog_e"] = "se_monster",
+	["dog_weak"] = "se_monster",
+	["dog_normal"] = "se_monster",
+	["dog_strong"] = "se_monster",
+	
+	["m_flesh_e"] = "se_monster",
+	["flesh_weak"] = "se_monster",
+	["flesh_normal"] = "se_monster",
+	["flesh_strong"] = "se_monster",
+	
+	["m_fracture_e"] = "se_monster",
+	["fracture_weak"] = "se_monster",
+	
+	["m_gigant_e"] = "se_monster",
+	["gigant_normal"] = "se_monster",
+	["gigant_strong"] = "se_monster",
+	
+	["m_poltergeist_e"] = "se_monster",
+	["m_poltergeist_normal"] = "se_monster",
+	["m_poltergeist_normal_tele"] = "se_monster",
+	["m_poltergeist_tele_outdoor"] = "se_monster",
+	["m_poltergeist_normal_flame"] = "se_monster",
+	["m_poltergeist_strong_flame"] = "se_monster",
+	
+	["m_pseudodog_e"] = "se_monster",
+	["pseudodog_weak"] = "se_monster",
+	["pseudodog_normal"] = "se_monster",
+	["pseudodog_strong"] = "se_monster",
+	["pseudodog_arena"] = "se_monster",
+	["psy_dog"] = "se_monster",
+	["psy_dog_phantom"] = "se_monster", --cse_alife_psy_dog_phantom
+	["psy_dog_radar"] = "se_monster",
+	
+	["m_rat_e"] = "se_monster",
+	
+	["m_snork_e"] = "se_monster",
+	["snork_weak"] = "se_monster",
+	["snork_normal"] = "se_monster",
+	["snork_strong"] = "se_monster",
+	["aes_snork"] = "se_monster",
+	["snork_arena"] = "se_monster",
+	["snork_indoor"] = "se_monster",
+	["snork_outdoor"] = "se_monster",
+	["snork_jumper"] = "se_monster",
+	
+	["m_tushkano_e"] = "se_monster",
+	["m_tushkano_normal"] = "se_monster",
+	["tushkano_normal"] = "se_monster",
+	
+	["m_zombie_e"] = "se_monster",
+	["zombie_weak"] = "se_monster",
+	["zombie_normal"] = "se_monster",
+	["zombie_strong"] = "se_monster",
+	["zombie_immortal"] = "se_monster",
+	["zombie_ghost"] = "se_monster",
+	
+	["af_ameba_mica"] = "cse_alife_item_artefact",
+	["af_ameba_slug"] = "cse_alife_item_artefact",
+	["af_blood"] = "cse_alife_item_artefact",
+	["af_cristall_flower"] = "cse_alife_item_artefact",
+	["af_dummy_battery"] = "cse_alife_item_artefact",
+	["af_dummy_dummy"] = "cse_alife_item_artefact",
+	["af_dummy_glassbeads"] = "cse_alife_item_artefact",
+	["af_dummy_pellicle"] = "cse_alife_item_artefact",
+	["af_dummy_spring"] = "cse_alife_item_artefact",
+	["af_electra_flash"] = "cse_alife_item_artefact",
+	["af_electra_moonlight"] = "cse_alife_item_artefact",
+	["af_electra_sparkler"] = "cse_alife_item_artefact",
+	["af_fireball"] = "cse_alife_item_artefact",
+	["af_fuzz_kolobok"] = "cse_alife_item_artefact",
+	["af_gold_fish"] = "cse_alife_item_artefact",
+	["af_gravi"] = "cse_alife_item_artefact",
+	["af_medusa"] = "cse_alife_item_artefact",
+	["af_mincer_meat"] = "cse_alife_item_artefact",
+	["af_night_star"] = "cse_alife_item_artefact",
+	["af_rusty_sea-urchin"] = "cse_alife_item_artefact",
+	["af_vyvert"] = "cse_alife_item_artefact",
+	
+	["bolt"] = "cse_alife_item_bolt",
+	["device_pda"] = "cse_alife_item_pda",
+	["device_torch"] = "cse_alife_item_torch",
+	
+	["bread"] = "cse_alife_item",
+	["bread_a"] = "cse_alife_item",
+	["kolbasa"] = "cse_alife_item",
+	["vodka"] = "cse_alife_item",
+	["medkit"] = "cse_alife_item",
+	["conserva"] = "cse_alife_item",
+	["energy_drink"] = "cse_alife_item",
+	["antirad"] = "cse_alife_item",
+	["bandage"] = "cse_alife_item",
+	["medkit"] = "cse_alife_item",
+	["medkit_army"] = "cse_alife_item",
+	["medkit_scientic"] = "cse_alife_item",
+	["guitar_a"] = "cse_alife_item",
+	["hand_radio"] = "cse_alife_item",
+	["quest_case_01"] = "cse_alife_item",
+	["quest_case_02"] = "cse_alife_item",
+	["pri_decoder_documents"] = "cse_alife_item",
+	["dar_document4"] = "cse_alife_item",
+	["gunslinger_flash"] = "cse_alife_item",
+	["decoder"] = "cse_alife_item",
+	
+	["bandit_outfit"] = "cse_alife_item_custom_outfit",
+	["outfit_bandit_m1"] = "cse_alife_item_custom_outfit",
+	["dolg_outfit"] = "cse_alife_item_custom_outfit",
+	["dolg_scientific_outfit"] = "cse_alife_item_custom_outfit",
+	["exo_outfit"] = "cse_alife_item_custom_outfit",
+	["killer_outfit"] = "cse_alife_item_custom_outfit",
+	["monolit_outfit"] = "cse_alife_item_custom_outfit",
+	["specops_outfit"] = "cse_alife_item_custom_outfit",
+	["military_outfit"] = "cse_alife_item_custom_outfit",
+	["stalker_outfit"] = "cse_alife_item_custom_outfit",
+	["svoboda_heavy_outfit"] = "cse_alife_item_custom_outfit",
+	["svoboda_light_outfit"] = "cse_alife_item_custom_outfit",
+	["protection_outfit"] = "cse_alife_item_custom_outfit",
+	["exolog_outfit"] = "cse_alife_item_custom_outfit",
+	
+	["wpn_addon_scope"] = "cse_alife_item",
+	["wpn_addon_scope_susat"] = "cse_alife_item",
+	["wpn_addon_silencer"] = "cse_alife_item",
+	["wpn_addon_grenade_launcher"] = "cse_alife_item",
+	["wpn_addon_grenade_launcher_m203"] = "cse_alife_item",
+	
+	["grenade_f1"] = "cse_alife_item_grenade",
+	["grenade_rgd5"] = "cse_alife_item_grenade",
+	
+	["ammo_11.43x23_fmj"] = "cse_alife_item_ammo",
+	["ammo_11.43x23_hydro"] = "cse_alife_item_ammo",
+	["ammo_12x70_buck"] = "cse_alife_item_ammo",
+	["ammo_12x76_dart"] = "cse_alife_item_ammo",
+	["ammo_12x76_zhekan"] = "cse_alife_item_ammo",
+	["ammo_5.45x39_ap"] = "cse_alife_item_ammo",
+	["ammo_5.45x39_fmj"] = "cse_alife_item_ammo",
+	["ammo_5.56x45_ap"] = "cse_alife_item_ammo",
+	["ammo_5.56x45_ss190"] = "cse_alife_item_ammo",
+	["ammo_7.62x54_7h1"] = "cse_alife_item_ammo",
+	["ammo_7.62x54_7h14"] = "cse_alife_item_ammo",
+	["ammo_7.62x54_ap"] = "cse_alife_item_ammo",
+	["ammo_9x18_fmj"] = "cse_alife_item_ammo",
+	["ammo_9x18_pmm"] = "cse_alife_item_ammo",
+	["ammo_9x19_fmj"] = "cse_alife_item_ammo",
+	["ammo_9x19_pbp"] = "cse_alife_item_ammo",
+	["ammo_9x39_pab9"] = "cse_alife_item_ammo",
+	["ammo_9x39_sp5"] = "cse_alife_item_ammo",
+	["ammo_9x39_ap"] = "cse_alife_item_ammo",
+	["ammo_vog-25"] = "cse_alife_item_ammo",
+	["ammo_vog-25p"] = "cse_alife_item_ammo",
+	["ammo_m209"] = "cse_alife_item_ammo",
+	["ammo_og-7b"] = "cse_alife_item_ammo",
+	["ammo_gauss"] = "cse_alife_item_ammo",
+	
+	["mounted_weapon"] = "cse_alife_mounted_weapon",
+	["stationary_mgun"] = "cse_alife_mounted_weapon",
+	
+	["wpn_binoc"] = "cse_alife_item_weapon_magazined",
+	["wpn_rpg7"] = "cse_alife_item_weapon_magazined",
+	["wpn_pm"] = "cse_alife_item_weapon_magazined",
+	["wpn_pb"] = "cse_alife_item_weapon_magazined",
+	["wpn_walther"] = "cse_alife_item_weapon_magazined",
+	["wpn_mp5"] = "cse_alife_item_weapon_magazined",
+	["wpn_val"] = "cse_alife_item_weapon_magazined",
+	["wpn_vintorez"] = "cse_alife_item_weapon_magazined",
+	["wpn_svd"] = "cse_alife_item_weapon_magazined",
+	["wpn_svu"] = "cse_alife_item_weapon_magazined",
+	["wpn_ak74u"] = "cse_alife_item_weapon_magazined",
+	["wpn_ak74u_m1"] = "cse_alife_item_weapon_magazined",
+	["wpn_desert_eagle"] = "cse_alife_item_weapon_magazined",
+	["wpn_usp"] = "cse_alife_item_weapon_magazined",
+	
+	["wpn_groza"] = "cse_alife_item_weapon_magazined_w_gl",
+	["wpn_groza_m1"] = "cse_alife_item_weapon_magazined_w_gl",
+	["wpn_lr300"] = "cse_alife_item_weapon_magazined_w_gl",
+	["wpn_lr300_m1"] = "cse_alife_item_weapon_magazined_w_gl",
+	["wpn_ak74"] = "cse_alife_item_weapon_magazined_w_gl",
+	["wpn_ak74_m1"] = "cse_alife_item_weapon_magazined_w_gl",
+	["wpn_abakan"] = "cse_alife_item_weapon_magazined_w_gl",
+	["wpn_abakan_m1"] = "cse_alife_item_weapon_magazined_w_gl",
+	["wpn_abakan_m2"] = "cse_alife_item_weapon_magazined_w_gl",
+	["wpn_fn2000"] = "cse_alife_item_weapon_magazined_w_gl",
+	
+	["wpn_toz34"] = "cse_alife_item_weapon_shotgun",
+	["wpn_spas12"] = "cse_alife_item_weapon_shotgun",
+	["wpn_bm16"] = "cse_alife_item_weapon_shotgun",
+	["wpn_rg-6"] = "cse_alife_item_weapon_shotgun",
+	["wpn_rg6_m1"] = "cse_alife_item_weapon_shotgun",
+	["hunters_toz"] = "cse_alife_item_weapon_shotgun",
+	["hunters_toz_34"] = "cse_alife_item_weapon_shotgun",
+	
+	["explosive_barrel"] = "cse_alife_item_explosive",
+	["explosive_barrel_low"] = "cse_alife_item_explosive",
+	["explosive_dinamit"] = "cse_alife_item_explosive",
+	["explosive_fuelcan"] = "cse_alife_item_explosive",
+	["explosive_mobiltank"] = "cse_alife_item_explosive",
+	["explosive_tank"] = "cse_alife_item_explosive",
+	
+	["zone_burning_fuzz"] = "se_zone_visual",
+	["zone_burning_fuzz1"] = "se_zone_visual",
+	["zone_burning_fuzz_weak"] = "se_zone_visual",
+	["zone_burning_fuzz_average"] = "se_zone_visual",
+	["zone_burning_fuzz_strong"] = "se_zone_visual",
+	["zone_burning_fuzz_bottom_weak"] = "se_zone_visual",
+	["zone_burning_fuzz_bottom_average"] = "se_zone_visual",
+	["zone_burning_fuzz_bottom_strong"] = "se_zone_visual",
+	
+	["zone_buzz"] = "se_zone_anom",
+	["zone_buzz_weak"] = "se_zone_anom",
+	["zone_buzz_average"] = "se_zone_anom",
+	["zone_buzz_strong"] = "se_zone_anom",
+	
+	["zone_gravi_zone"] = "se_zone_anom",
+	["zone_gravi_zone_weak"] = "se_zone_anom",
+	["zone_gravi_zone_average"] = "se_zone_anom",
+	["zone_gravi_zone_strong"] = "se_zone_anom",
+	
+	["zone_mincer"] = "se_zone_anom",
+	["zone_mincer_weak"] = "se_zone_anom",
+	["zone_mincer_weak_noart"] = "se_zone_anom",
+	["zone_mincer_average"] = "se_zone_anom",
+	["zone_mincer_strong"] = "se_zone_anom",
+	
+	["zone_mosquito_bald"] = "se_zone_anom",
+	["zone_mosquito_bald_weak"] = "se_zone_anom",
+	["zone_mosquito_bald_weak_noart"] = "se_zone_anom",
+	["zone_mosquito_bald_average"] = "se_zone_anom",
+	["zone_mosquito_bald_strong"] = "se_zone_anom",
+	["zone_mosquito_bald_strong_noart"] = "se_zone_anom",
+	
+	["zone_witches_galantine"] = "se_zone_anom",
+	["zone_witches_galantine_weak"] = "se_zone_anom",
+	["zone_witches_galantine_average"] = "se_zone_anom",
+	["zone_witches_galantine_strong"] = "se_zone_anom",
+	
+	["zone_zharka_static"] = "se_zone_anom",
+	["zone_zharka_static_weak"] = "se_zone_anom",
+	["zone_zharka_static_average"] = "se_zone_anom",
+	["zone_zharka_static_strong"] = "se_zone_anom",
+	
+	["zone_mine_field"] = "cse_alife_anomalous_zone",
+	["zone_campfire_mp_nolight"] = "cse_alife_anomalous_zone",
+	["zone_campfire_grill"] = "cse_alife_anomalous_zone",
+	["zone_flame"] = "cse_alife_anomalous_zone",
+	["zone_zhar"] = "cse_alife_anomalous_zone",
+	["zone_emi"] = "cse_alife_anomalous_zone",
+	["zone_flame_small"] = "cse_alife_anomalous_zone",
+	
+	["zone_no_gravity"] = "cse_alife_anomalous_zone",
+	["zone_death"] = "cse_alife_anomalous_zone",
+	["zone_monolith"] = "cse_alife_anomalous_zone",
+	
+	["zone_radioactive"] = "cse_alife_anomalous_zone",
+	["zone_radioactive_weak"] = "cse_alife_anomalous_zone",
+	["zone_radioactive_average"] = "cse_alife_anomalous_zone",
+	["zone_radioactive_strong"] = "cse_alife_anomalous_zone",
+	["zone_radioactive_killing"] = "cse_alife_anomalous_zone",
+	
+	["zone_teleport"] = "cse_alife_anomalous_zone",
+	["zone_teleport_out"] = "cse_alife_anomalous_zone",
+	["zone_teleport_monolith"] = "cse_alife_anomalous_zone",
+	
+	["torrid_zone"] = "cse_alife_torrid_zone",
+	["fireball_zone"] = "cse_alife_torrid_zone",
+}
+
+function format_print(frm, ...)
+	u3_utils.printf(frm, ...)
+end
+function vector_to_string(v)
+	return string.format("%f,%f,%f", v.x, v.y, v.z)
+end
+function ctime_to_string(t)
+	local Y, M, D, h, m, s, ms = 0, 0, 0, 0, 0, 0, 0
+	Y, M, D, h, m, s, ms = t:get(Y, M, D, h, m, s, ms)
+	return string.format("%02d:%02d:%02d %02d/%02d/%02d", h, m, s, D, M, Y)
+end
+function num2hexstr(n)
+	return string.format("%s%x", if_then_else(n == 0, "", "0x"), n)
+end
+function tab2strlist(t)
+	local str = ""
+	for k, v in ipairs(t) do
+		str = string.format("%s%s,", str, v)
+	end
+	return str:sub(0, str:len() - 1)
+end
+function data_left(packet)
+	return (packet:r_elapsed() ~= 0)
+end
+function read_chunk(packet, length, c_type)
+	local tab = {}
+	for i = 1, length do
+		if c_type == "u8" then
+			tab[i] = packet:r_u8()
+		elseif c_type == "u16" then
+			tab[i] = packet:r_u16()
+		elseif c_type == "u32" then
+			tab[i] = packet:r_u32()
+		elseif c_type == "s32" then
+			tab[i] = packet:r_s32()
+		elseif c_type == "float" then
+			tab[i] = packet:r_float()
+		end
+	end
+	return tab
+end
+function write_chunk(packet, tab, c_type)
+	if tab == nil then
+		return
+	end
+	for k, v in ipairs(tab) do
+		if c_type == "u8" then
+			packet:w_u8(v)
+		elseif c_type == "u16" then
+			packet:w_u16(v)
+		elseif c_type == "u32" then
+			packet:w_u32(v)
+		elseif c_type == "s32" then
+			packet:w_s32(v)
+		elseif c_type == "float" then
+			packet:w_float(v)
+		end
+	end
+end
+
+function move_online(id)
+	alife():set_switch_online(id, true)
+	alife():set_switch_offline(id, false)
+end
+function move_offline(id)
+	alife():set_switch_online(id, false)
+	alife():set_switch_offline(id, true)
+end
+
+local cls_objects = {}
+
+function get_cls_object(class_name)
+	if cls_objects[class_name] == nil then
+		if _G[script_name()][class_name] then
+			cls_objects[class_name] = _G[script_name()][class_name]()
+		else
+			abort("class '%s' not found in %s.script", class_name, script_name())
+			return nil
+		end
+	end
+	return cls_objects[class_name]
+end
+function get_server_obj(obj)
+	if obj ~= nil then
+		if type(obj) == "string" then
+			if obj == "actor" then
+				return alife():actor()
+			end
+			return alife():object(obj)
+		end
+		if type(obj) == "number" then
+			if obj == db.actor:id() then
+				return alife():actor()
+			end
+			return alife():object(obj)
+		end
+		if obj.m_story_id ~= nil then
+			-- obj is server_object
+			return obj
+		else
+			-- obj is level_object
+			if obj:id() == db.actor:id() then
+				return alife():actor()
+			end
+			return alife():object(obj:id())
+		end
+	end
+	return nil
+end
+function get_object_class(se_obj)
+	if se_obj ~= nil then
+		local s = se_obj:section_name()
+		if section_to_class[s] then
+			s = string.format("%s_properties", section_to_class[s])
+			return get_cls_object(s), s
+		else
+			abort("class not found for section '%s'", s)
+		end
+	else
+		abort("se_obj is nil!")
+	end
+	return nil, nil
+end
+function get_object_data(se_obj)
+	se_obj = get_server_obj(se_obj)
+	local se_class, c_name = get_object_class(se_obj)
+	
+	if se_class ~= nil and c_name ~= nil then
+		local upd_packet = net_packet()
+		local packet = net_packet()
+		
+		se_obj:STATE_Write(packet)
+		packet:r_seek(0)
+		
+		se_obj:UPDATE_Write(upd_packet)
+		upd_packet:r_seek(0)
+		
+		local data = {}
+		data.section_name = se_obj:section_name()
+		data.se_class_name = c_name
+		
+		se_class:state_read(packet, data)
+		se_class:update_read(upd_packet, data)
+		
+		--format_print("[%s(%s::%s)]", c_name, se_obj:name(), se_obj:section_name())
+		--se_class:print(data)
+		
+		--format_print("packet: %d[write] %d[read]", packet:w_tell(), packet:r_tell())
+		--format_print("upd_packet: %d[write] %d[read]", upd_packet:w_tell(), upd_packet:r_tell())
+		
+		if data_left(packet) then
+			--format_print("data left in packet: %d", packet:r_elapsed())
+		end
+		if data_left(upd_packet) then
+			--format_print("data left in update packet: %d", upd_packet:r_elapsed())
+		end
+		
+		return data
+	end
+	
+	return nil
+end
+function set_object_data(se_obj, data)
+	if not se_obj or not data then
+		return
+	end
+	
+	if data.se_class_name ~= nil then
+		local se_class = get_cls_object(data.se_class_name)
+		if se_class ~= nil then
+			local upd_packet = net_packet()
+			local packet = net_packet()
+			
+			se_class:state_write(packet, data)
+			se_class:update_write(upd_packet, data)
+			--se_class:print(data)
+			
+			packet:r_seek(0)
+			upd_packet:r_seek(0)
+			
+			se_obj:STATE_Read(packet, packet:w_tell())
+			se_obj:UPDATE_Read(upd_packet)
+		end
+	end
+end
+
+-- ******************************************************************************************* --
+
+local object_flags = 
+{
+	["cse_alife_item_weapon_properties"] =
+	{
+		[1] = "flAddonSilencer",
+		[2] = "flAddonLauncher",
+		[4] = "flAddonScope"
+	},
+	
+	["cse_alife_item_torch_properties"] =
+	{
+		[1] = "flTorchActive",
+		[2] = "flTorchNightVisionActive",
+		[4] = "flTorchUnknown"
+	},
+	
+	["cse_alife_trader_abstract_properties"] =
+	{
+		[0] = "eTraderFlagDummy", -- ???
+		[1] = "eTraderFlagInfiniteAmmo"
+	},
+	
+	["cse_visual_properties"] =
+	{
+		[1] = "flObstacle"
+	},
+	
+	["cse_alife_object_hanging_lamp_properties"] =
+	{
+		[1] = "flPhysic",
+		[2] = "flCastShadow",
+		[4] = "flR1",
+		[8] = "flR2",
+		[16] = "flTypeSpot",
+		[32] = "flPointAmbient"
+	},
+	
+	["cse_alife_object_properties"] =
+	{
+		[1] = "flUseSwitches",
+		[2] = "flSwitchOnline",
+		[4] = "flSwitchOffline",
+		[8] = "flInteractive",
+		[16] = "flVisibleForAI",
+		[32] = "flUsefulForAI",
+		[64] = "flOfflineNoMove",
+		[128] = "flUsedAI_Locations",
+		[256] = "flUseGroupBehaviour",
+		[512] = "flCanSave",
+		[1024] = "flVisibleForMap",
+		[2048] = "flUseSmartTerrains",
+		[4096] = "flCheckForSeparator",
+		[8192] = "flCorpseRemoval"
+	}
+}
+
+function get_object_flags(class_name, value)
+	if object_flags[class_name] ~= nil then
+		if object_flags[class_name][value] then
+			return string.format("%d (%s)", value, object_flags[class_name][value])
+		else
+			local str = ""
+			for k, v in pairs(object_flags[class_name]) do
+				if bit_and(value, k) == k then
+					if object_flags[class_name][k] ~= "flTorchUnknown" then
+						str = string.format("%s%s,", str, object_flags[class_name][k])
+					end
+				end
+			end
+			if str == "" then
+				return tostring(value)
+			end
+			return string.format("%d (%s)", value, str:sub(0, str:len() - 1))
+		end
+	end
+	return tostring(value)
+end
+
+class "cse_abstract_properties"
+function cse_abstract_properties:__init()
+end
+function cse_abstract_properties:__finalize()
+end
+function cse_abstract_properties:state_read(packet, data)
+	data.dummy16 = packet:r_u16()
+	data.section_name = packet:r_stringZ()
+	data.name = packet:r_stringZ()
+	data.s_gameid = packet:r_u8()
+	data.s_rp = packet:r_u8()
+	data.position = packet:r_vec3()
+	data.direction = packet:r_vec3()
+	data.respawn_time = packet:r_u16()
+	data.unknown_id = packet:r_u16()
+	data.parent_id = packet:r_u16()
+	data.phantom_id = packet:r_u16()
+	data.s_flags = packet:r_u16()
+	data.version = packet:r_u16()
+	data.script_version = packet:r_u16()
+	data.unused_pad = packet:r_u16()
+	if data.unused_pad > 0 then
+		data.unused_pad_data = read_chunk(packet, data.unused_pad, "u8")
+	end
+	data.spawn_id = packet:r_u16()
+	data.extended_size = packet:r_u16()
+end
+function cse_abstract_properties:state_write(packet, data)
+	packet:w_u16(data.dummy16)
+	packet:w_stringZ(data.section_name)
+	packet:w_stringZ(data.name)
+	packet:w_u8(data.s_gameid)
+	packet:w_u8(data.s_rp)
+	packet:w_vec3(data.position)
+	packet:w_vec3(data.direction)
+	packet:w_u16(data.respawn_time)
+	packet:w_u16(data.unknown_id)
+	packet:w_u16(data.parent_id)
+	packet:w_u16(data.phantom_id)
+	packet:w_u16(data.s_flags)
+	packet:w_u16(data.version)
+	packet:w_u16(data.script_version)
+	packet:w_u16(data.unused_pad)
+	if data.unused_pad > 0 then
+		write_chunk(packet, data.unused_pad_data, "u8")
+	end
+	packet:w_u16(data.spawn_id)
+	packet:w_u16(data.extended_size)
+end
+function cse_abstract_properties:update_read(packet, data)
+	if data_left(packet) then
+		data.upd_cse_abstract__unk1_u16 = packet:r_u16()
+		if data_left(packet) then
+			abort("unexpected size [%d] in cse_abstract_properties::update_read", packet:r_elapsed())
+		end
+	end
+end
+function cse_abstract_properties:update_write(packet, data)
+	if data.upd_cse_abstract__unk1_u16 ~= nil then
+		packet:w_u16(data.upd_cse_abstract__unk1_u16) --packet:w_u16(0)
+	end
+end
+function cse_abstract_properties:print(data)
+	format_print("; cse_abstract properties")
+	if data.dummy16 ~= nil then
+		format_print("dummy16 = %s", num2hexstr(data.dummy16))
+		format_print("section_name = %s", data.section_name)
+		format_print("name = %s", data.name)
+		format_print("s_gameid = %s", num2hexstr(data.s_gameid))
+		format_print("s_rp = %s", num2hexstr(data.s_rp))
+		format_print("position = %s", vector_to_string(data.position))
+		format_print("direction = %s", vector_to_string(data.direction))
+		format_print("respawn_time = %s", num2hexstr(data.respawn_time))
+		format_print("unknown_id = %s", num2hexstr(data.unknown_id))
+		format_print("parent_id = %s", num2hexstr(data.parent_id))
+		format_print("phantom_id = %s", num2hexstr(data.phantom_id))
+		format_print("s_flags = %s", num2hexstr(data.s_flags))
+		format_print("version = %s", num2hexstr(data.version))
+		format_print("script_version = %s", num2hexstr(data.script_version))
+		format_print("unused_pad = %d", data.unused_pad)
+		if data.unused_pad_data ~= nil then
+			format_print("unused_pad_data = %s", tab2strlist(data.unused_pad_data))
+		end
+		format_print("spawn_id = %d", data.spawn_id)
+		format_print("extended_size = %d", data.extended_size)
+	end
+	if data.upd_cse_abstract__unk1_u16 ~= nil then
+		format_print("upd:cse_abstract__unk1_u16 = %d", data.upd_cse_abstract__unk1_u16)
+	end
+end
+
+-- se_*::STATE_Write(packet) right before
+-- se_base_class.STATE_Write(self, packet)
+function read_abstract_properties(packet)
+	local r_tell = packet:r_tell()
+	packet:r_seek(0)
+	
+	local data = {}
+	local se_class = cse_abstract_properties()
+	se_class:state_read(packet, data)
+	se_class:print(data)
+	
+	format_print("packet: %d[read]", packet:r_tell())
+	if data_left(packet) then
+		format_print("data left in packet: %d", packet:r_elapsed())
+	end
+	
+	packet:r_seek(r_tell)
+end
+
+class "cse_alife_object_properties"
+function cse_alife_object_properties:__init()
+end
+function cse_alife_object_properties:__finalize()
+end
+function cse_alife_object_properties:state_read(packet, data)
+	data.game_vertex_id = packet:r_u16()
+	data.distance = packet:r_float()
+	data.direct_control = packet:r_s32() --packet:r_u32()
+	data.level_vertex_id = packet:r_s32() --packet:r_u32()
+	data.object_flags = packet:r_s32()
+	data.custom_data = packet:r_stringZ()
+	data.story_id = packet:r_s32()
+	data.spawn_story_id = packet:r_s32()
+end
+function cse_alife_object_properties:state_write(packet, data)
+	packet:w_u16(data.game_vertex_id)
+	packet:w_float(data.distance)
+	packet:w_s32(data.direct_control) --packet:w_u32(data.direct_control)
+	packet:w_s32(data.level_vertex_id) --packet:w_u32(data.level_vertex_id)
+	packet:w_s32(data.object_flags)
+	packet:w_stringZ(data.custom_data)
+	packet:w_s32(data.story_id)
+	packet:w_s32(data.spawn_story_id)
+end
+function cse_alife_object_properties:update_read(packet, data)
+end
+function cse_alife_object_properties:update_write(packet, data)
+end
+function cse_alife_object_properties:print(data)
+	format_print("; cse_alife_object properties")
+	format_print("game_vertex_id = %d", data.game_vertex_id)
+	format_print("distance = %f", data.distance)
+	format_print("direct_control = %d", data.direct_control)
+	format_print("level_vertex_id = %d", data.level_vertex_id)
+	format_print("object_flags = %s", num2hexstr(data.object_flags))
+	format_print("custom_data = %s", data.custom_data)
+	format_print("story_id = %d%s", data.story_id, if_then_else(data.story_id == -1, " [NO STORY ID]", ""))
+	format_print("spawn_story_id = %d%s", data.spawn_story_id, if_then_else(data.spawn_story_id == -1, " [NO SPAWN STORY ID]", ""))
+end
+
+class "cse_visual_properties"
+function cse_visual_properties:__init()
+end
+function cse_visual_properties:__finalize()
+end
+function cse_visual_properties:state_read(packet, data)
+	data.visual_name = packet:r_stringZ()
+  data.visual_flags = packet:r_u8()
+end
+function cse_visual_properties:state_write(packet, data)
+	packet:w_stringZ(data.visual_name)
+  packet:w_u8(data.visual_flags)
+end
+function cse_visual_properties:update_read(packet, data)
+end
+function cse_visual_properties:update_write(packet, data)
+end
+function cse_visual_properties:print(data)
+	format_print("; cse_visual properties")
+	format_print("visual_name = %s", data.visual_name)
+	format_print("visual_flags = %s", num2hexstr(data.visual_flags))
+end
+
+class "cse_alife_dynamic_object_visual_properties"
+function cse_alife_dynamic_object_visual_properties:__init()
+end
+function cse_alife_dynamic_object_visual_properties:__finalize()
+end
+function cse_alife_dynamic_object_visual_properties:state_read(packet, data)
+	get_cls_object("cse_alife_object_properties"):state_read(packet, data)
+	get_cls_object("cse_visual_properties"):state_read(packet, data)
+end
+function cse_alife_dynamic_object_visual_properties:state_write(packet, data)
+	get_cls_object("cse_alife_object_properties"):state_write(packet, data)
+	get_cls_object("cse_visual_properties"):state_write(packet, data)
+end
+function cse_alife_dynamic_object_visual_properties:update_read(packet, data)
+end
+function cse_alife_dynamic_object_visual_properties:update_write(packet, data)
+end
+function cse_alife_dynamic_object_visual_properties:print(data)
+	get_cls_object("cse_alife_object_properties"):print(data)
+	get_cls_object("cse_visual_properties"):print(data)
+end
+
+class "cse_alife_inventory_box_properties"
+function cse_alife_inventory_box_properties:__init()
+end
+function cse_alife_inventory_box_properties:__finalize()
+end
+function cse_alife_inventory_box_properties:state_read(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_read(packet, data)
+end
+function cse_alife_inventory_box_properties:state_write(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_write(packet, data)
+end
+function cse_alife_inventory_box_properties:update_read(packet, data)
+end
+function cse_alife_inventory_box_properties:update_write(packet, data)
+end
+function cse_alife_inventory_box_properties:print(data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):print(data)
+end
+
+class "cse_shape_properties"
+function cse_shape_properties:__init()
+end
+function cse_shape_properties:__finalize()
+end
+function cse_shape_properties:state_read(packet, data)
+	local shape_count = packet:r_u8()
+	data.shapes = {}
+	for i = 1, shape_count do
+		local shape_type = packet:r_u8()
+		data.shapes[i] = {}
+		data.shapes[i].shtype = shape_type
+		if shape_type == 0 then
+			-- sphere
+			data.shapes[i].center = packet:r_vec3()
+			data.shapes[i].radius = packet:r_float()
+		else
+			-- box
+			data.shapes[i].v1 = packet:r_vec3()
+			data.shapes[i].v2 = packet:r_vec3()
+			data.shapes[i].v3 = packet:r_vec3()
+			data.shapes[i].offset = packet:r_vec3()
+		end
+	end
+end
+function cse_shape_properties:state_write(packet, data)
+	packet:w_u8(table.getn(data.shapes))
+	for i = 1, table.getn(data.shapes) do
+		packet:w_u8(data.shapes[i].shtype)
+		if data.shapes[i].shtype == 0 then
+			-- sphere
+			packet:w_vec3(data.shapes[i].center)
+			packet:w_float(data.shapes[i].radius)
+		else
+			-- box
+			packet:w_vec3(data.shapes[i].v1)
+			packet:w_vec3(data.shapes[i].v2)
+			packet:w_vec3(data.shapes[i].v3)
+			packet:w_vec3(data.shapes[i].offset)
+		end
+	end
+end
+function cse_shape_properties:update_read(packet, data)
+end
+function cse_shape_properties:update_write(packet, data)
+end
+function cse_shape_properties:print(data)
+	format_print("; cse_shape properties")
+	
+	if table.getn(data.shapes) > 0 then
+		local sh = "shapes = shape0"
+		for i = 2, table.getn(data.shapes) do
+			sh = string.format("%s,shape%d", sh, i - 1)
+		end
+		format_print("%s", sh)
+		for i = 1, table.getn(data.shapes) do
+			if data.shapes[i].shtype == 0 then
+				format_print("shape%d:type = sphere", i - 1)
+				format_print("shape%d:offset = %s", i - 1, vector_to_string(data.shapes[i].center))
+				format_print("shape%d:radius = %f", i - 1, data.shapes[i].radius)
+			else
+				format_print("shape%d:type = box", i - 1)
+				format_print("shape%d:axis_x = %s", i - 1, vector_to_string(data.shapes[i].v1))
+				format_print("shape%d:axis_y = %s", i - 1, vector_to_string(data.shapes[i].v2))
+				format_print("shape%d:axis_z = %s", i - 1, vector_to_string(data.shapes[i].v3))
+				format_print("shape%d:offset = %s", i - 1, vector_to_string(data.shapes[i].offset))
+			end
+		end
+	end
+end
+
+local RESTR_TYPE =
+{
+	[0] = "NONE default restrictor",
+	[1] = "OUT default restrictor",
+	[2] = "IN default restrictor",
+	[3] = "NOT A restrictor"
+}
+
+class "cse_alife_space_restrictor_properties"
+function cse_alife_space_restrictor_properties:__init()
+end
+function cse_alife_space_restrictor_properties:__finalize()
+end
+function cse_alife_space_restrictor_properties:state_read(packet, data)
+	get_cls_object("cse_alife_object_properties"):state_read(packet, data)
+	get_cls_object("cse_shape_properties"):state_read(packet, data)
+	
+	data.restrictor_type = packet:r_u8()
+end
+function cse_alife_space_restrictor_properties:state_write(packet, data)
+	get_cls_object("cse_alife_object_properties"):state_write(packet, data)
+	get_cls_object("cse_shape_properties"):state_write(packet, data)
+	
+	packet:w_u8(data.restrictor_type)
+end
+function cse_alife_space_restrictor_properties:update_read(packet, data)
+end
+function cse_alife_space_restrictor_properties:update_write(packet, data)
+end
+function cse_alife_space_restrictor_properties:print(data)
+	get_cls_object("cse_alife_object_properties"):print(data)
+	get_cls_object("cse_shape_properties"):print(data)
+	
+	format_print("; cse_alife_space_restrictor properties")
+	format_print("restrictor_type = %d [%s]", data.restrictor_type, RESTR_TYPE[data.restrictor_type])
+end
+
+class "cse_alife_level_changer_properties"
+function cse_alife_level_changer_properties:__init()
+end
+function cse_alife_level_changer_properties:__finalize()
+end
+function cse_alife_level_changer_properties:state_read(packet, data)
+	get_cls_object("cse_alife_space_restrictor_properties"):state_read(packet, data)
+	
+	data.dest_game_vertex_id = packet:r_u16()
+	data.dest_level_vertex_id = packet:r_s32()
+	data.dest_position = packet:r_vec3()
+	data.dest_direction = packet:r_vec3()
+	data.dest_level_name = packet:r_stringZ()
+	data.dest_graph_point = packet:r_stringZ()
+	data.silent_mode = packet:r_u8()
+end
+function cse_alife_level_changer_properties:state_write(packet, data)
+	get_cls_object("cse_alife_space_restrictor_properties"):state_write(packet, data)
+	
+	packet:w_u16(data.dest_game_vertex_id)
+	packet:w_s32(data.dest_level_vertex_id)
+	packet:w_vec3(data.dest_position)
+	packet:w_vec3(data.dest_direction)
+	packet:w_stringZ(data.dest_level_name)
+	packet:w_stringZ(data.dest_graph_point)
+	packet:w_u8(data.silent_mode)
+end
+function cse_alife_level_changer_properties:update_read(packet, data)
+end
+function cse_alife_level_changer_properties:update_write(packet, data)
+end
+function cse_alife_level_changer_properties:print(data)
+	get_cls_object("cse_alife_space_restrictor_properties"):print(data)
+	
+	format_print("; cse_alife_level_changer properties")
+	format_print("dest_game_vertex_id = %d", data.dest_game_vertex_id)
+	format_print("dest_level_vertex_id = %d", data.dest_level_vertex_id)
+	format_print("dest_position = %s", vector_to_string(data.dest_position))
+	format_print("dest_direction = %s", vector_to_string(data.dest_direction))
+	format_print("dest_level_name = %s", data.dest_level_name)
+	format_print("dest_graph_point = %s", data.dest_graph_point)
+	format_print("silent_mode = %d", data.silent_mode)
+end
+
+class "cse_ph_skeleton_properties"
+function cse_ph_skeleton_properties:__init()
+end
+function cse_ph_skeleton_properties:__finalize()
+end
+function cse_ph_skeleton_properties:state_read(packet, data)
+	data.skeleton_name = packet:r_stringZ()
+  data.skeleton_flags = packet:r_u8()
+  data.source_id = packet:r_u16()
+end
+function cse_ph_skeleton_properties:state_write(packet, data)
+	packet:w_stringZ(data.skeleton_name)
+  packet:w_u8(data.skeleton_flags)
+  packet:w_u16(data.source_id)
+end
+function cse_ph_skeleton_properties:update_read(packet, data)
+end
+function cse_ph_skeleton_properties:update_write(packet, data)
+end
+function cse_ph_skeleton_properties:print(data)
+	format_print("; cse_ph_skeleton properties")
+	format_print("skeleton_name = %s", data.skeleton_name)
+	format_print("skeleton_flags = %d", data.skeleton_flags)
+	format_print("source_id = %s", num2hexstr(data.source_id))
+end
+
+class "cse_alife_object_physic_properties"
+function cse_alife_object_physic_properties:__init()
+end
+function cse_alife_object_physic_properties:__finalize()
+end
+function cse_alife_object_physic_properties:state_read(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_read(packet, data)
+	get_cls_object("cse_ph_skeleton_properties"):state_read(packet, data)
+	
+	data.physic_type = packet:r_s32()
+	data.mass = packet:r_float()
+	data.fixed_bones = packet:r_stringZ()
+end
+function cse_alife_object_physic_properties:state_write(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_write(packet, data)
+	get_cls_object("cse_ph_skeleton_properties"):state_write(packet, data)
+	
+	packet:w_s32(data.physic_type)
+	packet:w_float(data.mass)
+	packet:w_stringZ(data.fixed_bones)
+end
+function cse_alife_object_physic_properties:update_read(packet, data)
+end
+function cse_alife_object_physic_properties:update_write(packet, data)
+end
+function cse_alife_object_physic_properties:print(data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):print(data)
+	get_cls_object("cse_ph_skeleton_properties"):print(data)
+	
+	format_print("; cse_alife_object_physic properties")
+	format_print("physic_type = %s", num2hexstr(data.physic_type))
+	format_print("mass = %f", data.mass)
+	format_print("fixed_bones = %s", data.fixed_bones)
+end
+
+class "cse_alife_object_breakable_properties"
+function cse_alife_object_breakable_properties:__init()
+end
+function cse_alife_object_breakable_properties:__finalize()
+end
+function cse_alife_object_breakable_properties:state_read(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_read(packet, data)
+	data.health = packet:r_float()
+end
+function cse_alife_object_breakable_properties:state_write(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_write(packet, data)
+	packet:w_float(data.health)
+end
+function cse_alife_object_breakable_properties:update_read(packet, data)
+end
+function cse_alife_object_breakable_properties:update_write(packet, data)
+end
+function cse_alife_object_breakable_properties:print(data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):print(data)
+	
+	format_print("; cse_alife_object_breakable properties")
+	format_print("health = %f", data.health)
+end
+
+class "cse_alife_object_climable_properties"
+function cse_alife_object_climable_properties:__init()
+end
+function cse_alife_object_climable_properties:__finalize()
+end
+function cse_alife_object_climable_properties:state_read(packet, data)
+	get_cls_object("cse_alife_object_properties"):state_read(packet, data)
+	get_cls_object("cse_shape_properties"):state_read(packet, data)
+end
+function cse_alife_object_climable_properties:state_write(packet, data)
+	get_cls_object("cse_alife_object_properties"):state_write(packet, data)
+	get_cls_object("cse_shape_properties"):state_write(packet, data)
+end
+function cse_alife_object_climable_properties:update_read(packet, data)
+end
+function cse_alife_object_climable_properties:update_write(packet, data)
+end
+function cse_alife_object_climable_properties:print(data)
+	get_cls_object("cse_alife_object_properties"):print(data)
+	get_cls_object("cse_shape_properties"):print(data)
+end
+
+class "cse_alife_car_properties"
+function cse_alife_car_properties:__init()
+end
+function cse_alife_car_properties:__finalize()
+end
+function cse_alife_car_properties:state_read(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_read(packet, data)
+	get_cls_object("cse_ph_skeleton_properties"):state_read(packet, data)
+	
+	data.health = packet:r_float()
+end
+function cse_alife_car_properties:state_write(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_write(packet, data)
+	get_cls_object("cse_ph_skeleton_properties"):state_write(packet, data)
+	
+	packet:w_float(data.health)
+end
+function cse_alife_car_properties:update_read(packet, data)
+end
+function cse_alife_car_properties:update_write(packet, data)
+end
+function cse_alife_car_properties:print(data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):print(data)
+	get_cls_object("cse_ph_skeleton_properties"):print(data)
+	
+	format_print("; cse_alife_car properties")
+	format_print("health = %f", data.health)
+end
+
+class "cse_motion_properties"
+function cse_motion_properties:__init()
+end
+function cse_motion_properties:__finalize()
+end
+function cse_motion_properties:state_read(packet, data)
+	data.motion_name = packet:r_stringZ()
+end
+function cse_motion_properties:state_write(packet, data)
+	packet:w_stringZ(data.motion_name)
+end
+function cse_motion_properties:update_read(packet, data)
+end
+function cse_motion_properties:update_write(packet, data)
+end
+function cse_motion_properties:print(data)
+	format_print("; cse_motion properties")
+	format_print("motion_name = %s", data.motion_name)
+end
+
+class "cse_alife_helicopter_properties"
+function cse_alife_helicopter_properties:__init()
+end
+function cse_alife_helicopter_properties:__finalize()
+end
+function cse_alife_helicopter_properties:state_read(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_read(packet, data)
+	get_cls_object("cse_motion_properties"):state_read(packet, data)
+	get_cls_object("cse_ph_skeleton_properties"):state_read(packet, data)
+	
+	data.cse_alife_helicopter__unk1_sz = packet:r_stringZ()
+	data.engine_sound = packet:r_stringZ()
+end
+function cse_alife_helicopter_properties:state_write(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_write(packet, data)
+	get_cls_object("cse_motion_properties"):state_write(packet, data)
+	get_cls_object("cse_ph_skeleton_properties"):state_write(packet, data)
+	
+	packet:w_stringZ(data.cse_alife_helicopter__unk1_sz)
+	packet:w_stringZ(data.engine_sound)
+end
+function cse_alife_helicopter_properties:update_read(packet, data)
+end
+function cse_alife_helicopter_properties:update_write(packet, data)
+end
+function cse_alife_helicopter_properties:print(data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):print(data)
+	get_cls_object("cse_motion_properties"):print(data)
+	get_cls_object("cse_ph_skeleton_properties"):print(data)
+	
+	format_print("; cse_alife_helicopter properties")
+	format_print("cse_alife_helicopter__unk1_sz = %s", data.cse_alife_helicopter__unk1_sz)
+	format_print("engine_sound = %s", data.engine_sound)
+end
+
+class "cse_alife_object_hanging_lamp_properties"
+function cse_alife_object_hanging_lamp_properties:__init()
+end
+function cse_alife_object_hanging_lamp_properties:__finalize()
+end
+function cse_alife_object_hanging_lamp_properties:state_read(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_read(packet, data)
+	get_cls_object("cse_ph_skeleton_properties"):state_read(packet, data)
+	
+	data.main_color = packet:r_s32()
+	data.main_brightness = packet:r_float()
+	data.main_color_animator = packet:r_stringZ()
+	data.main_range = packet:r_float()
+	data.light_flags = packet:r_u16()
+	data.cse_alife_object_hanging_lamp__unk1_sz = packet:r_stringZ()
+	data.lamp_fixed_bones = packet:r_stringZ()
+	data.health = packet:r_float()
+	data.main_virtual_size = packet:r_float()
+	data.ambient_radius = packet:r_float()
+	data.ambient_power = packet:r_float()
+	data.ambient_texture = packet:r_stringZ()
+	data.main_texture = packet:r_stringZ()
+	data.main_bone = packet:r_stringZ()
+	data.main_cone_angle = packet:r_float()
+	data.glow_texture = packet:r_stringZ()
+	data.glow_radius = packet:r_float()
+	data.ambient_bone = packet:r_stringZ()
+end
+function cse_alife_object_hanging_lamp_properties:state_write(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_write(packet, data)
+	get_cls_object("cse_ph_skeleton_properties"):state_write(packet, data)
+	
+	packet:w_s32(data.main_color)
+	packet:w_float(data.main_brightness)
+	packet:w_stringZ(data.main_color_animator)
+	packet:w_float(data.main_range)
+	packet:w_u16(data.light_flags)
+	packet:w_stringZ(data.cse_alife_object_hanging_lamp__unk1_sz)
+	packet:w_stringZ(data.lamp_fixed_bones)
+	packet:w_float(data.health)
+	packet:w_float(data.main_virtual_size)
+	packet:w_float(data.ambient_radius)
+	packet:w_float(data.ambient_power)
+	packet:w_stringZ(data.ambient_texture)
+	packet:w_stringZ(data.main_texture)
+	packet:w_stringZ(data.main_bone)
+	packet:w_float(data.main_cone_angle)
+	packet:w_stringZ(data.glow_texture)
+	packet:w_float(data.glow_radius)
+	packet:w_stringZ(data.ambient_bone)
+end
+function cse_alife_object_hanging_lamp_properties:update_read(packet, data)
+end
+function cse_alife_object_hanging_lamp_properties:update_write(packet, data)
+end
+function cse_alife_object_hanging_lamp_properties:print(data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):print(data)
+	get_cls_object("cse_ph_skeleton_properties"):print(data)
+	
+	format_print("; cse_alife_object_hanging_lamp properties")
+	format_print("main_color = %s", num2hexstr(data.main_color))
+	format_print("main_brightness = %f", data.main_brightness)
+	format_print("main_color_animator = %s", data.main_color_animator)
+	format_print("main_range = %f", data.main_range)
+	format_print("light_flags = %s", num2hexstr(data.light_flags))
+	format_print("cse_alife_object_hanging_lamp__unk1_sz = %s", data.cse_alife_object_hanging_lamp__unk1_sz)
+	format_print("lamp_fixed_bones = %s", data.lamp_fixed_bones)
+	format_print("health = %f", data.health)
+	format_print("main_virtual_size = %f", data.main_virtual_size)
+	format_print("ambient_radius = %f", data.ambient_radius)
+	format_print("ambient_power = %f", data.ambient_power)
+	format_print("ambient_texture = %s", data.ambient_texture)
+	format_print("main_texture = %s", data.main_texture)
+	format_print("main_bone = %s", data.main_bone)
+	format_print("main_cone_angle = %f", data.main_cone_angle)
+	format_print("glow_texture = %s", data.glow_texture)
+	format_print("glow_radius = %f", data.glow_radius)
+	format_print("ambient_bone = %s", data.ambient_bone)
+end
+
+class "cse_alife_object_projector_properties"
+function cse_alife_object_projector_properties:__init()
+end
+function cse_alife_object_projector_properties:__finalize()
+end
+function cse_alife_object_projector_properties:state_read(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_read(packet, data)
+end
+function cse_alife_object_projector_properties:state_write(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_write(packet, data)
+end
+function cse_alife_object_projector_properties:update_read(packet, data)
+end
+function cse_alife_object_projector_properties:update_write(packet, data)
+end
+function cse_alife_object_projector_properties:print(data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):print(data)
+end
+
+class "cse_alife_smart_zone_properties"
+function cse_alife_smart_zone_properties:__init()
+end
+function cse_alife_smart_zone_properties:__finalize()
+end
+function cse_alife_smart_zone_properties:state_read(packet, data)
+	get_cls_object("cse_alife_space_restrictor_properties"):state_read(packet, data)
+end
+function cse_alife_smart_zone_properties:state_write(packet, data)
+	get_cls_object("cse_alife_space_restrictor_properties"):state_write(packet, data)
+end
+function cse_alife_smart_zone_properties:update_read(packet, data)
+end
+function cse_alife_smart_zone_properties:update_write(packet, data)
+end
+function cse_alife_smart_zone_properties:print(data)
+	get_cls_object("cse_alife_space_restrictor_properties"):print(data)
+end
+
+class "se_respawn_properties"
+function se_respawn_properties:__init()
+end
+function se_respawn_properties:__finalize()
+end
+function se_respawn_properties:state_read(packet, data)
+	get_cls_object("cse_alife_smart_zone_properties"):state_read(packet, data)
+	
+	if read_se_script_data and data_left(packet) then
+		data.spawned_obj_count = packet:r_u8()
+		data.spawned_obj_ids = read_chunk(packet, data.spawned_obj_count, "u16")
+	end
+end
+function se_respawn_properties:state_write(packet, data)
+	get_cls_object("cse_alife_smart_zone_properties"):state_write(packet, data)
+	
+	if write_se_script_data then
+		if data.spawned_obj_count ~= nil then
+			packet:w_u8(data.spawned_obj_count)
+			write_chunk(packet, data.spawned_obj_ids, "u16")
+		end
+	end
+end
+function se_respawn_properties:update_read(packet, data)
+end
+function se_respawn_properties:update_write(packet, data)
+end
+function se_respawn_properties:print(data)
+	get_cls_object("cse_alife_smart_zone_properties"):print(data)
+	
+	if data.spawned_obj_count ~= nil then
+		format_print("; se_respawn properties")
+		format_print("spawned_obj_count = %d", data.spawned_obj_count)
+		format_print("spawned_obj_ids = %s", tab2strlist(data.spawned_obj_ids))
+	end
+end
+
+class "se_smart_terrain_properties"
+function se_smart_terrain_properties:__init()
+end
+function se_smart_terrain_properties:__finalize()
+end
+function se_smart_terrain_properties:state_read(packet, data)
+	get_cls_object("cse_alife_smart_zone_properties"):state_read(packet, data)
+	
+	if read_se_script_data and data_left(packet) then
+		data.duration_end = utils.r_CTime(packet)
+		data.idle_end = utils.r_CTime(packet)
+		data.gulag_working = packet:r_bool()
+		if data.gulag_working then
+			data.gulag = {}
+			data.gulag.casualities = packet:r_u8()
+			data.gulag.state = packet:r_u8()
+			data.gulag.stateBegin = utils.r_CTime(packet)
+			data.gulag.population = packet:r_u8()
+			data.gulag.population_comed = packet:r_u8()
+			data.gulag.population_non_exclusive	= packet:r_u8()
+			data.gulag.jobs = {}
+			local job = nil
+			for i = 1, packet:r_u8() do
+				job = {}
+				job.begin = packet:r_u32()
+				job.fill_idle = packet:r_u32()
+				job.idle_after_death_end = packet:r_u32()
+				table.insert(data.gulag.jobs, job)
+			end
+			data.npc_info = {}
+			local id = nil
+			for i = 1, packet:r_u8() do
+				id = packet:r_u16()
+				data.npc_info[id] = {}
+				data.npc_info[id].o_group = packet:r_u8()
+				data.npc_info[id].o_squad = packet:r_u8()
+				data.npc_info[id].exclusive = packet:r_bool()
+				data.npc_info[id].stay_end = utils.r_CTime(packet)
+				data.npc_info[id].begin_job = packet:r_bool()
+				data.npc_info[id].didnt_begin_job = packet:r_bool()
+				data.npc_info[id].jobN = packet:r_u8()
+			end
+			data.population_locked = packet:r_bool()
+		end
+	end
+end
+function se_smart_terrain_properties:state_write(packet, data)
+	get_cls_object("cse_alife_smart_zone_properties"):state_write(packet, data)
+	
+	if write_se_script_data then
+		if data.duration_end ~= nil then
+			utils.w_CTime(packet, data.duration_end)
+			utils.w_CTime(packet, data.idle_end)
+			packet:w_bool(data.gulag_working)
+			if data.gulag_working then
+				packet:w_u8(data.gulag.casualities)
+				packet:w_u8(data.gulag.state)
+				utils.w_CTime(packet, data.gulag.stateBegin or smart_terrain.CTime_0)
+				packet:w_u8(data.gulag.population)
+				packet:w_u8(data.gulag.population_comed)
+				packet:w_u8(data.gulag.population_non_exclusive)
+				packet:w_u8(#data.gulag.jobs)
+				for i, job in ipairs(data.gulag.jobs) do
+					packet:w_u32(job.begin or 0)
+					packet:w_u32(job.fill_idle or 0)
+					packet:w_u32(job.idle_after_death_end or 0)
+				end
+				packet:w_u8(#data.npc_info)
+				for id, v in pairs(data.npc_info) do
+					packet:w_u16(id)
+					packet:w_u8(v.o_group)
+					packet:w_u8(v.o_squad)
+					packet:w_bool(v.exclusive)
+					utils.w_CTime(packet, v.stay_end)
+					packet:w_bool(v.begin_job)
+					packet:w_bool(v.didnt_begin_job)
+					packet:w_u8(v.jobN)
+				end
+				packet:w_bool(data.population_locked)
+			end
+		end
+	end
+end
+function se_smart_terrain_properties:update_read(packet, data)
+end
+function se_smart_terrain_properties:update_write(packet, data)
+end
+function se_smart_terrain_properties:print(data)
+	get_cls_object("cse_alife_smart_zone_properties"):print(data)
+	
+	if data.duration_end ~= nil then
+		format_print("; se_smart_terrain_properties")
+		format_print("duration_end = %s", ctime_to_string(data.duration_end))
+		format_print("idle_end = %s", ctime_to_string(data.idle_end))
+		format_print("gulag_working = %s", tostring(data.gulag_working))
+		if data.gulag_working then
+			format_print("casualities = %d", data.gulag.casualities)
+			format_print("state = %d", data.gulag.state)
+			format_print("stateBegin = %s", ctime_to_string(data.gulag.stateBegin))
+			format_print("population = %d", data.gulag.population)
+			format_print("population_comed = %d", data.gulag.population_comed)
+			format_print("population_non_exclusive = %d", data.gulag.population_non_exclusive)
+			format_print("gulag jobs:")
+			local indent = string.rep(" ", 4)
+			for i, job in ipairs(data.gulag.jobs) do
+				format_print("%sbegin = %d; fill_idle = %d; idle_after_death_end = %d",
+					indent, job.begin, job.fill_idle, job.idle_after_death_end)
+			end
+			format_print("gulag objects:")
+			for id, v in pairs(data.npc_info) do
+				format_print("%sid = %d; o_group = %d; o_squad = %d", indent, id, v.o_group, v.o_squad)
+				format_print("%sexclusive = %s; stay_end = %s", indent, tostring(v.exclusive), ctime_to_string(v.stay_end))
+				format_print("%sbegin_job = %s; didnt_begin_job = %s; jobN = %d", indent,
+					tostring(v.begin_job), tostring(v.didnt_begin_job), v.jobN)
+			end
+			format_print("population_locked = %s", tostring(data.population_locked))
+		end
+	end
+end
+
+class "cse_alife_custom_zone_properties"
+function cse_alife_custom_zone_properties:__init()
+end
+function cse_alife_custom_zone_properties:__finalize()
+end
+function cse_alife_custom_zone_properties:state_read(packet, data)
+	get_cls_object("cse_alife_space_restrictor_properties"):state_read(packet, data)
+	
+	data.max_power = packet:r_float()
+	data.owner_id = packet:r_s32()
+	data.enabled_time = packet:r_s32() --packet:r_u32()
+	data.disabled_time = packet:r_s32() --packet:r_u32()
+	data.start_time_shift = packet:r_s32() --packet:r_u32()
+end
+function cse_alife_custom_zone_properties:state_write(packet, data)
+	get_cls_object("cse_alife_space_restrictor_properties"):state_write(packet, data)
+	
+	packet:w_float(data.max_power)
+	packet:w_s32(data.owner_id)
+	packet:w_s32(data.enabled_time) --packet:w_u32(data.enabled_time)
+	packet:w_s32(data.disabled_time) --packet:w_u32(data.disabled_time)
+	packet:w_s32(data.start_time_shift) --packet:w_u32(data.start_time_shift)
+end
+function cse_alife_custom_zone_properties:update_read(packet, data)
+end
+function cse_alife_custom_zone_properties:update_write(packet, data)
+end
+function cse_alife_custom_zone_properties:print(data)
+	get_cls_object("cse_alife_space_restrictor_properties"):print(data)
+	
+	format_print("; cse_alife_custom_zone properties")
+	format_print("max_power = %f", data.max_power)
+	format_print("owner_id = %s", num2hexstr(data.owner_id))
+	format_print("enabled_time = %d", data.enabled_time)
+	format_print("disabled_time = %d", data.disabled_time)
+	format_print("start_time_shift = %d", data.start_time_shift)
+end
+
+class "cse_alife_anomalous_zone_properties"
+function cse_alife_anomalous_zone_properties:__init()
+end
+function cse_alife_anomalous_zone_properties:__finalize()
+end
+function cse_alife_anomalous_zone_properties:state_read(packet, data)
+	get_cls_object("cse_alife_custom_zone_properties"):state_read(packet, data)
+	
+	data.offline_interactive_radius = packet:r_float()
+	data.artefact_spawn_count = packet:r_u16()
+	data.artefact_position_offset = packet:r_s32()
+end
+function cse_alife_anomalous_zone_properties:state_write(packet, data)
+	get_cls_object("cse_alife_custom_zone_properties"):state_write(packet, data)
+	
+	packet:w_float(data.offline_interactive_radius)
+	packet:w_u16(data.artefact_spawn_count)
+	packet:w_s32(data.artefact_position_offset)
+end
+function cse_alife_anomalous_zone_properties:update_read(packet, data)
+end
+function cse_alife_anomalous_zone_properties:update_write(packet, data)
+end
+function cse_alife_anomalous_zone_properties:print(data)
+	get_cls_object("cse_alife_custom_zone_properties"):print(data)
+	
+	format_print("; cse_alife_anomalous_zone properties")
+	format_print("offline_interactive_radius = %f", data.offline_interactive_radius)
+	format_print("artefact_spawn_count = %d", data.artefact_spawn_count)
+	format_print("artefact_position_offset = %s", num2hexstr(data.artefact_position_offset))
+end
+
+class "se_zone_anom_properties"
+function se_zone_anom_properties:__init()
+end
+function se_zone_anom_properties:__finalize()
+end
+function se_zone_anom_properties:state_read(packet, data)
+	get_cls_object("cse_alife_anomalous_zone_properties"):state_read(packet, data)
+	
+	if read_se_script_data and data_left(packet) then
+		data.last_spawn_time = packet:r_u8()
+		if data.last_spawn_time == 1 then
+			if data_left(packet) then
+				data.c_time = utils.r_CTime(packet)
+			end
+		end
+	end
+end
+function se_zone_anom_properties:state_write(packet, data)
+	get_cls_object("cse_alife_anomalous_zone_properties"):state_write(packet, data)
+	
+	if write_se_script_data then
+		if data.last_spawn_time then
+			packet:w_u8(data.last_spawn_time)
+			if data.c_time ~= nil then
+				utils.w_CTime(packet, data.c_time)
+			end
+		else
+			packet:w_u8(0)
+		end
+	end
+end
+function se_zone_anom_properties:update_read(packet, data)
+end
+function se_zone_anom_properties:update_write(packet, data)
+end
+function se_zone_anom_properties:print(data)
+	get_cls_object("cse_alife_anomalous_zone_properties"):print(data)
+	
+	if data.last_spawn_time then
+		format_print("; se_zone_anom properties")
+		local str = string.format("last_spawn_time = %d", data.last_spawn_time)
+		if data.c_time ~= nil then
+			str = string.format("%s => %s", str, ctime_to_string(data.c_time))
+		end
+		format_print("%s", str)
+	end
+end
+
+class "cse_alife_zone_visual_properties"
+function cse_alife_zone_visual_properties:__init()
+end
+function cse_alife_zone_visual_properties:__finalize()
+end
+function cse_alife_zone_visual_properties:state_read(packet, data)
+	get_cls_object("cse_alife_anomalous_zone_properties"):state_read(packet, data)
+	get_cls_object("cse_visual_properties"):state_read(packet, data)
+	
+	data.idle_animation = packet:r_stringZ()
+	data.attack_animation = packet:r_stringZ()
+end
+function cse_alife_zone_visual_properties:state_write(packet, data)
+	get_cls_object("cse_alife_anomalous_zone_properties"):state_write(packet, data)
+	get_cls_object("cse_visual_properties"):state_write(packet, data)
+	
+	packet:w_stringZ(data.idle_animation)
+	packet:w_stringZ(data.attack_animation)
+end
+function cse_alife_zone_visual_properties:update_read(packet, data)
+end
+function cse_alife_zone_visual_properties:update_write(packet, data)
+end
+function cse_alife_zone_visual_properties:print(data)
+	get_cls_object("cse_alife_anomalous_zone_properties"):print(data)
+	get_cls_object("cse_visual_properties"):print(data)
+	
+	format_print("; cse_alife_zone_visual properties")
+	format_print("idle_animation = %s", data.idle_animation)
+	format_print("attack_animation = %s", data.attack_animation)
+end
+
+class "se_zone_visual_properties"
+function se_zone_visual_properties:__init()
+end
+function se_zone_visual_properties:__finalize()
+end
+function se_zone_visual_properties:state_read(packet, data)
+	get_cls_object("cse_alife_zone_visual_properties"):state_read(packet, data)
+	
+	if read_se_script_data and data_left(packet) then
+		data.last_spawn_time = packet:r_u8()
+		if data.last_spawn_time == 1 then
+			if data_left(packet) then
+				data.c_time = utils.r_CTime(packet)
+			end
+		end
+	end
+end
+function se_zone_visual_properties:state_write(packet, data)
+	get_cls_object("cse_alife_zone_visual_properties"):state_write(packet, data)
+	
+	if write_se_script_data then
+		if data.last_spawn_time then
+			packet:w_u8(data.last_spawn_time)
+			if data.c_time ~= nil then
+				utils.w_CTime(packet, data.c_time)
+			end
+		else
+			packet:w_u8(0)
+		end
+	end
+end
+function se_zone_visual_properties:update_read(packet, data)
+end
+function se_zone_visual_properties:update_write(packet, data)
+end
+function se_zone_visual_properties:print(data)
+	get_cls_object("cse_alife_zone_visual_properties"):print(data)
+	
+	if data.last_spawn_time then
+		format_print("; se_zone_visual properties")
+		local str = string.format("last_spawn_time = %d", data.last_spawn_time)
+		if data.c_time ~= nil then
+			str = string.format("%s => %s", str, ctime_to_string(data.c_time))
+		end
+		format_print("%s", str)
+	end
+end
+
+function dec2bin(num)
+	local index = 8
+	local bin = {}
+	
+	for i = 1, index do
+		table.insert(bin, 0)
+	end
+	
+	while num ~= 0 do
+		bin[index] = num % 2
+		index = index - 1
+		num = math.floor(num / 2)
+	end
+	
+	return bin
+end
+function bin2dec(bin)
+	local dec = 0
+	
+	for k, v in ipairs(bin) do
+		if v == 1 then
+			dec = dec + math.pow(2, #bin - k)
+		end
+	end
+	
+	return dec
+end
+function shift_right(num, pos)
+	local bin = dec2bin(num)
+	local after_shift = {}
+	local index = 8
+	
+	for i = 1, index do
+		table.insert(after_shift, 0)
+	end
+	
+	for i = index, 1, -1 do
+		if i + pos <= #bin then
+			after_shift[i + pos] = bin[i]
+		end
+	end
+	
+	return bin2dec(after_shift)
+end
+
+class "cse_alife_item_properties"
+function cse_alife_item_properties:__init()
+end
+function cse_alife_item_properties:__finalize()
+end
+function cse_alife_item_properties:state_read(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_read(packet, data)
+	data.condition = packet:r_float()
+end
+function cse_alife_item_properties:state_write(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_write(packet, data)
+	packet:w_float(data.condition)
+end
+function cse_alife_item_properties:update_read(packet, data)
+	if packet:w_tell() ~= 0 then
+		data.upd_num_items = packet:r_u8()
+		if data.upd_num_items ~= 0 then
+			data.upd_position = read_chunk(packet, 3, "float")
+			data.upd_cse_alife_item__unk1_q8v4 = read_chunk(packet, 4, "u8")
+			
+			local info_mask = shift_right(data.upd_num_items, 5)
+			
+			if bit_and(info_mask, 2) == 0 and packet:r_elapsed() >= 3 then
+				data.upd_cse_alife_item__unk2_q8v3 = read_chunk(packet, 3, "u8")
+			end
+			if bit_and(info_mask, 4) == 0 and packet:r_elapsed() >= 3 then
+				data.upd_cse_alife_item__unk3_q8v3 = read_chunk(packet, 3, "u8")
+			end
+		end
+	end
+end
+function cse_alife_item_properties:update_write(packet, data)
+	if data.upd_num_items ~= nil then
+		packet:w_u8(data.upd_num_items)
+		if data.upd_num_items ~= 0 then
+			write_chunk(packet, data.upd_position, "float")
+			write_chunk(packet, data.upd_cse_alife_item__unk1_q8v4, "u8")
+			write_chunk(packet, data.upd_cse_alife_item__unk2_q8v3, "u8")
+			write_chunk(packet, data.upd_cse_alife_item__unk3_q8v3, "u8")
+		end
+	end
+end
+function cse_alife_item_properties:print(data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):print(data)
+	
+	format_print("; cse_alife_item properties")
+	format_print("condition = %f", data.condition)
+	
+	if data.upd_num_items ~= nil then
+		format_print("upd:num_items = %s", num2hexstr(data.upd_num_items))
+		if data.upd_position ~= nil then
+			format_print("upd:position = %f,%f,%f", unpack(data.upd_position))
+		end
+		if data.upd_cse_alife_item__unk1_q8v4 ~= nil then
+			format_print("upd:cse_alife_item__unk1_q8v4 = %s", tab2strlist(data.upd_cse_alife_item__unk1_q8v4))
+		end
+		if data.upd_cse_alife_item__unk2_q8v3 ~= nil then
+			format_print("upd:cse_alife_item__unk2_q8v3 = %s", tab2strlist(data.upd_cse_alife_item__unk2_q8v3))
+		end
+		if data.upd_cse_alife_item__unk3_q8v3 ~= nil then
+			format_print("upd:cse_alife_item__unk3_q8v3 = %s", tab2strlist(data.upd_cse_alife_item__unk3_q8v3))
+		end
+	end
+end
+
+class "cse_alife_item_artefact_properties"
+function cse_alife_item_artefact_properties:__init()
+end
+function cse_alife_item_artefact_properties:__finalize()
+end
+function cse_alife_item_artefact_properties:state_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_read(packet, data)
+end
+function cse_alife_item_artefact_properties:state_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_write(packet, data)
+end
+function cse_alife_item_artefact_properties:update_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_read(packet, data)
+end
+function cse_alife_item_artefact_properties:update_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_write(packet, data)
+end
+function cse_alife_item_artefact_properties:print(data)
+	get_cls_object("cse_alife_item_properties"):print(data)
+end
+
+class "cse_alife_item_bolt_properties"
+function cse_alife_item_bolt_properties:__init()
+end
+function cse_alife_item_bolt_properties:__finalize()
+end
+function cse_alife_item_bolt_properties:state_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_read(packet, data)
+end
+function cse_alife_item_bolt_properties:state_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_write(packet, data)
+end
+function cse_alife_item_bolt_properties:update_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_read(packet, data)
+end
+function cse_alife_item_bolt_properties:update_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_write(packet, data)
+end
+function cse_alife_item_bolt_properties:print(data)
+	get_cls_object("cse_alife_item_properties"):print(data)
+end
+
+class "cse_alife_item_detector_properties"
+function cse_alife_item_detector_properties:__init()
+end
+function cse_alife_item_detector_properties:__finalize()
+end
+function cse_alife_item_detector_properties:state_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_read(packet, data)
+end
+function cse_alife_item_detector_properties:state_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_write(packet, data)
+end
+function cse_alife_item_detector_properties:update_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_read(packet, data)
+end
+function cse_alife_item_detector_properties:update_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_write(packet, data)
+end
+function cse_alife_item_detector_properties:print(data)
+	get_cls_object("cse_alife_item_properties"):print(data)
+end
+
+class "cse_alife_item_explosive_properties"
+function cse_alife_item_explosive_properties:__init()
+end
+function cse_alife_item_explosive_properties:__finalize()
+end
+function cse_alife_item_explosive_properties:state_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_read(packet, data)
+end
+function cse_alife_item_explosive_properties:state_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_write(packet, data)
+end
+function cse_alife_item_explosive_properties:update_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_read(packet, data)
+end
+function cse_alife_item_explosive_properties:update_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_write(packet, data)
+end
+function cse_alife_item_explosive_properties:print(data)
+	get_cls_object("cse_alife_item_properties"):print(data)
+end
+
+class "cse_alife_item_grenade_properties"
+function cse_alife_item_grenade_properties:__init()
+end
+function cse_alife_item_grenade_properties:__finalize()
+end
+function cse_alife_item_grenade_properties:state_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_write(packet, data)
+end
+function cse_alife_item_grenade_properties:state_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_read(packet, data)
+end
+function cse_alife_item_grenade_properties:update_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_read(packet, data)
+end
+function cse_alife_item_grenade_properties:update_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_write(packet, data)
+end
+function cse_alife_item_grenade_properties:print(data)
+	get_cls_object("cse_alife_item_properties"):print(data)
+end
+
+class "cse_alife_item_custom_outfit_properties"
+function cse_alife_item_custom_outfit_properties:__init()
+end
+function cse_alife_item_custom_outfit_properties:__finalize()
+end
+function cse_alife_item_custom_outfit_properties:state_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_read(packet, data)
+end
+function cse_alife_item_custom_outfit_properties:state_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_write(packet, data)
+end
+function cse_alife_item_custom_outfit_properties:update_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_read(packet, data)
+	
+	if data_left(packet) then
+		data.upd_condition = packet:r_u8()
+	else
+		abort("could not read 'upd:condition' in cse_alife_item_custom_outfit")
+		data.upd_condition = 255
+	end
+end
+function cse_alife_item_custom_outfit_properties:update_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_write(packet, data)
+	packet:w_u8(data.upd_condition)
+end
+function cse_alife_item_custom_outfit_properties:print(data)
+	get_cls_object("cse_alife_item_properties"):print(data)
+	format_print("upd:condition = %d", data.upd_condition)
+end
+
+class "cse_alife_item_pda_properties"
+function cse_alife_item_pda_properties:__init()
+end
+function cse_alife_item_pda_properties:__finalize()
+end
+function cse_alife_item_pda_properties:state_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_read(packet, data)
+	
+	data.original_owner = packet:r_u16()
+	data.specific_character = packet:r_stringZ()
+	data.info_portion = packet:r_stringZ()
+end
+function cse_alife_item_pda_properties:state_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_write(packet, data)
+	
+	packet:w_u16(data.original_owner)
+	packet:w_stringZ(data.specific_character)
+	packet:w_stringZ(data.info_portion)
+end
+function cse_alife_item_pda_properties:update_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_read(packet, data)
+end
+function cse_alife_item_pda_properties:update_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_write(packet, data)
+end
+function cse_alife_item_pda_properties:print(data)
+	get_cls_object("cse_alife_item_properties"):print(data)
+	
+	format_print("; cse_alife_item_pda properties")
+	format_print("original_owner = %d", data.original_owner)
+	format_print("specific_character = %s", data.specific_character)
+	format_print("info_portion = %s", data.info_portion)
+end
+
+class "cse_alife_item_document_properties"
+function cse_alife_item_document_properties:__init()
+end
+function cse_alife_item_document_properties:__finalize()
+end
+function cse_alife_item_document_properties:state_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_read(packet, data)
+	data.info_portion = packet:r_stringZ()
+end
+function cse_alife_item_document_properties:state_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_write(packet, data)
+	packet:w_stringZ(data.info_portion)
+end
+function cse_alife_item_document_properties:update_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_read(packet, data)
+end
+function cse_alife_item_document_properties:update_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_write(packet, data)
+end
+function cse_alife_item_document_properties:print(data)
+	get_cls_object("cse_alife_item_properties"):print(data)
+	
+	format_print("; cse_alife_item_document properties")
+	format_print("info_portion = %s", data.info_portion)
+end
+
+class "cse_alife_item_torch_properties"
+function cse_alife_item_torch_properties:__init()
+end
+function cse_alife_item_torch_properties:__finalize()
+end
+function cse_alife_item_torch_properties:state_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_read(packet, data)
+end
+function cse_alife_item_torch_properties:state_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_write(packet, data)
+end
+function cse_alife_item_torch_properties:update_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_read(packet, data)
+	
+	if data_left(packet) then
+		data.upd_torch_flags = packet:r_u8()
+	end
+end
+function cse_alife_item_torch_properties:update_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_write(packet, data)
+	
+	if data.upd_torch_flags ~= nil then
+		packet:w_u8(data.upd_torch_flags)
+	end
+end
+function cse_alife_item_torch_properties:print(data)
+	get_cls_object("cse_alife_item_properties"):print(data)
+	
+	if data.upd_torch_flags ~= nil then
+		format_print("upd:torch_flags = %s", get_object_flags("cse_alife_item_torch_properties", data.upd_torch_flags))
+	end
+end
+
+class "cse_alife_item_ammo_properties"
+function cse_alife_item_ammo_properties:__init()
+end
+function cse_alife_item_ammo_properties:__finalize()
+end
+function cse_alife_item_ammo_properties:state_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_read(packet, data)
+	data.ammo_left = packet:r_u16()
+end
+function cse_alife_item_ammo_properties:state_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_write(packet, data)
+	packet:w_u16(data.ammo_left)
+end
+function cse_alife_item_ammo_properties:update_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_read(packet, data)
+	
+	if data_left(packet) then
+		data.upd_ammo_left = packet:r_u16()
+	else
+		abort("could not read 'upd:ammo_left' in cse_alife_item_ammo")
+		data.upd_ammo_left = data.ammo_left
+	end
+end
+function cse_alife_item_ammo_properties:update_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_write(packet, data)
+	packet:w_u16(data.upd_ammo_left)
+end
+function cse_alife_item_ammo_properties:print(data)
+	get_cls_object("cse_alife_item_properties"):print(data)
+	
+	format_print("; cse_alife_item_ammo properties")
+	format_print("ammo_left = %d", data.ammo_left)
+	format_print("upd:ammo_left = %d", data.upd_ammo_left)
+end
+
+class "cse_alife_item_weapon_properties"
+function cse_alife_item_weapon_properties:__init()
+end
+function cse_alife_item_weapon_properties:__finalize()
+end
+function cse_alife_item_weapon_properties:state_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_read(packet, data)
+	
+	data.ammo_current = packet:r_u16()
+	data.ammo_elapsed = packet:r_u16()
+	data.weapon_state = packet:r_u8()
+	data.addon_flags = packet:r_u8()
+	data.ammo_type = packet:r_u8()
+end
+function cse_alife_item_weapon_properties:state_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):state_write(packet, data)
+	
+	packet:w_u16(data.ammo_current)
+	packet:w_u16(data.ammo_elapsed)
+	packet:w_u8(data.weapon_state)
+	packet:w_u8(data.addon_flags)
+	packet:w_u8(data.ammo_type)
+end
+function cse_alife_item_weapon_properties:update_read(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_read(packet, data)
+	
+	data.upd_condition = packet:r_u8()
+	data.upd_weapon_flags = packet:r_u8()
+	data.upd_ammo_elapsed = packet:r_u16()
+	data.upd_addon_flags = packet:r_u8()
+	data.upd_ammo_type = packet:r_u8()
+	data.upd_weapon_state = packet:r_u8()
+	data.upd_weapon_zoom = packet:r_u8()
+end
+function cse_alife_item_weapon_properties:update_write(packet, data)
+	get_cls_object("cse_alife_item_properties"):update_write(packet, data)
+	
+	packet:w_u8(data.upd_condition)
+	packet:w_u8(data.upd_weapon_flags)
+	packet:w_u16(data.upd_ammo_elapsed)
+	packet:w_u8(data.upd_addon_flags)
+	packet:w_u8(data.upd_ammo_type)
+	packet:w_u8(data.upd_weapon_state)
+	packet:w_u8(data.upd_weapon_zoom)
+end
+function cse_alife_item_weapon_properties:print(data)
+	get_cls_object("cse_alife_item_properties"):print(data)
+	
+	format_print("; cse_alife_item_weapon properties")
+	format_print("ammo_current = %d", data.ammo_current)
+	format_print("ammo_elapsed = %d", data.ammo_elapsed)
+	format_print("weapon_state = %d", data.weapon_state)
+	format_print("addon_flags = %s", get_object_flags("cse_alife_item_weapon_properties", data.addon_flags))
+	format_print("ammo_type = %d", data.ammo_type)
+	
+	format_print("upd:condition = %d", data.upd_condition)
+	format_print("upd:weapon_flags = %d", data.upd_weapon_flags)
+	format_print("upd:ammo_elapsed = %d", data.upd_ammo_elapsed)
+	format_print("upd:addon_flags = %s", get_object_flags("cse_alife_item_weapon_properties", data.upd_addon_flags))
+	format_print("upd:ammo_type = %d", data.upd_ammo_type)
+	format_print("upd:weapon_state = %d", data.upd_weapon_state)
+	format_print("upd:weapon_zoom = %d", data.upd_weapon_zoom)
+end
+
+class "cse_alife_item_weapon_magazined_properties"
+function cse_alife_item_weapon_magazined_properties:__init()
+end
+function cse_alife_item_weapon_magazined_properties:__finalize()
+end
+function cse_alife_item_weapon_magazined_properties:state_read(packet, data)
+	get_cls_object("cse_alife_item_weapon_properties"):state_read(packet, data)
+end
+function cse_alife_item_weapon_magazined_properties:state_write(packet, data)
+	get_cls_object("cse_alife_item_weapon_properties"):state_write(packet, data)
+end
+function cse_alife_item_weapon_magazined_properties:update_read(packet, data)
+	get_cls_object("cse_alife_item_weapon_properties"):update_read(packet, data)
+	data.upd_current_fire_mode = packet:r_u8()
+end
+function cse_alife_item_weapon_magazined_properties:update_write(packet, data)
+	get_cls_object("cse_alife_item_weapon_properties"):update_write(packet, data)
+	packet:w_u8(data.upd_current_fire_mode)
+end
+function cse_alife_item_weapon_magazined_properties:print(data)
+	get_cls_object("cse_alife_item_weapon_properties"):print(data)
+	format_print("upd:current_fire_mode = %d", data.upd_current_fire_mode)
+end
+
+class "cse_alife_item_weapon_magazined_w_gl_properties"
+function cse_alife_item_weapon_magazined_w_gl_properties:__init()
+end
+function cse_alife_item_weapon_magazined_w_gl_properties:__finalize()
+end
+function cse_alife_item_weapon_magazined_w_gl_properties:state_read(packet, data)
+	get_cls_object("cse_alife_item_weapon_properties"):state_read(packet, data)
+end
+function cse_alife_item_weapon_magazined_w_gl_properties:state_write(packet, data)
+	get_cls_object("cse_alife_item_weapon_properties"):state_write(packet, data)
+end
+function cse_alife_item_weapon_magazined_w_gl_properties:update_read(packet, data)
+	data.upd_grenade_mode = packet:r_u8()
+	get_cls_object("cse_alife_item_weapon_magazined_properties"):update_read(packet, data)
+end
+function cse_alife_item_weapon_magazined_w_gl_properties:update_write(packet, data)
+	packet:w_u8(data.upd_grenade_mode)
+	get_cls_object("cse_alife_item_weapon_magazined_properties"):update_write(packet, data)
+end
+function cse_alife_item_weapon_magazined_w_gl_properties:print(data)
+	get_cls_object("cse_alife_item_weapon_magazined_properties"):print(data)
+	format_print("upd:grenade_mode = %d", data.upd_grenade_mode)
+end
+
+class "cse_alife_item_weapon_shotgun_properties"
+function cse_alife_item_weapon_shotgun_properties:__init()
+end
+function cse_alife_item_weapon_shotgun_properties:__finalize()
+end
+function cse_alife_item_weapon_shotgun_properties:state_read(packet, data)
+	get_cls_object("cse_alife_item_weapon_properties"):state_read(packet, data)
+end
+function cse_alife_item_weapon_shotgun_properties:state_write(packet, data)
+	get_cls_object("cse_alife_item_weapon_properties"):state_write(packet, data)
+end
+function cse_alife_item_weapon_shotgun_properties:update_read(packet, data)
+	get_cls_object("cse_alife_item_weapon_magazined_properties"):update_read(packet, data)
+	data.upd_ammo_ids = packet:r_u8()
+end
+function cse_alife_item_weapon_shotgun_properties:update_write(packet, data)
+	get_cls_object("cse_alife_item_weapon_magazined_properties"):update_write(packet, data)
+	packet:w_u8(data.upd_ammo_ids)
+end
+function cse_alife_item_weapon_shotgun_properties:print(data)
+	get_cls_object("cse_alife_item_weapon_magazined_properties"):print(data)
+	format_print("upd:ammo_ids = %d", data.upd_ammo_ids)
+end
+
+class "cse_alife_creature_abstract_properties"
+function cse_alife_creature_abstract_properties:__init()
+end
+function cse_alife_creature_abstract_properties:__finalize()
+end
+function cse_alife_creature_abstract_properties:state_read(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_read(packet, data)
+	
+	data.g_team = packet:r_u8()
+	data.g_squad = packet:r_u8()
+	data.g_group = packet:r_u8()
+	data.health = packet:r_float()
+	data.dynamic_out_restrictions = read_chunk(packet, packet:r_s32(), "u16")
+	data.dynamic_in_restrictions = read_chunk(packet, packet:r_s32(), "u16")
+	data.killer_id = packet:r_u16()
+	data.game_death_time = read_chunk(packet, 8, "u8")
+end
+function cse_alife_creature_abstract_properties:state_write(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_write(packet, data)
+	
+	packet:w_u8(data.g_team)
+	packet:w_u8(data.g_squad)
+	packet:w_u8(data.g_group)
+	packet:w_float(data.health)
+	
+	packet:w_s32(#data.dynamic_out_restrictions)
+	write_chunk(packet, data.dynamic_out_restrictions, "u16")
+	
+	packet:w_s32(#data.dynamic_in_restrictions)
+	write_chunk(packet, data.dynamic_in_restrictions, "u16")
+	
+	packet:w_u16(data.killer_id)
+	write_chunk(packet, data.game_death_time, "u8")
+end
+function cse_alife_creature_abstract_properties:update_read(packet, data)
+	data.upd_health = packet:r_float()
+	data.upd_timestamp = packet:r_s32()
+	data.upd_creature_flags = packet:r_u8()
+	data.upd_position = read_chunk(packet, 3, "float")
+	data.upd_o_model = packet:r_float()
+	data.upd_o_torso = read_chunk(packet, 3, "float")
+	data.upd_g_team = packet:r_u8()
+	data.upd_g_squad = packet:r_u8()
+	data.upd_g_group = packet:r_u8()
+end
+function cse_alife_creature_abstract_properties:update_write(packet, data)
+	packet:w_float(data.upd_health)
+	packet:w_s32(data.upd_timestamp)
+	packet:w_u8(data.upd_creature_flags)
+	write_chunk(packet, data.upd_position, "float")
+	packet:w_float(data.upd_o_model)
+	write_chunk(packet, data.upd_o_torso, "float")
+	packet:w_u8(data.upd_g_team)
+	packet:w_u8(data.upd_g_squad)
+	packet:w_u8(data.upd_g_group)
+end
+function cse_alife_creature_abstract_properties:print(data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):print(data)
+	
+	format_print("; cse_alife_creature_abstract properties")
+	format_print("g_team = %d", data.g_team)
+	format_print("g_squad = %d", data.g_squad)
+	format_print("g_group = %d", data.g_group)
+	format_print("health = %f", data.health)
+	format_print("dynamic_out_restrictions = %s", tab2strlist(data.dynamic_out_restrictions))
+	format_print("dynamic_in_restrictions = %s", tab2strlist(data.dynamic_in_restrictions))
+	format_print("killer_id = %s", num2hexstr(data.killer_id))
+	format_print("game_death_time = %s", tab2strlist(data.game_death_time))
+	
+	format_print("upd:health = %f", data.upd_health)
+	format_print("upd:timestamp = %s", num2hexstr(data.upd_timestamp))
+	format_print("upd:creature_flags = %s", num2hexstr(data.upd_creature_flags))
+	format_print("upd:position = %f,%f,%f", unpack(data.upd_position))
+	format_print("upd:o_model = %f", data.upd_o_model)
+	format_print("upd:o_torso = %f,%f,%f", unpack(data.upd_o_torso))
+	format_print("upd:g_team = %d", data.upd_g_team)
+	format_print("upd:g_squad = %d", data.upd_g_squad)
+	format_print("upd:g_group = %d", data.upd_g_group)
+end
+
+class "cse_alife_monster_abstract_properties"
+function cse_alife_monster_abstract_properties:__init()
+end
+function cse_alife_monster_abstract_properties:__finalize()
+end
+function cse_alife_monster_abstract_properties:state_read(packet, data)
+	get_cls_object("cse_alife_creature_abstract_properties"):state_read(packet, data)
+	
+	data.base_out_restrictors = packet:r_stringZ()
+	data.base_in_restrictors = packet:r_stringZ()
+	data.smart_terrain_id = packet:r_u16()
+	data.smart_terrain_task_active = packet:r_u8()
+end
+function cse_alife_monster_abstract_properties:state_write(packet, data)
+	get_cls_object("cse_alife_creature_abstract_properties"):state_write(packet, data)
+	
+	packet:w_stringZ(data.base_out_restrictors)
+	packet:w_stringZ(data.base_in_restrictors)
+	packet:w_u16(data.smart_terrain_id)
+	packet:w_u8(data.smart_terrain_task_active)
+end
+function cse_alife_monster_abstract_properties:update_read(packet, data)
+	get_cls_object("cse_alife_creature_abstract_properties"):update_read(packet, data)
+	
+	data.upd_next_game_vertex_id = packet:r_u16()
+	data.upd_prev_game_vertex_id = packet:r_u16()
+	data.upd_distance_from_point = packet:r_float() --packet:r_s32()
+	data.upd_distance_to_point = packet:r_float() --packet:r_s32()
+end
+function cse_alife_monster_abstract_properties:update_write(packet, data)
+	get_cls_object("cse_alife_creature_abstract_properties"):update_write(packet, data)
+	
+	packet:w_u16(data.upd_next_game_vertex_id)
+	packet:w_u16(data.upd_prev_game_vertex_id)
+	packet:w_float(data.upd_distance_from_point) --packet:w_s32(data.upd_distance_from_point)
+	packet:w_float(data.upd_distance_to_point) --packet:w_s32(data.upd_distance_to_point)
+end
+function cse_alife_monster_abstract_properties:print(data)
+	get_cls_object("cse_alife_creature_abstract_properties"):print(data)
+	
+	format_print("; cse_alife_monster_abstract properties")
+	format_print("base_out_restrictors = %s", data.base_out_restrictors)
+	format_print("base_in_restrictors = %s", data.base_in_restrictors)
+	format_print("smart_terrain_id = %d", data.smart_terrain_id)
+	format_print("smart_terrain_task_active = %d", data.smart_terrain_task_active)
+	
+	format_print("upd:next_game_vertex_id = %d", data.upd_next_game_vertex_id)
+	format_print("upd:prev_game_vertex_id = %d", data.upd_prev_game_vertex_id)
+	format_print("upd:distance_from_point = %f", data.upd_distance_from_point)
+	format_print("upd:distance_to_point = %f", data.upd_distance_to_point)
+end
+
+class "cse_alife_trader_abstract_properties"
+function cse_alife_trader_abstract_properties:__init()
+end
+function cse_alife_trader_abstract_properties:__finalize()
+end
+function cse_alife_trader_abstract_properties:state_read(packet, data)
+	data.money = packet:r_u32() --packet:r_s32()
+	data.specific_character = packet:r_stringZ()
+	data.trader_flags = packet:r_s32()
+	data.character_profile = packet:r_stringZ()
+	data.community_index = packet:r_s32()
+	data.rank = packet:r_s32()
+	data.reputation = packet:r_s32()
+	data.checked_characters = packet:r_stringZ()
+end
+function cse_alife_trader_abstract_properties:state_write(packet, data)
+	packet:w_u32(data.money) --packet:w_s32(data.money)
+	packet:w_stringZ(data.specific_character)
+	packet:w_s32(data.trader_flags)
+	packet:w_stringZ(data.character_profile)
+	packet:w_s32(data.community_index)
+	packet:w_s32(data.rank)
+	packet:w_s32(data.reputation)
+	packet:w_stringZ(data.checked_characters)
+end
+function cse_alife_trader_abstract_properties:update_read(packet, data)
+end
+function cse_alife_trader_abstract_properties:update_write(packet, data)
+end
+function cse_alife_trader_abstract_properties:print(data)
+	format_print("; cse_alife_trader_abstract properties")
+	format_print("money = %d", data.money)
+	format_print("specific_character = %s", data.specific_character)
+	format_print("trader_flags = %s", num2hexstr(data.trader_flags))
+	format_print("character_profile = %s", data.character_profile)
+	format_print("community_index = %s", num2hexstr(data.community_index))
+	format_print("rank = %s", num2hexstr(data.rank))
+	format_print("reputation = %s", num2hexstr(data.reputation))
+	format_print("checked_characters = %s", data.checked_characters)
+end
+
+class "cse_alife_human_abstract_properties"
+function cse_alife_human_abstract_properties:__init()
+end
+function cse_alife_human_abstract_properties:__finalize()
+end
+function cse_alife_human_abstract_properties:state_read(packet, data)
+	get_cls_object("cse_alife_trader_abstract_properties"):state_read(packet, data)
+	get_cls_object("cse_alife_monster_abstract_properties"):state_read(packet, data)
+	
+	data.predicate5 = read_chunk(packet, packet:r_s32(), "u8")
+	data.predicate4 = read_chunk(packet, packet:r_s32(), "u8")
+end
+function cse_alife_human_abstract_properties:state_write(packet, data)
+	get_cls_object("cse_alife_trader_abstract_properties"):state_write(packet, data)
+	get_cls_object("cse_alife_monster_abstract_properties"):state_write(packet, data)
+	
+	packet:w_s32(#data.predicate5)
+	write_chunk(packet, data.predicate5, "u8")
+	
+	packet:w_s32(#data.predicate4)
+	write_chunk(packet, data.predicate4, "u8")
+end
+function cse_alife_human_abstract_properties:update_read(packet, data)
+	get_cls_object("cse_alife_monster_abstract_properties"):update_read(packet, data)
+end
+function cse_alife_human_abstract_properties:update_write(packet, data)
+	get_cls_object("cse_alife_monster_abstract_properties"):update_write(packet, data)
+end
+function cse_alife_human_abstract_properties:print(data)
+	get_cls_object("cse_alife_trader_abstract_properties"):print(data)
+	get_cls_object("cse_alife_monster_abstract_properties"):print(data)
+	
+	format_print("; cse_alife_human_abstract properties")
+	format_print("predicate5 = %s", tab2strlist(data.predicate5))
+	format_print("predicate4 = %s", tab2strlist(data.predicate4))
+end
+
+class "cse_alife_human_stalker_properties"
+function cse_alife_human_stalker_properties:__init()
+end
+function cse_alife_human_stalker_properties:__finalize()
+end
+function cse_alife_human_stalker_properties:state_read(packet, data)
+	get_cls_object("cse_alife_human_abstract_properties"):state_read(packet, data)
+	get_cls_object("cse_ph_skeleton_properties"):state_read(packet, data)
+end
+function cse_alife_human_stalker_properties:state_write(packet, data)
+	get_cls_object("cse_alife_human_abstract_properties"):state_write(packet, data)
+	get_cls_object("cse_ph_skeleton_properties"):state_write(packet, data)
+end
+function cse_alife_human_stalker_properties:update_read(packet, data)
+	get_cls_object("cse_alife_human_abstract_properties"):update_read(packet, data)
+	data.upd_start_dialog = packet:r_stringZ()
+end
+function cse_alife_human_stalker_properties:update_write(packet, data)
+	get_cls_object("cse_alife_human_abstract_properties"):update_write(packet, data)
+	packet:w_stringZ(data.upd_start_dialog)
+end
+function cse_alife_human_stalker_properties:print(data)
+	get_cls_object("cse_alife_human_abstract_properties"):print(data)
+	get_cls_object("cse_ph_skeleton_properties"):print(data)
+	format_print("upd:start_dialog = %s", data.upd_start_dialog)
+end
+
+class "se_stalker_properties"
+function se_stalker_properties:__init()
+end
+function se_stalker_properties:__finalize()
+end
+function se_stalker_properties:state_read(packet, data)
+	get_cls_object("cse_alife_human_stalker_properties"):state_read(packet, data)
+	
+	if read_se_script_data and data_left(packet) then
+		data.job_online = packet:r_u8()
+		if data.job_online == 3 then
+			data.job_online_condlist = packet:r_stringZ()
+		end
+		data.was_in_smart_terrain = packet:r_bool()
+		if vanilla_se_stalker then
+			data.death_droped = packet:r_bool()
+		else
+			-- bardak's bug fix attempt
+			-- death_droped, treasure_processed
+			data.bfa_flags = packet:r_u8()
+		end
+	end
+end
+function se_stalker_properties:state_write(packet, data)
+	get_cls_object("cse_alife_human_stalker_properties"):state_write(packet, data)
+	
+	if write_se_script_data then
+		if data.job_online ~= nil then
+			packet:w_u8(data.job_online)
+			if data.job_online_condlist ~= nil then
+				packet:w_stringZ(data.job_online_condlist)
+			end
+			packet:w_bool(data.was_in_smart_terrain)
+			if data.death_droped ~= nil then
+				packet:w_bool(data.death_droped)
+			end
+			if data.bfa_flags ~= nil then
+				packet:w_u8(data.bfa_flags)
+			end
+		end
+	end
+end
+function se_stalker_properties:update_read(packet, data)
+	get_cls_object("cse_alife_human_stalker_properties"):update_read(packet, data)
+end
+function se_stalker_properties:update_write(packet, data)
+	get_cls_object("cse_alife_human_stalker_properties"):update_write(packet, data)
+end
+function se_stalker_properties:print(data)
+	get_cls_object("cse_alife_human_stalker_properties"):print(data)
+	
+	if data.job_online ~= nil then
+		format_print("; se_stalker properties")
+		format_print("job_online = %d", data.job_online)
+		if data.job_online_condlist ~= nil then
+			format_print("job_online_condlist = %s", data.job_online_condlist)
+		end
+		format_print("was_in_smart_terrain = %s", tostring(data.was_in_smart_terrain))
+		if data.death_droped ~= nil then
+			format_print("death_droped = %s", tostring(data.death_droped))
+		end
+		if data.bfa_flags ~= nil then
+			format_print("death_droped = %s", tostring(bit_and(data.bfa_flags, 1) ~= 0))
+			format_print("treasure_processed = %s", tostring(bit_and(data.bfa_flags, 2) ~= 0))
+		end
+	end
+end
+
+class "cse_alife_trader_properties"
+function cse_alife_trader_properties:__init()
+end
+function cse_alife_trader_properties:__finalize()
+end
+function cse_alife_trader_properties:state_read(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_read(packet, data)
+	get_cls_object("cse_alife_trader_abstract_properties"):state_read(packet, data)
+end
+function cse_alife_trader_properties:state_write(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_write(packet, data)
+	get_cls_object("cse_alife_trader_abstract_properties"):state_write(packet, data)
+end
+function cse_alife_trader_properties:update_read(packet, data)
+end
+function cse_alife_trader_properties:update_write(packet, data)
+end
+function cse_alife_trader_properties:print(data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):print(data)
+	get_cls_object("cse_alife_trader_abstract_properties"):print(data)
+end
+
+class "cse_alife_creature_actor_properties"
+function cse_alife_creature_actor_properties:__init()
+end
+function cse_alife_creature_actor_properties:__finalize()
+end
+function cse_alife_creature_actor_properties:state_read(packet, data)
+	get_cls_object("cse_alife_creature_abstract_properties"):state_read(packet, data)
+	get_cls_object("cse_alife_trader_abstract_properties"):state_read(packet, data)
+	get_cls_object("cse_ph_skeleton_properties"):state_read(packet, data)
+	
+	data.holder_id = packet:r_u16()
+end
+function cse_alife_creature_actor_properties:state_write(packet, data)
+	get_cls_object("cse_alife_creature_abstract_properties"):state_write(packet, data)
+	get_cls_object("cse_alife_trader_abstract_properties"):state_write(packet, data)
+	get_cls_object("cse_ph_skeleton_properties"):state_write(packet, data)
+	
+	packet:w_u16(data.holder_id)
+end
+function cse_alife_creature_actor_properties:update_read(packet, data)
+	get_cls_object("cse_alife_creature_abstract_properties"):update_read(packet, data)
+	
+	data.upd_actor_state = packet:r_u16()
+	data.upd_actor_accel_header = packet:r_u16()
+	data.upd_actor_accel_data = packet:r_s32()
+	data.upd_actor_velocity_header = packet:r_u16()
+	data.upd_actor_velocity_data = packet:r_s32()
+	data.upd_actor_radiation = packet:r_float()
+	data.upd_actor_weapon = packet:r_u8()
+	data.upd_num_items = packet:r_u16()
+end
+function cse_alife_creature_actor_properties:update_write(packet, data)
+	get_cls_object("cse_alife_creature_abstract_properties"):update_write(packet, data)
+	
+	packet:w_u16(data.upd_actor_state)
+	packet:w_u16(data.upd_actor_accel_header)
+	packet:w_s32(data.upd_actor_accel_data)
+	packet:w_u16(data.upd_actor_velocity_header)
+	packet:w_s32(data.upd_actor_velocity_data)
+	packet:w_float(data.upd_actor_radiation)
+	packet:w_u8(data.upd_actor_weapon)
+	packet:w_u16(data.upd_num_items)
+end
+function cse_alife_creature_actor_properties:print(data)
+	get_cls_object("cse_alife_creature_abstract_properties"):print(data)
+	get_cls_object("cse_alife_trader_abstract_properties"):print(data)
+	get_cls_object("cse_ph_skeleton_properties"):print(data)
+	
+	format_print("; cse_alife_creature_actor properties")
+	format_print("holder_id = %s", num2hexstr(data.holder_id))
+	
+	format_print("upd:actor_state = %s", num2hexstr(data.upd_actor_state))
+	format_print("upd:actor_accel_header = %s", num2hexstr(data.upd_actor_accel_header))
+	format_print("upd:actor_accel_data = %s", num2hexstr(data.upd_actor_accel_data))
+	format_print("upd:actor_velocity_header = %s", num2hexstr(data.upd_actor_velocity_header))
+	format_print("upd:actor_velocity_data = %s", num2hexstr(data.upd_actor_velocity_data))
+	format_print("upd:actor_radiation = %f", data.upd_actor_radiation)
+	format_print("upd:actor_weapon = %d", data.upd_actor_weapon)
+	format_print("upd:num_items = %d", data.upd_num_items)
+end
+
+class "cse_alife_creature_crow_properties"
+function cse_alife_creature_crow_properties:__init()
+end
+function cse_alife_creature_crow_properties:__finalize()
+end
+function cse_alife_creature_crow_properties:state_read(packet, data)
+	get_cls_object("cse_alife_creature_abstract_properties"):state_read(packet, data)
+end
+function cse_alife_creature_crow_properties:state_write(packet, data)
+	get_cls_object("cse_alife_creature_abstract_properties"):state_write(packet, data)
+end
+function cse_alife_creature_crow_properties:update_read(packet, data)
+	get_cls_object("cse_alife_creature_abstract_properties"):update_read(packet, data)
+end
+function cse_alife_creature_crow_properties:update_write(packet, data)
+	get_cls_object("cse_alife_creature_abstract_properties"):update_write(packet, data)
+end
+function cse_alife_creature_crow_properties:print(data)
+	get_cls_object("cse_alife_creature_abstract_properties"):print(data)
+end
+
+class "cse_alife_creature_phantom_properties"
+function cse_alife_creature_phantom_properties:__init()
+end
+function cse_alife_creature_phantom_properties:__finalize()
+end
+function cse_alife_creature_phantom_properties:state_read(packet, data)
+	get_cls_object("cse_alife_creature_abstract_properties"):state_read(packet, data)
+end
+function cse_alife_creature_phantom_properties:state_write(packet, data)
+	get_cls_object("cse_alife_creature_abstract_properties"):state_write(packet, data)
+end
+function cse_alife_creature_phantom_properties:update_read(packet, data)
+	get_cls_object("cse_alife_creature_abstract_properties"):update_read(packet, data)
+end
+function cse_alife_creature_phantom_properties:update_write(packet, data)
+	get_cls_object("cse_alife_creature_abstract_properties"):update_write(packet, data)
+end
+function cse_alife_creature_phantom_properties:print(data)
+	get_cls_object("cse_alife_creature_abstract_properties"):print(data)
+end
+
+class "cse_alife_monster_base_properties"
+function cse_alife_monster_base_properties:__init()
+end
+function cse_alife_monster_base_properties:__finalize()
+end
+function cse_alife_monster_base_properties:state_read(packet, data)
+	get_cls_object("cse_alife_monster_abstract_properties"):state_read(packet, data)
+	get_cls_object("cse_ph_skeleton_properties"):state_read(packet, data)
+	
+	data.spec_object_id = packet:r_u16()
+end
+function cse_alife_monster_base_properties:state_write(packet, data)
+	get_cls_object("cse_alife_monster_abstract_properties"):state_write(packet, data)
+	get_cls_object("cse_ph_skeleton_properties"):state_write(packet, data)
+	
+	packet:w_u16(data.spec_object_id)
+end
+function cse_alife_monster_base_properties:update_read(packet, data)
+	get_cls_object("cse_alife_monster_abstract_properties"):update_read(packet, data)
+end
+function cse_alife_monster_base_properties:update_write(packet, data)
+	get_cls_object("cse_alife_monster_abstract_properties"):update_write(packet, data)
+end
+function cse_alife_monster_base_properties:print(data)
+	get_cls_object("cse_alife_monster_abstract_properties"):print(data)
+	get_cls_object("cse_ph_skeleton_properties"):print(data)
+	
+	format_print("; cse_alife_monster_base properties")
+	format_print("spec_object_id = %d", data.spec_object_id)
+end
+
+class "se_monster_properties"
+function se_monster_properties:__init()
+end
+function se_monster_properties:__finalize()
+end
+function se_monster_properties:state_read(packet, data)
+	get_cls_object("cse_alife_monster_base_properties"):state_read(packet, data)
+	
+	if read_se_script_data and data_left(packet) then
+		data.job_online = packet:r_u8()
+		if data.job_online == 3 then
+			data.job_online_condlist = packet:r_stringZ()
+		end
+		data.was_in_smart_terrain = packet:r_bool()
+	end
+end
+function se_monster_properties:state_write(packet, data)
+	get_cls_object("cse_alife_monster_base_properties"):state_write(packet, data)
+	
+	if write_se_script_data then
+		if data.job_online ~= nil then
+			packet:w_u8(data.job_online)
+			if data.job_online == 3 then
+				packet:w_stringZ(data.job_online_condlist)
+			end
+			packet:w_bool(data.was_in_smart_terrain)
+		end
+	end
+end
+function se_monster_properties:update_read(packet, data)
+	get_cls_object("cse_alife_monster_base_properties"):update_read(packet, data)
+end
+function se_monster_properties:update_write(packet, data)
+	get_cls_object("cse_alife_monster_base_properties"):update_write(packet, data)
+end
+function se_monster_properties:print(data)
+	get_cls_object("cse_alife_monster_base_properties"):print(data)
+	
+	if data.job_online ~= nil then
+		format_print("; se_monster properties")
+		format_print("job_online = %d", data.job_online)
+		if data.job_online == 3 then
+			format_print("job_online_condlist = %s", data.job_online_condlist)
+		end
+		format_print("was_in_smart_terrain = %s", tostring(data.was_in_smart_terrain))
+	end
+end
+
+-- ******************************************************************************* --
+
+class "cse_alife_monster_zombie_properties"
+function cse_alife_monster_zombie_properties:__init()
+end
+function cse_alife_monster_zombie_properties:__finalize()
+end
+function cse_alife_monster_zombie_properties:state_read(packet, data)
+	get_cls_object("cse_alife_monster_abstract_properties"):state_read(packet, data)
+	
+	data.field_of_view = packet:r_float()
+	data.eye_range = packet:r_float()
+	data.minimum_speed = packet:r_float()
+	data.maximum_speed = packet:r_float()
+	data.attack_speed = packet:r_float()
+	data.pursuit_distance = packet:r_float()
+	data.home_distance = packet:r_float()
+	data.hit_power = packet:r_float()
+	data.hit_interval = packet:r_u16()
+	data.distance = packet:r_float()
+	data.maximum_angle = packet:r_float()
+end
+function cse_alife_monster_zombie_properties:state_write(packet, data)
+	get_cls_object("cse_alife_monster_abstract_properties"):state_write(packet, data)
+	
+	packet:w_float(data.field_of_view)
+	packet:w_float(data.eye_range)
+	packet:w_float(data.minimum_speed)
+	packet:w_float(data.maximum_speed)
+	packet:w_float(data.attack_speed)
+	packet:w_float(data.pursuit_distance)
+	packet:w_float(data.home_distance)
+	packet:w_float(data.hit_power)
+	packet:w_u16(data.hit_interval)
+	packet:w_float(data.distance)
+	packet:w_float(data.maximum_angle)
+end
+function cse_alife_monster_zombie_properties:update_read(packet, data)
+	get_cls_object("cse_alife_monster_abstract_properties"):update_read(packet, data)
+end
+function cse_alife_monster_zombie_properties:update_write(packet, data)
+	get_cls_object("cse_alife_monster_abstract_properties"):update_write(packet, data)
+end
+function cse_alife_monster_zombie_properties:print(data)
+	get_cls_object("cse_alife_monster_abstract_properties"):print(data)
+	
+	format_print("; cse_alife_monster_zombie properties")
+	format_print("field_of_view = %f", data.field_of_view)
+	format_print("eye_range = %f", data.eye_range)
+	format_print("minimum_speed = %f", data.minimum_speed)
+	format_print("maximum_speed = %f", data.maximum_speed)
+	format_print("attack_speed = %f", data.attack_speed)
+	format_print("pursuit_distance = %f", data.pursuit_distance)
+	format_print("home_distance = %f", data.home_distance)
+	format_print("hit_power = %f", data.hit_power)
+	format_print("hit_interval = %d", data.hit_interval)
+	format_print("distance = %f", data.distance)
+	format_print("maximum_angle = %f", data.maximum_angle)
+end
+
+class "cse_alife_mounted_weapon_properties"
+function cse_alife_mounted_weapon_properties:__init()
+end
+function cse_alife_mounted_weapon_properties:__finalize()
+end
+function cse_alife_mounted_weapon_properties:state_read(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_read(packet, data)
+end
+function cse_alife_mounted_weapon_properties:state_write(packet, data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):state_write(packet, data)
+end
+function cse_alife_mounted_weapon_properties:update_read(packet, data)
+	if data.obj_section == "stationary_mgun" then
+		data.upd_working = packet:r_u8()
+		data.upd_dest_enemy_direction = packet:r_vec3()
+	end
+end
+function cse_alife_mounted_weapon_properties:update_write(packet, data)
+	if data.obj_section == "stationary_mgun" then
+		packet:w_u8(data.upd_working)
+		packet:w_vec3(data.upd_dest_enemy_direction)
+	end
+end
+function cse_alife_mounted_weapon_properties:print(data)
+	get_cls_object("cse_alife_dynamic_object_visual_properties"):print(data)
+	
+	format_print("; cse_alife_mounted_weapon properties")
+	if data.obj_section == "stationary_mgun" then
+		format_print("upd:working = %d", data.upd_working)
+		format_print("upd:dest_enemy_direction = %s", vector_to_string(data.upd_dest_enemy_direction))
+	end
+end
+
+class "cse_alife_torrid_zone_properties"
+function cse_alife_torrid_zone_properties:__init()
+end
+function cse_alife_torrid_zone_properties:__finalize()
+end
+function cse_alife_torrid_zone_properties:state_read(packet, data)
+	get_cls_object("cse_alife_custom_zone_properties"):state_read(packet, data)
+	get_cls_object("cse_motion_properties"):state_read(packet, data)
+end
+function cse_alife_torrid_zone_properties:state_write(packet, data)
+	get_cls_object("cse_alife_custom_zone_properties"):state_write(packet, data)
+	get_cls_object("cse_motion_properties"):state_write(packet, data)
+end
+function cse_alife_torrid_zone_properties:update_read(packet, data)
+end
+function cse_alife_torrid_zone_properties:update_write(packet, data)
+end
+function cse_alife_torrid_zone_properties:print(data)
+	get_cls_object("cse_alife_custom_zone_properties"):print(data)
+	get_cls_object("cse_motion_properties"):print(data)
+end
+
+class "cse_alife_graph_point_properties"
+function cse_alife_graph_point_properties:__init()
+end
+function cse_alife_graph_point_properties:__finalize()
+end
+function cse_alife_graph_point_properties:state_read(packet, data)
+	data.connection_point_name = packet:r_stringZ()
+	data.connection_level_name = packet:r_stringZ()
+	data.location0 = packet:r_u8()
+	data.location1 = packet:r_u8()
+	data.location2 = packet:r_u8()
+	data.location3 = packet:r_u8()
+end
+function cse_alife_graph_point_properties:state_write(packet, data)
+	packet:w_stringZ(data.connection_point_name)
+	packet:w_stringZ(data.connection_level_name)
+  packet:w_u8(data.location0)
+	packet:w_u8(data.location1)
+	packet:w_u8(data.location2)
+	packet:w_u8(data.location3)
+end
+function cse_alife_graph_point_properties:update_read(packet, data)
+end
+function cse_alife_graph_point_properties:update_write(packet, data)
+end
+function cse_alife_graph_point_properties:print(data)
+	format_print("; cse_alife_graph_point properties")
+	format_print("connection_point_name = %s", data.connection_point_name)
+	format_print("connection_level_name = %s", data.connection_level_name)
+	format_print("location0 = %d", data.location0)
+	format_print("location1 = %d", data.location1)
+	format_print("location2 = %d", data.location2)
+	format_print("location3 = %d", data.location3)
+end
+
+-- ******************************************************************************* --
+
+function main()
+	parser.dbg_print("start ...")
+	
+	local se_obj, data = nil, nil
+	--local object_check_list = {"esc_physic_destroyable_object","trader_pribor_0002","vedro_0007","esc_matugalnik"}
+	--local object_check_list = {"esc_suicidal_flesh"}
+	local object_check_list = {"aes_helicopter"} --esc_heli"}
+	
+	for k, v in ipairs(object_check_list) do
+		se_obj = get_server_obj(v)
+		format_print("***********************************")
+		format_print("[%d] name = '%s' section = '%s' class = '%s'", k, se_obj:name(),
+			se_obj:section_name(), section_to_class[se_obj:section_name()])
+		data = get_object_data(se_obj)
+	end
+	
+	parser.dbg_print("done ...")
+end

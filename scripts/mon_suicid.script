@@ -1,0 +1,138 @@
+------------------------------------
+-- Модуль "Самоубийца".
+-- Created by Monnoroch.
+-- 16.07.09
+------------------------------------
+
+
+class "evaluator_suicid" (property_evaluator)
+function evaluator_suicid:__init(npc,name,storage) super (nil,name)
+	self.st = storage
+	self.rand = math.random(1,100)
+	self.rank = npc:rank()
+	self.mon_a = true
+	if self.rank >= 900 then
+		if self.rand > 1 then
+			self.mon_a = false
+		end
+	elseif self.rank >= 800 then
+		if self.rand > 2 then
+			self.mon_a = false
+		end
+	elseif self.rank >= 700 then
+		if self.rand > 4 then
+			self.mon_a = false
+		end
+	elseif self.rank >= 600 then
+		if self.rand > 7 then
+			self.mon_a = false
+		end
+	elseif self.rank >= 500 then
+		if self.rand > 10 then
+			self.mon_a = false
+		end
+	elseif self.rank >= 400 then
+		if self.rand > 12 then
+			self.mon_a = false
+		end
+	elseif self.rank >= 300 then
+		if self.rand > 15 then
+			self.mon_a = false
+		end
+	elseif self.rank >= 200 then
+		if self.rand > 17 then
+			self.mon_a = false
+		end
+	elseif self.rank >= 100 then
+		if self.rand > 18 then
+			self.mon_a = false
+		end
+	elseif self.rank >= 1 then
+		if self.rand > 20 then
+			self.mon_a = false
+		end
+	end
+end
+function evaluator_suicid:evaluate()
+	local npc = self.object
+	if not self.mon_a then
+		return false
+	end
+	if self.delay and self.delay >= time_global() then
+		return false
+	end
+	if mon_utils.load_variable("blowout",0) ~= 3 then
+		self.delay = time_global() + 15000
+		return false
+	end
+	return true
+end
+
+class "action_suicid" (action_base)
+function action_suicid:__init (npc,action_name,storage) super (nil,action_name)
+	self.st = storage
+end
+function action_suicid:initialize()
+	action_base.initialize(self)
+end
+function action_suicid:execute()
+	action_base.execute(self)
+	local npc = self.object
+	if self.delay and self.delay >= time_global() then
+		return
+	end
+	if self.sui then
+		if state_mgr.get_state(npc) == "suicide"  then
+			mon_utils.hit_npc_sui(npc)
+			self.sui = nil
+		end
+	else
+		if state_mgr.get_state(npc) ~= "suicide"  then
+			state_mgr.set_state(npc,"suicide",nil,nil,nil,{animation = true})
+			self.sui = true
+			self.delay = time_global() + 7000
+		end
+	end
+end
+function action_suicid:finalize()
+	action_base.finalize(self)
+	self.delay = nil
+	self.sui = nil
+end
+
+evid_suicid = mon_ai.evid_mon_base + 2
+actid_suicid = evid_suicid
+
+function add_to_binder(npc,ini,scheme,section,storage)
+	local manager = npc:motivation_action_manager()
+	local com = npc:character_community()
+	local aaa = true
+	if mon_utils.urodi[npc:name()] then
+		aaa = nil
+	end
+	if com == "zombied" or com == "trader" or not aaa or npc:story_id() ~= 4294967296 then
+		manager:add_evaluator(evid_suicid,property_evaluator_const(false))
+		return
+	end
+	manager:add_evaluator(evid_suicid,evaluator_suicid(npc,"eva_suicid",storage))
+	local action = action_suicid(npc,"act_suicid",storage)
+	action:add_precondition(world_property(stalker_ids.property_alive,true))
+	action:add_precondition(world_property(xr_evaluators_id.sidor_wounded_base,false))
+	action:add_precondition (world_property(property_idlecombat, true))
+	action:add_precondition(world_property(evid_suicid,true))
+	action:add_effect(world_property(evid_suicid,false))
+	manager:add_action(actid_suicid,action)
+	action = manager:action(xr_actions_id.alife)
+	action:add_precondition(world_property(evid_suicid,false))
+end
+
+function set_scheme(npc,ini,scheme,section)
+	local st = xr_logic.assign_storage_and_bind(npc,ini,scheme,section)
+end
+
+function disable_scheme(npc, scheme)
+	local st = db.storage[npc:id()][scheme]
+	if st then
+		st.enabled = false
+	end
+end

@@ -1,0 +1,330 @@
+---------------------------------------
+--- ВЕРТОЛЕТНЫЕ ПАРЫ ---
+---------------------------------------
+local heli_pairs = {}
+
+
+-- ДАННЫЕ ПАРЫ
+
+-- добавление пары
+function add_heli_pair(heli_a,heli_b) 
+	local hp = {}
+	
+	--Ведущий
+	hp.leader_id = tonumber(heli_a.id) or tonumber(heli_a:id())
+	hp.leader_target = nil
+	--Ведомый
+	if heli_b ~= nil then
+		hp.wingman_id = tonumber(heli_b.id) or tonumber(heli_b:id())
+	else
+		hp.wingman_id = nil
+	end
+	hp.wingman_target = nil
+	table.insert(heli_pairs,hp)
+end
+
+-- удаление пары
+function delete_heli_pair(heli_id) 
+	local pair_id = get_pair_by_id(heli_id)
+	if pair_id ~= nil then
+		table.remove(heli_pairs,pair_id)
+	end
+end
+
+-- восстановление пары и ее данных
+function restore_heli_pair(leader_id, leader_target, wingman_id, wingman_target) 
+	local hp = {}
+	
+	--Ведущий
+	hp.leader_id = leader_id
+	hp.leader_target = leader_target
+	--Ведомый
+	hp.wingman_id = wingman_id
+	hp.wingman_target = wingman_target
+	table.insert(heli_pairs,hp)
+
+end
+
+-- добавление ведомого
+function reinforce_heli_pair(pos,lvid,gvid,id) 
+	local wid = (spawn.heli_copy(pos,lvid,gvid,id)).id
+	restore_heli_pair(id,nil,wid,nil)
+	return wid
+end
+
+--получение номера пары по id вертолета
+function get_pair_by_id(heli_id) 
+	local pair
+	local pair_id = 0
+	for i = 1, table.getn(heli_pairs) do
+		pair_id = i
+		pair = heli_pairs[pair_id]
+		if pair.leader_id == heli_id or pair.wingman_id == heli_id then
+			return pair_id
+		end
+	end
+	return nil
+end
+
+ --чтение вертолетом данных своей пары
+function read_pair_data(heli_id)
+	local pair_id = get_pair_by_id(heli_id)
+	if pair_id == nil then
+		return
+	end
+	local pair = heli_pairs[pair_id]
+	return pair.leader_id, pair.leader_target, pair.wingman_id, pair.wingman_target
+end
+
+-- обновление инфы о целях пары
+function update_pair_data(heli_id, leader_target, wingman_target)
+	local pair_id = get_pair_by_id(heli_id)
+	if pair_id == nil then
+		return
+	end
+	local pair = heli_pairs[pair_id]
+	if pair.leader_id ~= nil then
+		pair.leader_target = leader_target
+	else
+		pair.leader_target = nil
+	end
+	if pair.wingman_id ~= nil then
+		pair.wingman_target = wingman_target
+	else
+		pair.wingman_target = nil
+	end
+end
+
+--реакция пары на попадание по одному из вертолетов
+function update_pair_hit (heli_id, target, target_id)
+	local pair_id = get_pair_by_id(heli_id)
+	local l_target,w_target
+	local l_prior,w_prior,t_prior = 0,0,0
+	if pair_id == nil then
+		return
+	end
+	local pair = heli_pairs[pair_id]
+	
+	t_prior = get_target_priority(target)
+	
+	if pair.leader_id ~= nil then
+		if pair.leader_target ~= nil then
+			l_target = level.object_by_id(pair.leader_target)
+			l_prior = get_target_priority(l_target)
+		end
+		if (l_prior < t_prior or 
+			(l_prior == t_prior and
+			not level.object_by_id(pair.leader_id):get_helicopter():isVisible(l_target)))
+			then
+			pair.leader_target = target_id
+		end
+	end
+	if pair.wingman_id ~= nil then
+		if pair.wingman_target ~= nil then
+			w_target = level.object_by_id(pair.wingman_target)
+			w_prior = get_target_priority(w_target)
+		end
+		if (w_prior < t_prior or 
+			(w_prior == t_prior and
+			not level.object_by_id(pair.wingman_id):get_helicopter():isVisible(w_target)))
+			then
+			pair.wingman_target = target_id
+		end
+	end
+end
+
+--реакция пары на сильные повреждения одного из вертолетов
+function update_pair_critical_hit (heli_id, target_id)
+	local pair_id = get_pair_by_id(heli_id)
+	if pair_id == nil then
+		return
+	end
+	local pair = heli_pairs[pair_id]
+	
+	if heli_id == pair.leader_id then -- если подбит ведущий
+	-- он пытается уйти, ведомый (если есть) работает по обидчику ведущего
+		pair.leader_target = target_id
+		if pair.wingman_id ~= nil then
+			pair.wingman_target = target_id
+		else
+		end
+	elseif heli_id == pair.wingman_id then -- если подбит ведомый (значит, ведущий точно есть)
+		--меняем ведущего и ведомого, новый ведущий пытается свалить, новый ведомый его прикрывает.
+		if pair.leader_id ~= nil then --ведущий должен быть, но на всякий случай проверяем.
+			pair.wingman_id = pair.leader_id -- новым ведомым становится ведущий
+			pair.leader_id = heli_id -- новым ведущим становится подбитый ведомый
+			pair.leader_target = target_id -- цель у обоих - обидчик
+			pair.wingman_target = target_id
+		else -- если ведущего каким-то чудом не оказалось
+			pair.wingman_id = nil -- обнуляем ведомого и его цель
+			pair.wingman_target = nil
+			pair.leader_id = heli_id -- подбитого ведомого ставим ведущим
+			pair.leader_target = target_id -- цель - обидчик.
+		end
+	end
+	
+end
+
+--реакция пары на гибель одного из вертолетов
+function update_pair_death(heli_id)
+	local pair_id = get_pair_by_id(heli_id)
+	if pair_id == nil then
+		return
+	end
+	local pair = heli_pairs[pair_id]
+	if pair.leader_id == heli_id then --если сбит ведущий, ведомый становится ведущим
+		pair.leader_id = pair.wingman_id
+		pair.leader_target = pair.wingman_target
+	end
+	pair.wingman_id = nil -- ведомый либо сбит, либо стал ведущим - результат один
+	pair.wingman_target = nil
+	if pair.leader_id == nil and pair.wingman_id == nil then
+		table.remove (heli_pairs, pair_id)
+	end
+end
+
+function update_pair_retreat(heli_id)
+	local pair_id = get_pair_by_id(heli_id)
+	if pair_id == nil then
+		return
+	end
+	local pair = heli_pairs[pair_id]
+	local leader, wingman
+	if heli_id == pair.leader_id then --  ведущий в любом случае битый.
+		if pair.wingman_id ~= nil then -- если есть ведомый
+		-- если ведомый относительно целый, он быстро догонит ведущего и будет рядом
+		-- если ведомого подбили раньше ведущего, он недалеко, если еще цел
+		-- если ведомого подбили позже, он станет ведущим, см. предыдущий пункт
+		-- в любом случае дело происходит далеко за границами уровня, никто не увидит.
+			wingman = level.object_by_id(pair.wingman_id)
+			bind_heli.heli_blow_up(wingman) -- валим его
+		end
+		leader = level.object_by_id(pair.leader_id)
+		local pos = leader:position()
+		local lvid = leader:level_vertex_id()
+		local gvid = leader:game_vertex_id()
+		local id = leader:id()
+		bind_heli.heli_blow_up(leader) -- валим ведущего
+		spawn.heli_copy(pos,lvid,gvid,id) -- создаем копию ведущего. Ведомый - автоматом
+	elseif heli_id == pair.wingman_id then -- если первым ушел ведомый
+		wingman = level.object_by_id(pair.wingman_id)
+		bind_heli.heli_blow_up(wingman) -- валим его
+	end
+end
+
+-- ЦЕЛЕУКАЗАНИЕ
+
+-- получение всех боеспособных членов данного гулага
+function get_gulag_members(gname)
+	local gulag_members = {}
+	local gulag = xr_gulag.get_gulag_by_name(gname)
+    if gulag == nil then
+		gulag_members[1] = nil
+		return gulag_members
+	end
+	for k,v in pairs(gulag.Object) do
+		if (v == true or ( v:alive() and	-- 
+		   not(xr_wounded.is_heavy_wounded_by_id(k) or
+		       xr_wounded.is_psy_wounded_by_id(k)))) and
+			gulag.Object_begin_job[k] == true
+		then
+			if type(v) ~= "boolean" then
+				table.insert(gulag_members,v:id())
+			end
+		end
+	end
+	return gulag_members
+end
+
+-- определение всех целей в заданной окружности
+function get_target_area(area_data)
+	local targets = {}
+	local br1_pos = string.find(area_data,"(",1,true) + 1
+	local br2_pos = string.find(area_data,")",1,true) - 1
+	local area_string = string.sub(area_data,br1_pos,br2_pos)
+	local area = parse_data(area_string)
+	local area_x = tonumber(area[1]) --координаты центра зоны
+	local area_z = tonumber(area[2])
+	local area_r = tonumber(area[3]) or 150 -- радиус зоны, 150 м по умолчанию.
+	local target_type = area[4] or "all" -- тип целей, по умолчанию - все без разбора
+	local center = vector():set(area_x,0,area_z)
+	for k=0, 65535 do
+		local obj = level.object_by_id(k)
+		if obj then
+			if target_type == "stalker" or target_type == "alive" or target_type == "all" then 
+				if IsStalker(obj) and obj:alive() and heli_combat.distance_2d(obj:position(),center) <= area_r then
+					table.insert(targets,k)
+				end
+			end
+			if target_type == "monster" or target_type == "alive" or target_type == "all" then 
+				if IsMonster(obj) and obj:alive() and heli_combat.distance_2d(obj:position(),center) <= area_r then
+					table.insert(targets,k)
+				end
+			end
+			if target_type == "btr" or target_type == "armor" or target_type == "all" then 
+				if string.find(obj:name(),"btr") and obj:alive() and heli_combat.distance_2d(obj:position(),center) <= area_r then
+					table.insert(targets,k)
+				end
+			end
+			if target_type == "heli" or target_type == "armor" or target_type == "all" then 
+				if string.find(obj:section(),"helicopter") and obj:alive() and heli_combat.distance_2d(obj:position(),center) <= area_r then
+					table.insert(targets,k)
+				end
+			end
+		end
+	end
+	return targets
+end
+
+--определение приоритета цели
+function get_target_priority(obj)
+	if not obj then return 0 end
+	local prior = 1
+	if IsMonster(obj) then
+		prior = 1
+	elseif IsStalker(obj) then -- максимум - 5
+		local wpn = obj:item_in_slot(obj:active_slot())
+		if wpn then
+			local ammo, fm
+			if system_ini():line_exist(wpn:section(), "ammo_class") then
+				ammo = system_ini():r_string(wpn:section(), "ammo_class")
+				if (string.find(ammo, "9x18") -- пистолетные патроны
+					or string.find(ammo, "9x19")
+					or string.find(ammo, "7.62x25")
+					or string.find(ammo, "11.43x23")
+					or string.find(ammo, "357")
+					or string.find(ammo, "samopal") --  + патроны к самопалу
+					or string.find(ammo, "bolt") --  + арбалетные болты
+					or string.find(ammo, "12x7")) --  + патроны для дробовиков
+					then
+					prior = prior + 1
+				elseif (string.find(ammo, "5.45x39") -- промежуточные патроны
+					or string.find(ammo, "5.56x45") 
+					or string.find(ammo, "7.62x39")
+					or string.find(ammo, "9x39"))
+					then
+					prior = prior + 2
+				elseif (string.find(ammo, "7.62x51") -- винтовочные патроны
+					or string.find(ammo, "7.62x54")
+					or string.find(ammo, "7.92x75"))
+					then
+					prior = prior + 3
+				else
+					prior = prior + 4
+				end
+			end
+			if system_ini():line_exist(wpn:section(), "fire_modes") then
+				fm = system_ini():r_string(wpn:section(), "fire_modes")
+				if string.sub(fm,-2,-1) == "-1" then
+					prior = prior + 1 -- автоматическое оружие - приоритет цели выше на 1
+				end
+			end
+		end
+	elseif string.find(obj:name(),"btr") then
+		prior = 6
+	elseif string.find(obj:section(),"helicopter") then
+		prior = 7
+	end
+	return prior
+end
+

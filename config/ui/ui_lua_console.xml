@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<window>
+
+	<caption x="0" y="0" width="500" height="21">
+		<texture>ui_string_03</texture>
+		<title x="10" y="1" width="434" height="18">
+			<text font="letterica16" r="255" g="255" b="255" complex_mode="0">Lua Console</text>
+		</title>
+	</caption>
+	
+	<wnd_frame x="0" y="21" width="500" height="400">
+		<texture>ui_stroketextbox</texture>
+	</wnd_frame>
+	
+	<list_view_history x="2" y="23" width="497" height="395" item_height="18" always_show_scroll="1" />
+	
+	<code_name x="0" y="425" width="460" height="23" max_symb_count="150">
+		<texture>ui_linetext_e</texture>
+		<text font="letterica18" r="240" g="217" b="182" complex_mode="0"/>
+	</code_name>
+	
+	<button_code_clear x="485" y="423" width="117" height="29">
+		<texture>ui_button_ordinary</texture>
+		<text>Clear</text>
+	</button_code_clear>
+	
+</window>

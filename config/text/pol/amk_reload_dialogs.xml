@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<string_table>	
+
+	<string id="flame_reload_1">
+		<text>You said that you can reload this flamethrower, didn't you? I think it needs it.</text>
+	</string>
+
+	<string id="flame_reload_2">
+		<text>Yeah, no problem man, you got any fuel? Jeez, Don't say that I gotta look for it myself! Listen, this ain't a big deal for me, really, but it's gonna cost 30000. And only after a drink. And I mean REAL drink, got it?</text>
+	</string>
+
+	<string id="flame_reload_3">
+		<text>More Vodka? Your going to drink the zone Dry, look for it without me. And just so you know, 30000 isn't even worth the flamethrower, Hell with it.</text>
+	</string>
+
+	<string id="flame_reload_4">
+		<text>That Vodka will be the death of you. Here's the fuel, and a bottle of the Zones finest. Just make it quick.</text>
+	</string>
+
+	<string id="flame_reload_5">
+		<text>Hey, I'm not a machine! Wait about a half an hour.</text>
+	</string>
+
+	<string id="flame_reload_6">
+		<text>Alright, just remember remember - I need it as quick as possible.</text>
+	</string>
+
+	<string id="flame_reload_7">
+		<text>I don't have any fuel. Just take 30000 and some Vodka. But you must work first, drink after, got it?</text>
+	</string>
+
+	<string id="flame_reload_8">
+		<text>Well... Thanks. Don't worry, a day will be enough for this job.</text>
+	</string>
+
+	<string id="flame_reload_9">
+		<text>What!? A whole day? You all yourself a specialist? Maybe In drinking... Later.</text>
+	</string>
+
+	<string id="flame_reload_10">
+		<text>Hows the refueling going?</text>
+	</string>
+
+	<string id="flame_reload_11">
+		<text>Exellent! As all parts of my life... Take it.</text>
+	</string>
+
+	<string id="flame_reload_12">
+		<text>All right, thank you! Good man.</text>
+	</string>
+
+	<string id="flame_reload_13">
+		<text>Hey, don't be so hastey... It is not that simple. Come back some other time!</text>
+	</string>
+
+	<string id="flame_reload_14">
+		<text>Alright, but hurry up man!</text>
+	</string>
+
+</string_table>

@@ -1,0 +1,479 @@
+-----------------------------------------------------------------------------
+-- u3_utils.script
+-- zestawik ma³ych funkcji i klas, przydatnych w innych skryptach.
+-- tam, gdzie nie jest napisane inaczej, autor: utak3r.
+-- 
+-- Last update: 2012.07.01
+-----------------------------------------------------------------------------
+
+--
+-- Zapis do logu
+--
+function printf(str,...)
+	if not str then
+		str = "((string is nil))"
+	end
+	get_console():execute("load ~#I#:"..string.format(str,...))
+end
+
+--
+-- Sprawdzenie, czy jest gra i czy aktor jest ¿ywy
+--
+function isGameOn()
+	if level.present() and db.actor ~= nil and db.actor:alive() then
+		return true
+	end
+	return false
+end
+
+--
+-- Zapis stanu gry (save)
+--
+function savegame(save_name)
+	if save_name == nil then
+		printf("Trying to save a game without any name!")
+		return false
+	end
+
+	if isGameOn() then
+		--printf("Going to save a game with the name: "..save_name)
+		local save_param = user_name().." - "..save_name
+		get_console():execute("save "..save_param)
+	end
+end
+
+--
+--
+-- Obs³uga eventów
+function issue_event(npc,name,...)
+	local st = db.storage[npc:id()]
+	if not st or not st.u3_callbacks then
+		return
+	end
+	for k,v in pairs(st.u3_callbacks) do
+		if v and k[name] then
+			k[name](k,...)
+		end
+	end
+end
+
+function subscribe_for_events(npc,obj)
+	local st = db.storage[npc:id()]
+	if not st.u3_callbacks then
+		st.u3_callbacks = {}
+	end
+	st.u3_callbacks[obj] = true
+end
+
+function unsubscribe_from_events(npc,obj)
+	local st = npc and db.storage[npc:id()]
+	if st and st.u3_callbacks then
+		if obj then
+			st.u3_callbacks[obj] = nil
+		else
+			st.u3_callbacks = nil
+		end
+	end
+end
+
+function npc_hit(npc, amount, dir, who, bone_id)
+	if npc and amount ~= 0 then
+		issue_event(npc, "hit_callback", amount, dir, who, bone_id)
+	end
+end
+
+--
+-- Usuniêcie wszystkich efektów.
+-- Usuwa zarówno efekty obrazu, jak i kamery.
+--
+function remove_all_effectors()
+	for i=0,65535 do
+		level.remove_pp_effector(i)
+		level.remove_cam_effector(i)
+	end
+	printf("All effectors removed!")
+end
+
+
+-- 
+-- Zapis punktów patrolowych (waypoints)
+-- Autor: Barin (dez0wave)
+--
+class "ListItem" (CUIListItemEx)
+
+function ListItem:__init(str) super()
+	self:SetWndRect	(0, 0, 430, 22)
+	
+	self.item = CUIStatic()
+	self.item:SetAutoDelete(true)
+	self:AttachChild(self.item)
+	
+	self.item:SetWndRect(0, 0, 230, 20)
+	self.item:SetText(str)
+end
+
+class "PatrolPoints" (CUIScriptWnd)
+
+function PatrolPoints:__init(action) super()
+	self.position = nil
+	self.game_vertex_id = nil
+	self.level_vertex_id = nil
+	self.action = action
+
+	self:InitControls()
+	self:InitCallBacks()
+
+	self:GetActorData()
+end
+
+function PatrolPoints:__finalize()
+end
+
+function PatrolPoints:InitControls()
+	self:Init(0, 0, 1024, 768)
+
+	local xml = CScriptXmlInit()
+	xml:ParseFile("ui_patrol_point_dlg.xml")
+	xml:InitStatic("background", self)
+
+	self.form = xml:InitStatic("form", self)
+	xml:InitStatic("form:label_patrol_name", self.form)
+	xml:InitStatic("form:label_anim_name", self.form)
+	xml:InitStatic("form:label_sig_name", self.form)
+	xml:InitFrame("form:frame", self.form)
+
+	local dlg = nil
+
+	dlg = xml:InitStatic("form:caption", self.form)
+	self:Register(dlg, "wnd_caption")
+
+	dlg = xml:InitEditBox("form:patrol_name", self.form)
+	self:Register(dlg, "patrol_name")
+
+	dlg = xml:InitEditBox("form:anim_name", self.form)
+	self:Register(dlg, "anim_name")
+
+	dlg = xml:InitEditBox("form:sig_name", self.form)
+	self:Register(dlg, "sig_name")
+
+	dlg = xml:InitList("form:list_view", self.form)
+	self:Register(dlg, "list_window")
+
+	dlg = xml:Init3tButton("form:btn_save", self.form)
+	self:Register(dlg, "button_save")
+
+	dlg = xml:Init3tButton("form:btn_cancel", self.form)
+	self:Register(dlg, "button_cancel")
+
+	self.message_box = CUIMessageBoxEx()
+	self:Register(self.message_box, "message_box")
+
+	if self.action == "position_only" then
+		self:GetEditBox("anim_name"):Enable(false)
+		self:GetEditBox("sig_name"):Enable(false)
+		self:GetStatic("wnd_caption"):SetText("Save position")
+	end
+end
+
+function PatrolPoints:InitCallBacks()
+	self:AddCallback("button_save", ui_events.BUTTON_CLICKED, self.OnSave, self)
+	self:AddCallback("button_cancel", ui_events.BUTTON_CLICKED, self.OnWindowClose, self)
+	self:AddCallback("message_box", ui_events.MESSAGE_BOX_OK_CLICKED, self.OnMessageBoxOkClicked, self)
+end
+
+function PatrolPoints:ConsolePrint(text)
+	local console = get_console()
+	console:execute(string.gsub(string.format(text), "%s", "_"))
+	console:execute("flush")
+end
+
+function PatrolPoints:GetActorData()
+	if isGameOn() then
+		self.position = tostring(db.actor:position().x) .. "," ..
+			tostring(db.actor:position().y) .. "," .. tostring(db.actor:position().z)
+		self.game_vertex_id = tostring(db.actor:game_vertex_id())
+		self.level_vertex_id = tostring(db.actor:level_vertex_id())
+
+		self:AddItemToList("position = " .. self.position)
+		self:AddItemToList("game_vertex_id = " .. self.game_vertex_id)
+		self:AddItemToList("level_vertex_id = " .. self.level_vertex_id)
+	end
+end
+
+function PatrolPoints:bound(num, min, max)
+	if num >= min and num <= max then
+		return true
+	else
+		return false
+	end
+end
+
+function PatrolPoints:check_bound(num)
+	if self:bound(num, 33, 47) or self:bound(num, 58, 64) or
+		(num ~= 95 and self:bound(num, 91, 96)) or num == 126
+	then
+		return true
+	end
+	return false
+end
+
+function PatrolPoints:ValidatePatrolName(str)
+	if str == "" or not str then
+		return false
+	end
+	
+	-- remove spaces
+	str = string.gsub(str, "(%s)", "")
+	
+	-- check if str contains only [a-z A-Z 0-9 _]
+	for index = 1, string.len(str) do
+		if self:check_bound(string.byte(str, index)) then
+			return false
+		end
+	end
+	return str	
+end
+
+function PatrolPoints:OnSave()
+	local pName = self:ValidatePatrolName(self:GetEditBox("patrol_name"):GetText())
+	local aName = self:GetEditBox("anim_name"):GetText()
+	local sName = self:GetEditBox("sig_name"):GetText()
+	local txt = ""
+
+	if not pName then
+		self.message_box_id = 0
+		self.message_box:Init("message_box_patrol_name")
+		self:GetHolder():start_stop_menu(self.message_box, true)
+		return
+	end
+
+	if self.action == "position_only" then
+		txt = pName
+	end
+
+	if self.action == "patrol" then
+		txt = "patrolName=" .. pName
+		if aName ~= "" then
+			txt = txt .. "|anim=" .. aName
+		end
+	
+		if sName ~= "" then
+			txt = txt .. "|sig=" .. sName
+		end
+	end
+
+	txt = txt .. "|pos=" .. self.position
+	txt = txt .. "|game=" .. self.game_vertex_id
+	txt = txt .. "|level=" .. self.level_vertex_id
+	
+	self:ConsolePrint(txt)
+	self:OnWindowClose()
+end
+
+function PatrolPoints:OnMessageBoxOkClicked()
+	self:GetEditBox("patrol_name"):SetText("Type patrol name here ...")
+end
+
+function PatrolPoints:AddItemToList(str)
+	self:GetListWnd("list_window"):AddItem(ListItem(str))
+end
+
+function PatrolPoints:OnKeyboard(key, action)
+	ui_base_dialog.base_dialog.OnKeyboard(self, key, action)
+
+	if action == ui_events.WINDOW_KEY_PRESSED then
+		--[[if key == DIK_keys.DIK_ESCAPE then
+			self:OnWindowClose()
+		end--]]
+	end
+	return true
+end
+
+function PatrolPoints:OnWindowClose()
+	self:GetHolder():start_stop_menu(self.owner, true)
+	self:GetHolder():start_stop_menu(self, true)
+	self.owner:Show(true)
+end
+
+function destroy_it(object, what, type)
+	if db.m_vaporize == "on" then 
+		if what == "chk" then db.vanish = object end
+		if what == "yes" and type == "mutant" then
+			alife():release(alife():object(object:id()), true)
+			db.vanish = nil
+		end
+	end
+
+	if db.vaporize == "on" then
+		if what == "chk" and type == nil then 
+			db.vanish = object 
+			local vobj = alife():object(object:id())
+			if vobj then
+				vobj:visible_for_map(false)
+			end
+		end
+
+		if what == "yes" and type == nil then
+			db.vanish = nil
+			alife():release(alife():object(object:id()), true)
+		end
+	end
+end
+
+class "SpawnerWnd" (CUIScriptWnd)
+
+function SpawnerWnd:__init(owner, action) super()
+	self.action = action
+	self.owner = owner
+	self:InitControls()
+	self:InitCallBacks()
+end
+
+function SpawnerWnd:__finalize()
+end
+
+function SpawnerWnd:InitControls(x, y, xml, handler)
+	self:Init(50,50,550,450)
+	local xml = CScriptXmlInit()
+	xml:ParseFile("ui_cheat.xml")
+
+	self:Register(xml:InitStatic("caption", self), "caption")
+	self:Register(xml:Init3tButton("btn_ok", self), "btn_ok")
+	self:Register(xml:Init3tButton("btn_cancel", self), "btn_cancel")
+	self:Register(xml:InitEditBox("edit_box", self), "edit_box")
+end
+
+function SpawnerWnd:InitCallBacks()
+	self:AddCallback("btn_ok", ui_events.BUTTON_CLICKED, self.doit, self)
+	self:AddCallback("btn_cancel", ui_events.BUTTON_CLICKED, self.on_quit, self)
+end
+
+function SpawnerWnd:on_quit()
+	self:GetHolder():start_stop_menu (self, true)
+end
+
+function SpawnerWnd:OnKeyboard(dik, keyboard_action)
+	CUIScriptWnd.OnKeyboard(self,dik,keyboard_action)
+	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+		if dik == DIK_keys.DIK_ESCAPE then
+			self:on_quit()
+		end
+		if dik == DIK_keys.DIK_RETURN then
+			self:do_it()
+		end
+	end
+	return true
+end
+
+function SpawnerWnd:spawn(text)
+	local type = text
+	local vid, gvid
+	local a = vector()
+	a = db.actor:position()
+	a.z = a.z + 2
+	a.y = a.y + 0.5
+	vid = db.actor:level_vertex_id()
+	gvid = db.actor:game_vertex_id()
+
+	local n = 1
+	local sf = string.find(text, ",")
+	if sf then
+		n = string.sub(text, sf+1)+0
+		if n == nil then
+			n = 0
+		elseif n > 999 then
+			n = 999
+		end
+		type = string.sub(text, 1, sf-1)
+	end
+
+	if not system_ini():section_exist(type) then
+		amk.send_tip("Section "..type.." not found!", "Cheat: Spawner", 0, 10, "gen_info")
+		return false
+	end
+
+	for i=1,n do
+		alife():create(type, vector():set(a.x-1+math.random()*2, a.y, a.z-1+math.random()*2), vid, gvid, 65535)
+	end
+
+	amk.send_tip("Spawned "..type..".", "Cheat: Spawner", 0, 10, "gen_info")
+	return true
+end
+
+function SpawnerWnd:set_weather(text)
+	level.set_weather(text)
+	amk.send_tip("Changed weather to "..text..".", "Cheat: Weather changer", 0, 10, "gen_info")
+	return true
+end
+
+function SpawnerWnd:do_it()
+	local text = self:GetEditBox("edit_box"):GetText()
+	if text ~= "" then
+		if self.action == "spawn" then
+			self:spawn(text)
+		end
+		if self.action == "weather" then
+			self:set_weather(text)
+		end
+	end
+	self:on_quit()
+end
+
+function spawn_item(spawn_item, pos, gv, lv)
+	if gv == nil then 
+		gv=db.actor:game_vertex_id() 
+	end
+	if lv == nil then 
+		lv=db.actor:level_vertex_id() 
+	end
+	return alife():create(spawn_item, pos, lv, gv)
+end
+
+function spawn_item_in_inv(spawn_item, npc)
+	if npc == nil then 
+		npc = db.actor 
+	end
+	return alife():create(spawn_item, npc:position(), npc:level_vertex_id(), npc:game_vertex_id(), npc:id())
+end
+
+function spawn_ammo_in_inv(spawn_item, number, npc)
+	if npc==nil then 
+		npc=db.actor 
+	end
+	if number > 0 then
+		return se_respawn.create_ammo(spawn_item, npc:position(), npc:level_vertex_id(), npc:game_vertex_id(), npc:id(), number)
+	end
+end
+
+function remove_item(remove_item)
+	if remove_item~=nil then
+		alife():release(alife():object(remove_item:id()), true)
+		return true
+	end
+	return false
+end
+
+function drop_item(npc,item)
+	if item ~= nil then
+		npc:drop_item(item)
+	end
+end
+
+function remove_item_from_inventory_by_name(remove_item_name, npc)
+	return remove_item(npc:object(remove_item_name))
+end
+
+function remove_item_from_slot(slot)
+	if slot ~= nil then
+		local iis = db.actor:item_in_slot(slot)
+		alife():release(alife():object(iis:id()), true)
+	end
+end
+
+function remove_all_pp_effectors()
+	for i=0,65535 do
+		level.remove_pp_effector(i)
+		level.remove_cam_effector(i)
+	end
+	printf("All effectors removed!")
+end

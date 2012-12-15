@@ -1,0 +1,25 @@
+--
+-- not finished yet!! Don't touch....
+--
+class "evaluator_sleepshot" (property_evaluator)
+function evaluator_sleepshot:__init(npc,name,storage) super (nil,name)
+	self.st = storage
+	self.delay = time_global() + 1000;
+end
+
+function evaluator_sleepshot:evaluate()
+	local npc = self.object
+	u3_utils.subscribe_for_events(npc,self)
+	if self.delay and self.delay >= time_global() then
+		return false
+	end
+	return true
+end
+
+function evaluator_sleepshot:hit_callback(amount, dir, who)
+	if who:active_item():section() == "wpn_anaconda" then
+		u3_utils.printf("evaluator_sleepshot:hit_callback issued - "..who:name()..", weapon - "..who:active_item():section())
+		return true
+	end
+	return false
+end

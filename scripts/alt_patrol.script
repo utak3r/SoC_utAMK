@@ -1,0 +1,201 @@
+function get_patrol(path)
+	local external
+	local alt_patrol = {}
+	
+	local ini = ini_file("scripts\\way\\waypoints.ltx") or system_ini()
+	if ini:section_exist(path) then
+		external = true
+	else 
+		external = false
+	end
+	if external == false then
+		local patrol = patrol(path)
+		alt_patrol.count = patrol:count()
+		for i = 0,alt_patrol.count - 1 do
+			alt_patrol[i] = {}
+			alt_patrol[i].name = patrol:name(i)
+			alt_patrol[i].pos = patrol:point(i)
+			alt_patrol[i].lvid = patrol:level_vertex_id(i)
+			alt_patrol[i].gvid = patrol:game_vertex_id(i)
+			alt_patrol[i].flags = patrol:flags(i):get()
+			alt_patrol[i].terminal = patrol:terminal(i)
+			if not alt_patrol[i].terminal then
+				local num = i+1
+				if num == alt_patrol.count then
+					num = 0
+				end
+				alt_patrol[i].links = "p"..num.."(1)" -- Да, вот так вот тупо в следующую точку. Ибо ХЗ, как оно сделано :(
+			else
+				alt_patrol[i].links = nil
+			end
+		end
+	else
+		local pts_table = parse_data(ini:r_string(path,"points"))
+		alt_patrol.count = table.getn(pts_table)
+		for i = 0,alt_patrol.count - 1 do
+			alt_patrol[i] = {}
+			local pos = parse_data(ini:r_string(path,"p"..i..":position"))
+			local position = vector():set(tonumber(pos[1]),tonumber(pos[2]),tonumber(pos[3]))
+			local flag
+			if ini:line_exist(path,"p"..i..":flags") then
+				local flag_str = ini:r_string(path,"p"..i..":flags")
+				flag = tonumber(string.sub(flag_str,3))
+			else
+				flag = 0
+			end
+			alt_patrol[i].flags = flag
+			alt_patrol[i].name = ini:r_string(path,"p"..i..":name")
+			alt_patrol[i].pos = position
+			alt_patrol[i].lvid = ini:r_u32(path,"p"..i..":level_vertex_id")
+			alt_patrol[i].gvid = ini:r_u32(path,"p"..i..":game_vertex_id")
+			if ini:line_exist(path,"p"..i..":links") then
+				alt_patrol[i].terminal = false
+				alt_patrol[i].links = ini:r_string(path,"p"..i..":links")
+			else
+				alt_patrol[i].terminal = true
+				alt_patrol[i].links = nil
+			end
+		end
+	end
+	return alt_patrol
+end
+
+function path_parse_waypoints(pathname)
+	if not pathname then
+		return nil
+	end
+
+	local ptr = get_patrol(pathname)
+	local cnt = ptr.count
+	local rslt = {}
+
+	for pt = 0, cnt - 1 do
+		--printf("_bp: %s", ptr:name(pt))
+		rslt[pt] = parse_waypoint_data(pathname, ptr[pt].flags, ptr[pt].name)
+		if not rslt[pt] then
+			abort("error while parsing point %d of path '%s'", pt, pathname)
+		end
+	end
+
+	return rslt
+end
+
+function parse_waypoint_data(pathname, wpflags, wpname)
+	local rslt = {}
+
+	rslt.flags = wpflags
+
+	local at
+	if string.find(wpname, "|", at, true) == nil then
+		return rslt
+	end
+
+	local par_num
+	local fld_num
+	local fld
+	local val
+
+	par_num = 1
+	for param in string.gfind(wpname, "([%w_\\%=%-%,%*]+)|*") do
+		if par_num == 1 then
+			-- continue
+		else
+			if param == "" then
+				abort("path '%s': waypoint '%s': syntax error in waypoint name", pathname, wpname)
+			end
+
+			fld_num = 1
+			fld = nil
+			val = nil
+			for v in string.gfind(param, "([%w_\\%-%,%*]+)=*") do
+				if fld_num == 1 then
+					fld = v
+				elseif fld_num == 2 then
+					val = v
+				else
+					abort("path '%s': waypoint '%s': syntax error while parsing the param '%s'",
+						pathname, wpname, param)
+				end
+				fld_num = fld_num + 1
+			end
+
+			if not fld or fld == "" then
+				abort("path '%s': waypoint '%s': syntax error while parsing the param '%s': no field specified",
+					pathname, wpname, param)
+			end
+
+			if not val or val == "" then
+				val = "true"
+			end
+
+			rslt[fld] = val
+		end
+		par_num = par_num + 1
+	end
+	return rslt
+end
+
+function send_to_nearest_accessible_vertex( npc, v_id )
+	if not npc:accessible( v_id ) then
+		local vtemp = vector()
+		v_id, vtemp = npc:accessible_nearest( level.vertex_position( v_id ), vtemp )
+	end
+
+	npc:set_dest_level_vertex_id( v_id )
+
+	return v_id
+end
+
+function next_wp(patrol,cur_ind)
+	local wps = {}
+	local next_wp = nil
+	local links = patrol[cur_ind].links
+	if links then
+		links_tab = parse_data(links)
+		for k,v in pairs (links_tab) do
+			local br1_pos = string.find(v,"(",1,true)
+			local wp = string.sub(v,2,(br1_pos-1))
+			local pr = string.sub(v,(br1_pos+1),-2)
+			for i = 1,pr do
+				table.insert(wps,wp)
+			end
+		end
+		for k,v in pairs (wps) do
+		end
+		next_wp = tonumber(wps[math.random(1, table.getn(wps))])
+	end
+	return next_wp
+end
+
+function alt_choose_look_point(patrol_look, path_look_info, search_for) --для путей из внешних файлов.
+	local this_val -- значение флагов текущей точки
+	local pts_found_total_weight = 0 -- количество найденных точек (с нужными флагами)
+	local pt_chosen_idx = nil -- индекс выбранной точки
+	local r
+	local num_equal_pts = 0
+	for look_idx = 0, patrol_look.count - 1 do
+		this_val = path_look_info[look_idx].flags
+		if this_val == search_for then
+			num_equal_pts = num_equal_pts + 1
+			-- Нашли точку с нужными флагами, но поскольку в пути могут быть еще такие-же
+			-- точки, возьмем текущую только с некоторой вероятностью:
+			-- Шанс, с которым на точку посмотрит персонаж:
+			local point_look_weight = path_look_info[look_idx]["p"]
+			if point_look_weight then
+				point_look_weight = tonumber(point_look_weight)
+			else
+				point_look_weight = 100 -- по умолчанию у всех точек вес = 100
+			end
+			pts_found_total_weight = pts_found_total_weight + point_look_weight
+			r = math.random(1, pts_found_total_weight)
+			if r <= point_look_weight then
+				pt_chosen_idx = look_idx
+			end
+		end
+	end
+	return pt_chosen_idx, num_equal_pts
+end
+
+
+
+

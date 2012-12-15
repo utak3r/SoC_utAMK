@@ -1,0 +1,561 @@
+------------------------------------
+-- Модуль "Барыга".
+-- Created by Monnoroch.
+-- 17.08.09
+------------------------------------
+
+function printf(str,...)
+	if not str then
+		str = "((string is nil))"
+	end
+	-- get_console():execute("load ~#I#:"..string.format(str,...))
+end
+
+items = {}
+trade = {}
+musor = {
+["device_torch"]	= true,
+["device_pda"]	= true,
+["hand_radio"]	= true,
+["guitar_a"]	= true,
+["harmonica_a"]	= true,
+["binocular_a"]	= true,
+["wpn_knife"]	= true,
+["wpn_binoc"]	= true,
+["bolt"]	= true,
+["bread"]	= true,
+["kolbasa"]	= true,
+["conserva"]	= true,
+["vodka"]	= true,
+["sigaret"]	= true,
+["player"]	= true,
+["energy_drink"]	= true
+}
+mediks = {
+["bandage"] = true,
+["medkit"] = true,
+["medkit_army"] = true,
+["medkit_scientic"] = true,
+["antirad"] = true
+}
+grenades = {
+["grenade_f1"] = true,
+["grenade_rgd5"] = true,
+["grenade_light"] = true
+}
+
+class "evaluator_trade" (property_evaluator)
+function evaluator_trade:__init(npc,name,storage) super (nil,name)
+	self.st = storage
+	self.st.delays = {}
+	self.st.states = {}
+	state_manager:__init (npc,storage)
+	self.st.d_bigan = time_global() + math.random(10000,15000)
+	trade[npc:id()] = 0
+	self.st.fase = 1
+end
+function evaluator_trade:evaluate()
+	local npc = self.object
+	if (self.st.d_bigan and self.st.d_bigan >= time_global()) then
+		trade[npc:id()] = 0
+		return false
+	end
+	self:update_delay()
+	if (trade[npc:id()] == 0) or (not self.st.need_trade) or not level.object_by_id(trade[npc:id()]) or (level.object_by_id(trade[npc:id()]) and not level.object_by_id(trade[npc:id()]):alive()) or npc:best_danger() or npc:best_enemy() then
+		trade[npc:id()] = 0
+		return false
+	end
+	printf("evaluator_trade[%s]:  target:   "..level.object_by_id(trade[npc:id()]):character_name().."  ;  Fase_trade:  "..self.st.fase,npc:character_name())
+	return true
+end
+function evaluator_trade:update_items()
+	local npc = self.object
+	local npc_items = {}
+	npc:iterate_inventory(
+		function (dummy,item)
+			local a = true
+			if not ((npc:active_item() and item:id() == npc:active_item():id()) or (string.find(item:section(),"ammo")) or (musor[item:section()] ~= nil) or (npc:best_weapon() and npc:best_weapon():id() == item:id()) or (rx_wmgr and rx_wmgr.get_wm(self.object):get_weapon() and rx_wmgr.get_wm(self.object):get_weapon():id() == item:id())) then
+				table.insert(npc_items,item:id())
+			end
+		end
+	,nil)
+	items[npc:id()] = npc_items
+	printf("evaluator_trade[%s]:update_items",npc:character_name())
+end
+function evaluator_trade:update_npcs()
+	local npc = self.object
+	local npc_items = items[npc:id()]
+	if npc_items and next(npc_items) then
+		self.st.need_trade = true
+	end
+	if trade[npc:id()] == 0 then
+		for i = 1,65535 do
+			local obj = level.object_by_id(i)
+			if obj and obj:alive() and IsStalker(obj) and (not obj:best_danger()) and (not obj:best_enemy()) and (obj:character_community() == npc:character_community()) and (obj:character_community() ~= "trader") and (obj:character_community() ~= "zombied") and (obj:character_community() ~= "arena_enemy") and (obj:position():distance_to(npc:position()) < 30 and obj:id() ~= npc:id()) and (not obj:story_id() ~= 4294967296) and (trade[obj:id()] == 0) then
+				for k,v in pairs(trade) do
+					if v == obj:id() or (k == obj:id() and trade[k] ~= 0) then
+						obj = nil
+						break
+					end
+				end
+				if obj then
+					printf("========[%s]==========","=")
+					printf("evaluator_trade[%s]:update_npcs: info_target:",npc:character_name())
+					printf("evaluator_trade:update_npcs:[%s]",obj:character_name())
+					printf("evaluator_trade:update_npcs:[%s]",obj:id())
+					printf("evaluator_trade:update_npcs:[%s]",obj:position():distance_to(npc:position()))
+					printf("evaluator_trade:update_npcs:[%s]",trade[obj:id()])
+					printf("========[%s]==========","=")
+					trade[npc:id()] = obj:id()
+				end
+				break
+			end
+		end
+	end
+	printf("evaluator_trade[%s]:update_npcs",npc:character_name())
+end
+function evaluator_trade:update_delay()
+	if self.st.delays.d1 and self.st.delays.d1 <= time_global() and self.st.fase == 1 then
+		self.st.fase = 2
+		self.st.delays.d1 = nil
+	elseif self.st.delays.d2 and self.st.delays.d2 <= time_global() and self.st.fase == 2 then
+		self.st.fase = 3
+		self.st.delays.d2 = nil
+	elseif self.st.delays.d5 and self.st.delays.d5 <= time_global() and self.st.fase == 5 then
+		self.st.fase = 6
+		self.st.delays.d5 = nil
+	elseif self.st.delays.d6 and self.st.delays.d6 <= time_global() and self.st.fase == 6 then
+		self.st.fase = 7
+		self.st.delays.d6 = nil
+	elseif self.st.delays.d7 and self.st.delays.d7 <= time_global() and self.st.fase == 7 then
+		self.st.fase = 8
+		self.st.delays.d7 = nil
+	end
+	if not self.res_time or (self.res_time and self.res_time < time_global()) then
+		self:update_items()
+		self.res_time = time_global() + 60000
+	end
+	if not self.delay or (self.delay and self.delay <= time_global()) then
+		self:update_npcs()
+		self.delay = time_global() + 60000
+	end
+end
+
+class "evaluator_is_target" (property_evaluator)
+function evaluator_is_target:__init(npc,name,storage) super (nil,name)
+	self.st = storage
+end
+function evaluator_is_target:evaluate()
+	local npc = self.object
+	for k,v in pairs(trade) do
+		if v == npc:id() then
+			return true
+		end
+	end
+	return false
+end
+
+class "action_trade" (action_base)
+function action_trade:__init (npc,action_name,storage) super (nil,action_name)
+	self.st = storage
+end
+function action_trade:initialize()
+	action_base.initialize(self)
+	local npc = self.object
+	printf("action_trade[%s]:initialize",npc:character_name())
+	local tar
+	if trade[npc:id()] ~= nil and trade[npc:id()] ~= 0 then
+		tar = level.object_by_id(trade[npc:id()])
+	else
+		return
+	end
+	if tar then
+		self:refresh(npc,tar)
+	else
+		printf("action_trade[%s]:initialize: NOT target",npc:character_name())
+		return
+	end
+end
+function action_trade:refresh(npc,tar)
+	npc:set_desired_position()
+	npc:set_desired_direction()
+	npc:set_detail_path_type(move.curve)
+	npc:set_path_type(game_object.level_path)
+	npc:clear_animations()
+	tar:set_desired_position()
+	tar:set_desired_direction()
+	tar:set_detail_path_type(move.curve)
+	tar:set_path_type(game_object.level_path)
+	tar:clear_animations()
+end
+function action_trade:execute()
+	action_base.execute(self)
+	local npc = self.object
+	local tar
+	if trade[npc:id()] ~= nil and trade[npc:id()] ~= 0 then
+		tar = level.object_by_id(trade[npc:id()])
+	else
+		printf("action_trade[%s]: NOT target!",npc:character_name())
+		return
+	end
+	printf("action_trade[%s]:execute:  target:   "..level.object_by_id(trade[npc:id()]):character_name().."  ;  Fase:  "..self.st.fase,npc:character_name())
+	self.st.states.state_npc = ""
+	self.st.states.state_tar = ""
+	if self.st.fase then
+		if self.st.fase == 1 then
+			self.st.states.state_npc = ""
+			self.st.states.state_tar = ""
+			if not self.st.delays.d1 then
+				self.st.delays.d1 = time_global() + 6000
+			end
+		elseif self.st.fase == 2 then
+			self.st.states.state_npc = "hello"
+			self.st.states.state_tar = "hello"
+			if not self.st.delays.d2 then
+				self.st.delays.d2 = time_global() + 6000
+			end
+		elseif self.st.fase == 3 then
+			self.st.states.state_npc = "walk"
+			self.st.states.state_tar = "walk"
+			if tar:position():distance_to(npc:position()) < 1.5 then
+				self.st.fase = 4
+			end
+			npc:set_dest_level_vertex_id(tar:level_vertex_id())
+		elseif self.st.fase == 4 then
+			self.st.states.state_npc = state_mgr.get_state(npc)
+			self.st.states.state_tar = state_mgr.get_state(tar)
+			self.st.fase = nil	
+			local npc_items = items[npc:id()]
+			local target_items = items[trade[npc:id()]]
+			if npc_items and next(npc_items) then
+				for kk,vv in pairs(npc_items) do
+					local obj = level.object_by_id(vv)
+					if obj then
+						local traded = false
+						local coeff = math.random(40,70) / 100
+						if npc:relation(tar) == game_object.friend then
+							coeff = math.random(20,50) / 100
+						end
+						local cost = system_ini():r_float(obj:section(),"cost")
+						if cost == nil then
+							cost = 0
+						end
+						local price = math.floor(cost * coeff)
+						if priority_wpn(tar,obj) then
+							traded = true
+						end
+						if mediks[obj:section()] then
+							local cnt = 0
+							npc:iterate_inventory(
+								function (dummy,item)
+									if item:section() == obj:section() then
+										cnt = cnt + 1
+									end
+								end
+							,nil)
+							if not npc:object(obj:section()) and cnt > 1 then
+								traded = true
+							end
+						end
+						if grenades[obj:section()] then
+							local cnt = 0
+							npc:iterate_inventory(
+								function (dummy,item)
+									if item:section() == obj:section() then
+										cnt = cnt + 1
+									end
+								end
+							,nil)
+							if not npc:object(obj:section()) and cnt > 1 then
+								traded = true
+							end
+						end
+						if string.find(obj:section(),"outfit") or string.find(obj:section(),"exo") then
+							traded = true
+						elseif string.find(obj:section(),"^af_") then
+							price = price*math.random(200,500) / 100
+							traded = true
+						end
+						if tar:money() < price or tar:object(obj:section()) then
+							traded = false
+						end
+						if traded then
+							npc:transfer_item(obj, tar)
+							table.remove(npc_items, obj:id())
+							npc:give_money(price)
+							tar:give_money(-price)
+						end
+					end
+				end
+			end
+			if target_items and next(target_items) then
+				for kk,vv in pairs(target_items) do
+					local obj = level.object_by_id(vv)
+					if obj then
+						local traded = false
+						local coeff = math.random(40,70) / 100
+						if tar:relation(npc) == game_object.friend then
+							coeff = math.random(20,50) / 100
+						end
+						local cost = system_ini():r_float(obj:section(),"cost")
+						if cost == nil then
+							cost = 0
+						end
+						local price = math.floor(cost * coeff)
+						if priority_wpn(npc,obj) then
+							traded = true
+						end
+						if mediks[obj:section()] then
+							local cnt = 0
+							tar:iterate_inventory(
+								function (dummy,item)
+									if item:section() == obj:section() then
+										cnt = cnt + 1
+									end
+								end
+							,nil)
+							if not npc:object(obj:section()) and cnt > 1 then
+								traded = true
+							end
+						end
+						if grenades[obj:section()] then
+							local cnt = 0
+							tar:iterate_inventory(
+								function (dummy,item)
+									if item:section() == obj:section() then
+										cnt = cnt + 1
+									end
+								end
+							,nil)
+							if not npc:object(obj:section()) and cnt > 1 then
+								traded = true
+							end
+						end
+						if string.find(obj:section(),"outfit") or string.find(obj:section(),"exo") then
+							traded = true
+						elseif string.find(obj:section(),"^af_") then
+							price = price*math.random(200,500) / 100
+							traded = true
+						end
+						if npc:money() < price or npc:object(obj:section()) then
+							traded = false
+						end
+						if traded then
+							tar:transfer_item(obj, npc)
+							table.remove(npc_items, obj:id())
+							npc:give_money(-price)
+							tar:give_money(price)
+						end
+					end
+				end
+			end
+			items[trade[npc:id()]] = target_items
+			items[npc:id()] = npc_items		
+			self.st.fase = 5
+		elseif self.st.fase == 5 then
+			self.st.states.state_npc = "ward"
+			self.st.states.state_tar = "choose"
+			if not self.st.delays.d5 then
+				self.st.delays.d5 = time_global() + 6000
+			end
+		elseif self.st.fase == 6 then
+			self.st.states.state_npc = state_mgr.get_state(npc)
+			self.st.states.state_tar = state_mgr.get_state(tar)
+			if not self.st.delays.d6 then
+				self.st.delays.d6 = time_global() + 3000
+			end
+		elseif self.st.fase == 7 then
+			self.st.states.state_npc = "npctrade"
+			self.st.states.state_tar = "npctrade"
+			if not self.st.delays.d7 then
+				self.st.delays.d7 = time_global() + 6000
+			end
+		elseif self.st.fase == 8 then
+			self.st.states.state_npc = "hello"
+			self.st.states.state_tar = "hello"
+			self.st.need_trade = nil
+			self.st.d_bigan = time_global() + 200000
+			self.st.delays = {}
+			trade[npc:id()] = 0
+			trade[tar:id()] = 0
+		end
+	end
+	state_manager:process(npc)
+	printf("action_trade[%s]:execute_close:  target:   "..level.object_by_id(trade[npc:id()]):character_name().."  ;  Fase:  "..self.st.fase,npc:character_name())
+end
+function action_trade:finalize()
+	action_base.finalize(self)
+end
+
+class "state_manager"
+function state_manager:__init (npc,storage)
+	self.st = storage
+	self.object = npc
+	self.delays = {}
+	self:process(self.object)
+end
+function state_manager:process(npc)
+	local state_npc = self.st.states.state_npc
+	local state_tar = self.st.states.state_tar
+	if state_tar == nil then
+		state_tar = ""
+	end
+	if state_npc == nil then
+		state_npc = ""
+	end
+	--printf("state_manager[%s]:process: begin: tar_id:() = "..trade[npc:id()],npc:character_name())
+	local tar
+	if trade[npc:id()] ~= nil and trade[npc:id()] ~= 0 then
+		tar = level.object_by_id(trade[npc:id()])
+	else
+		return
+	end
+	if not tar then
+		printf("state_manager[%s]:process: NOT target",npc:character_name())
+		return false
+	end
+	printf("state_manager:[%s]:process() target: "..level.object_by_id(trade[npc:id()]):character_name().." ; State_npc"..state_npc.."state_target"..state_tar,npc:character_name())
+	if state_npc and state_npc ~= "" and state_mgr.get_state(npc) ~= state_npc then
+		state_mgr.set_state(npc,state_npc,nil,nil,{look_position = tar:position()},{animation = true})
+		self.delays.delay_npc_a = time_global() + 3000
+	end
+	if state_tar and state_tar ~= "" and state_mgr.get_state(tar) ~= state_tar then
+		state_mgr.set_state(tar,state_tar,nil,nil,{look_position = npc:position()},{animation = true})
+		self.delays.delay_tar_a = time_global() + 3000
+	end
+	if self.delays.delay_npc_a and self.delays.delay_npc_a <= time_global() then
+		state_mgr.set_state(npc,state_npc,nil,nil,{look_position = tar:position()},{animation = true})
+		self.delays.delay_npc_a = time_global() + 3000
+	end
+	if self.delays.delay_tar_a and self.delays.delay_tar_a <= time_global() then
+		state_mgr.set_state(tar,state_tar,nil,nil,{look_position = npc:position()},{animation = true})
+		self.delays.delay_tar_a = time_global() + 3000
+	end
+	printf("state_manager[%s]:process: end",npc:character_name())
+end
+
+evid_trade = mon_ai.evid_mon_base + 4
+evid_is_target = mon_ai.evid_mon_base + 5
+actid_trade = evid_trade
+actid_is_target = evid_is_target
+
+function add_to_binder(npc,ini,scheme,section,storage)
+	local manager = npc:motivation_action_manager()
+	local com = npc:character_community()
+	local aaa = true
+	if mon_utils.urodi[npc:name()] then
+		aaa = nil
+	end
+	if com == "zombied" or com == "arena_enemy" or com == "trader" or not aaa or npc:story_id() ~= 4294967296 then
+		manager:add_evaluator(evid_trade,property_evaluator_const(false))
+		manager:add_evaluator(evid_is_target,property_evaluator_const(false))
+		return
+	end
+	manager:add_evaluator(evid_trade,evaluator_trade(npc,"eva_trade",storage))
+	manager:add_evaluator(evid_is_target,evaluator_is_target(npc,"eva_is_target",storage))
+	local action = action_trade(npc,"act_trade",storage)
+	action:add_precondition(world_property(stalker_ids.property_alive,true))
+	action:add_precondition(world_property(xr_evaluators_id.sidor_wounded_base,false))
+	action:add_precondition(world_property(stalker_ids.property_danger,false))
+	action:add_precondition(world_property(stalker_ids.property_enemy,false))
+	if rx_reload and rx_reload.evid_reload then
+		action:add_precondition(world_property(rx_reload.evid_reload,false))
+	end
+	if xrs_medic and xrs_medic.evid_self_medic then
+		action:add_precondition(world_property(xrs_medic.evid_self_medic,false))
+	end
+	if watcher_act then
+		action:add_precondition(world_property(watcher_act.evid_see_stuff,false))
+		action:add_precondition(world_property(watcher_act.evid_near_stuff,false))
+	end
+	if blowout_scheme then
+		action:add_precondition(world_property(blowout_scheme.evid_anomaly,false))
+		action:add_precondition(world_property(blowout_scheme.evid_blowout,false))
+	end
+	action:add_precondition (world_property(property_idlecombat, true))
+	action:add_precondition(world_property(evid_trade,true))
+	action:add_effect(world_property(evid_trade,false))
+	manager:add_action(actid_trade,action)
+	action = manager:action(xr_actions_id.alife)
+	action:add_precondition(world_property(evid_trade,false))
+	--забьем на ГГ
+	action = manager:action(xr_actions_id.stohe_meet_base+1)
+	action:add_precondition(world_property(evid_is_target,true))
+end
+
+function set_scheme(npc,ini,scheme,section)
+	local st = xr_logic.assign_storage_and_bind(npc,ini,scheme,section)
+end
+
+function disable_scheme(npc, scheme)
+	local st = db.storage[npc:id()][scheme]
+	if st then
+		st.enabled = false
+	end
+end
+
+function priority_wpn(npc,wpn)
+	local prior = 0
+	local prior_npc = 0
+	local ammo, fm
+	if system_ini():line_exist(wpn:section(), "ammo_class") then
+			ammo = system_ini():r_string(wpn:section(), "ammo_class")
+		if (string.find(ammo, "9x18") -- пистолетные патроны
+			or string.find(ammo, "9x19")
+			or string.find(ammo, "7.62x25")
+			or string.find(ammo, "11.43x23")
+			or string.find(ammo, "357")
+			or string.find(ammo, "samopal")
+			or string.find(ammo, "bolt")
+			or string.find(ammo, "12x7"))
+		then
+			prior = prior + 1
+		elseif (string.find(ammo, "5.45x39")
+			or string.find(ammo, "5.56x45") 
+			or string.find(ammo, "7.62x39")
+			or string.find(ammo, "9x39"))
+		then
+			prior = prior + 2
+		elseif (string.find(ammo, "7.62x51")
+			or string.find(ammo, "7.62x54")
+			or string.find(ammo, "7.92x75"))
+		then
+			prior = prior + 3
+		else
+			prior = prior + 4
+		end
+	end
+	wpn = npc:active_item()
+	if wpn and system_ini():line_exist(wpn:section(), "ammo_class") then
+		ammo = system_ini():r_string(wpn:section(), "ammo_class")
+		if (string.find(ammo, "9x18") -- пистолетные патроны
+			or string.find(ammo, "9x19")
+			or string.find(ammo, "7.62x25")
+			or string.find(ammo, "11.43x23")
+			or string.find(ammo, "357")
+			or string.find(ammo, "samopal")
+			or string.find(ammo, "bolt")
+			or string.find(ammo, "12x7"))
+		then
+			prior_npc = prior_npc + 1
+		elseif (string.find(ammo, "5.45x39")
+			or string.find(ammo, "5.56x45") 
+			or string.find(ammo, "7.62x39")
+			or string.find(ammo, "9x39"))
+		then
+			prior_npc = prior_npc + 2
+		elseif (string.find(ammo, "7.62x51")
+			or string.find(ammo, "7.62x54")
+			or string.find(ammo, "7.92x75"))
+		then
+			prior_npc = prior_npc + 3
+		else
+			prior_npc = prior_npc + 4
+		end
+	end
+	if prior_npc >= prior then
+		return false
+	end
+	return true
+end
+

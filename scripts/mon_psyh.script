@@ -1,0 +1,144 @@
+------------------------------------
+-- Module "Kamikaze"
+-- Created by Monnoroch - 16.07.09
+-- Edited by utak3r - 3.03.10
+------------------------------------
+
+snd_replics_m = {
+	[[grenadier\mono\ready_1]],
+	[[grenadier\mono\ready_2]],
+	[[grenadier\mono\ready_3]]
+}
+
+class "evaluator_psyh" (property_evaluator)
+function evaluator_psyh:__init(npc,name,storage) super (nil,name)
+	self.st = storage
+	self.dist_st_act = math.random(50,60)
+	self.rand_time = math.random(1000,3000)
+	self.rand_eff = math.random(1,100)
+	self.delay = time_global() + math.random(1000,3000)
+end
+
+function evaluator_psyh:evaluate()
+	local npc = self.object
+	mon_ai.subscribe_for_events(npc,self)
+	if self.delay and self.delay >= time_global() then
+		return false
+	end
+	if npc:character_community() == db.actor:character_community() then
+		return false
+	end
+	if not npc:see(db.actor) then
+		return false
+	end
+	local dist = npc:position():distance_to(db.actor:position())
+	if dist > self.dist_st_act then
+		self.delay = time_global() + self.rand_time
+		return false
+	end
+	return true
+end
+
+function evaluator_psyh:death_callback(who)
+	local npc = self.object
+	mon_utils.hit_npc(npc)
+	mon_utils.hit_stalkers(npc:position())
+	if npc:position():distance_to(db.actor:position()) <= 3 then
+		mon_utils.hit_actor(0.8)
+	end
+end
+
+class "action_psyh" (action_base)
+function action_psyh:__init (npc,action_name,storage) super (nil,action_name)
+	self.st = storage
+end
+
+function action_psyh:initialize()
+	action_base.initialize(self)
+	local npc = self.object
+	self.random_dist = 1.5
+	self.gf = npc:object("grenade_f1")
+	self.gr = npc:object("grenade_rgd5")
+	npc:set_desired_position()
+	npc:set_desired_direction()
+	npc:set_mental_state(anim.panic)
+	npc:set_detail_path_type(move.line)
+	npc:set_path_type(game_object.level_path)
+	--npc:remove_all_restrictions()
+	npc:clear_animations()
+end
+
+function action_psyh:execute()
+	action_base.execute(self)
+	local npc = self.object
+	npc:set_dest_level_vertex_id(db.actor:level_vertex_id())
+	if self.delay and self.delay >= time_global() then
+		return false
+	end
+	if npc:position():distance_to(db.actor:position()) < self.random_dist and (self.gf or self.gr) then
+			self.aaa_killhim = true
+	end
+	if npc:position():distance_to(db.actor:position()) > self.random_dist and (self.gf or self.gr) then
+			self.gotoact = true
+	end
+	if self.aaa_killhim then
+		mon_utils.hit_npc(npc)
+		mon_utils.hit_actor(1.2)
+		mon_utils.hit_stalkers(npc:position())
+		self.aaa_killhim = nil
+	elseif self.gotoact then
+		if state_mgr.get_state(npc) ~= "sprint" then
+			local look_pos = db.actor:position()
+			state_mgr.set_state(npc,"sprint",nil,nil,{look_position = look_pos},{animation = true})
+			local snd = snd_replics_m[math.random(table.getn(snd_replics_m))]
+			snd = xr_sound.get_safe_sound_object(snd)
+			snd:play_no_feedback(npc, sound_object.s3d, 0, npc:position(), 1.0)
+			self.gotoact = nil
+			self.delay = time_global() + 500
+		end
+	end
+end
+function action_psyh:finalize()
+	action_base.finalize(self)
+	self.delay = nil
+	self.gotoact = nil
+	self.aaa_killhim = nil
+	self.gf = nil
+	self.gr = nil
+end
+
+evid_psyh = mon_ai.evid_mon_base + 1
+actid_psyh = evid_psyh
+
+function add_to_binder(npc,ini,scheme,section,storage)
+	local manager = npc:motivation_action_manager()
+	local com = npc:character_community()
+	if com ~= "monolith" or npc:story_id() ~= 4294967296 then
+		manager:add_evaluator(evid_psyh,property_evaluator_const(false))
+		return
+	end
+	manager:add_evaluator(evid_psyh,evaluator_psyh(npc,"eva_psyh",storage))
+	local action = action_psyh(npc,"act_psyh",storage)
+	action:add_precondition(world_property(stalker_ids.property_alive,true))
+	action:add_precondition(world_property(xr_evaluators_id.sidor_wounded_base,false))
+	action:add_precondition (world_property(property_idlecombat, true))
+	if blowout_scheme then
+		action:add_precondition(world_property(blowout_scheme.evid_blowout,false))
+	end
+	action:add_precondition(world_property(evid_psyh,true))
+	action:add_effect(world_property(evid_psyh,false))
+	manager:add_action(actid_psyh,action)
+	action = manager:action(xr_actions_id.alife)
+	action:add_precondition(world_property(evid_psyh,false))
+end
+
+function set_scheme(npc,ini,scheme,section)
+	local st = xr_logic.assign_storage_and_bind(npc,ini,scheme,section)
+end
+
+function disable_scheme(npc, scheme)
+	local st = db.storage[npc:id()][scheme]
+	if st then
+		st.enabled = false
+	end
+end

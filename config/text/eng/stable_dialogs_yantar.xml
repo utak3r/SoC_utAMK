@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="windows-1251" ?> <string_table> <string id="yantar_general_ucheniy_talk_start_101"> <text>Thank you... err... Marked One, right? You helped save our associate Kruglov and in order to show my sincere appreciation I would like to present you with one of our working suits. It comes in very handy, you should know that... Could I be of additional help to you?</text> </string>
+	<string id="yantar_general_ucheniy_talk_start_1011"> <text>I'm looking for Lab X16. The Barkeep told me you might have info about its location.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_1012">
+		<text>We've long had an interest in Lab X16...or, rather, in the mechanism inside it that generates emissions which directly affects people's consciousness. I'm afraid I have to disappoint you: the place is impossible to penetrate without special psi-armor. The outcome is known in advance - even if you could evade the swarms of zombies that infest the laboratory entrance, you run the risk of becoming one of them. This is all very serious. However, we've designed a screening device to help shield the emission, but to fine-tune it we have to obtain additional measurements. If you help us with this task, we could probably provide you with a fully calibrated prototype for field testing.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_1013">
+		<text>Measurements?</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_1014">
+		<text>If you, together with our associate, take all the necessary measurements, I will prepare a fully workable prototype of the armor and will give it to you. It will most likely let you get inside the laboratory.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_10141">
+		<text>OK, I agree.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_101411">
+		<text>Excellent! Talk to Kruglov and get going. He is already equipped with the necessary gear.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_101412">
+		<text>OK.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_10142">
+		<text>OK, I agree.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_101421">
+		<text>Excellent! Talk to Semenov and get going. He's got everything you will need.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_101422">
+		<text>OK.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_10143">
+		<text>No.. right now I don't want to sign up for this.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_101431">
+		<text>That's too bad, a real pity... I don't know how or when we could carry out this measurement expedition on our own.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_11">
+		<text>Yes, Sir? What might you be looking for?</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_111">
+		<text>I'm looking for Lab X16. The Barkeep told me you might have info about its location.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_12">
+		<text>Thank you, Marked One, for rescuing Kruglov. Take this pressurized suit as a reward for your troubles. Also, I suspect you didn't come here for a simple reward, am I right?</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_121">
+		<text>I'm looking for Lab X16. The Barkeep told me that you might have info about its location.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_1211">
+		<text>We have been studying the emission in Lab X16 for a long time, but you won't get in there without special equipment. We've developed a psi-protection device that can help shield you from the emission, but needs some fine-tuning. If you could help us with that, I could give you a working prototype that you can use to get inside the laboratory.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_12111">
+		<text>OK.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_121111">
+		<text>Excellent, talk to Kruglov and get going. He's got everything you'll need.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_12112">
+		<text>No, I'm not up for this yet.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_121122">
+		<text>That's a real pity. So far we've been unable to send a measurement expedition of our own.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_21">
+		<text>Yes, Sir? What might you be looking for?</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_211">
+		<text>We've long had an interest in Lab X16...or, rather, in the mechanism inside it that generates emissions which directly affects people's consciousness. I'm afraid I have to disappoint you: the place is impossible to penetrate without special psi-armor. The outcome is known in advance - even if you could evade the swarms of zombies that infest the laboratory entrance, you run the risk of becoming one of them. This is all very serious. However, we've designed a screening device to help shield the emission, but to fine-tune it we have to obtain additional measurements. If you help us with this task, we could probably provide you with a fully calibrated prototype for field testing.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_2111">
+		<text>Go on.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_21111">
+		<text>We have been studying the emission in Lab X16 for a long time, but you won't get in there without special equipment. We've developed a psi-protection device that can help shield you from the emission, but needs some fine-tuning. If you could help us with that, I could give you a working prototype that you can use to get inside the laboratory.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_21112">
+		<text>OK, I agree.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_211121">
+		<text>Excellent! Talk to Kruglov and get going. He is already equipped with the necessary gear.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_2111211">
+		<text>OK.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_21113">
+		<text>OK, I agree.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_211131">
+		<text>Excellent! Talk to Semenov and get going. He's got everything you will need.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_211132">
+		<text>OK.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_211141">
+		<text>You don't understand, there's an emitter. No one has been able to come closer than half a kilometer - it makes a zombie out of anyone. Going there without a suit is just like suicide, get it?</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_2111411">
+		<text>Hmm. That changes things.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_211142">
+		<text>To hell with it, just tell me all you know.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_211143">
+		<text>OK, but don't say I didn't warn you. Vasiliev worked on the laboratory problem. About a week ago, he and stalker by the name of Ghost attempted to get inside the laboratory. After several hours we felt a shake and emissions stopped; after another hour, we got a signal from Vasiliev, it was coming from the swamp but then vanished. By the looks of things, Vasiliev is gone. Try to find his body: he had accurate information about the laboratory - where it is and how to get in. He might have also known how to turn off the emissions. The laboratory entrance is most likely hidden in the basement of one of the buildings in the power plant area.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_211144">
+		<text>There we go, great.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_21115">
+		<text>No.. right now I don't want to sign up for this.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_211151">
+		<text>That's too bad, a real pity... I don't know how or when we could carry out this measurement expedition on our own.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_221">
+		<text>Thank you... mmm... Marked One, right? You helped save our associate Kruglov and in order to show my sincere appreciation I would like to present you with one of our working suits. It comes in very handy, you should know that...</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_2311">
+		<text>Thank you.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_241">
+		<text>Yes, Marked One? What are you looking for?</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_31">
+		<text>You did an excellent job. If the measurements are correct, the prototype should provide you with maximum protection from emission.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_311">
+		<text>Glad to hear that.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_3111">
+		<text>Now your path to the laboratory is clear... except that if the source of the emission isn't destroyed and doesn't lose its power, you may not have enough time to get back. So, my dear Sir, here is the deal. Our calculations have produced an estimated location of the source as well as the fact that it is under ground. With your permission, I have already marked the spot on your map.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_31111">
+		<text>How exactly does one get inside Lab X16? Where is the entrance?</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_311111">
+		<text>Vasiliev was working on the lab issue. About a week ago he and a stalker called Ghost tried to get inside. A couple of hours later we felt a major tremor, and after another hour we picked up a signal from Vasiliev coming from the swamp, but it died away. And Vasiliev died away with it, it would seem. Try to find his corpse. He had the exact information on the lab and the way to get into it. There may even be info on deactivating that source of the emission. I've uploaded you all the data we have.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_311112">
+		<text>Ahem...It would be very interesting to take a look at these documents. So, you think Vasiliev has them?</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_311113">
+		<text>Perhaps. At any rate, you must start by finding Vasiliev's body - that is the only chance of obtaining accurate information about the lab's location. The body of your colleague, Ghost, must be somewhere there as well. You know, it seemed to me like he knew a lot more about X16 than he admitted to us. Had he somehow survived... Well, it's no use holding on to that hope, of course.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_311114">
+		<text>OK, I'll try.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_41">
+		<text>Why did he die? You were supposed to protect him!</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_411">
+		<text>Kruglov got killed by the zombies... I couldn't help it, there were too many of them.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_4111">
+		<text>Oh, man...how could this happen? How could this happen??! Damn it, everything is going wrong again. Now we'll have to call for more people... We've got enough problems as it is... Damn...</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_41111">
+		<text>Listen... Kruglov is gone, but I'm alive. Give me the prototype. I will fight my way inside X16.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_411111">
+		<text>Here is a prototype, be careful with it. It's not calibrated properly, but that's your fault - you failed to save our colleague. The device won't provide maximum protection, but at least it will lower the emission's intensity. So, stalker, you'll have to move fast on your way to the source.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_4111111">
+		<text>How does one get inside Lab X16? Where exactly is the entrance?</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_41111111">
+		<text>Vasiliev was working on the lab issue. About a week ago he and a stalker called Ghost tried to get inside. A couple of hours later we felt a major tremor, and after another hour we picked up a signal from Vasiliev coming from the swamp, but it died away. And Vasiliev died away with it, it would seem. Try to find his corpse. He had the exact information on the lab and the way to get into it. There may even be info on deactivating that source of the emission. I've uploaded you all the data we have.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_41112">
+		<text>Anything else?</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_41113">
+		<text>You must start by finding Vasiliev's body - that is the only chance of obtaining accurate information about the lab's location. The body of your colleague, Ghost, must be somewhere there as well. You know, it seemed to me like he knew a lot more about X16 than he admitted to us. If he has survived somehow... Well, it's no use holding on to that hope, of course.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_41114">
+		<text>OK, I'll try.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_51">
+		<text>Why did he die? Weren't you supposed to protect him?!</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_511">
+		<text>Semenov got shot by the zombies... I couldn't help it, there were too many of them.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_5111">
+		<text>Oh, man...how could this happen? How could this happen?! Damn it, everything is going wrong again. Now we'll have to call for more people... We've got enough problems as it is... Damn...</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_51111">
+		<text>Listen... Semenov is gone, but I'm alive. Give me the prototype. I will fight my way inside X16.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_511111">
+		<text>Here is a prototype, be careful with it. It's not calibrated properly, but that's your fault - you failed to save our colleague. The device won't provide maximum protection, but at least it will lower the emission's intensity. So, stalker, you'll have to move fast on your way to the source.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_5111111">
+		<text>How does one get inside Lab X16? Where exactly is the entrance?</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_511111111">
+		<text>Vasiliev was working on the lab issue. About a week ago he and a stalker called Ghost tried to get inside. A couple of hours later we felt a major tremor, and after another hour we picked up a signal from Vasiliev coming from the swamp, but it died away. And Vasiliev died away with it, it would seem. Try to find his corpse. He had the exact information on the lab and the way to get into it. There may even be info on deactivating that source of the emission. I've uploaded you all the data we have.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_51112">
+		<text>Ahem...It would be very interesting to take a look at these documents. So, you think Vasiliev has them?</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_51113">
+		<text>Perhaps. At any rate, you must start by finding Vasiliev's body - that is the only chance of obtaining accurate information about the lab's location. The body of your colleague, Ghost, must be somewhere there as well. You know, it seemed to me like he knew a lot more about X16 than he admitted to us. Had he somehow survived... Well, it's no use holding on to that hope, of course.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_51114">
+		<text>OK, I'll try.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_61">
+		<text>Yes, Marked One?</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_71">
+		<text>Yes, Marked One?</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_81">
+		<text>It's too bad that Kruglov died... Alas, nothing can bring him back. It's most important that you bring us the measurement data. Did you?</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_811">
+		<text>Yeah. Here.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_8111">
+		<text>Ok, let me adjust the prototype. Wait for me here.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_81111">
+		<text>Gotcha.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_812">
+		<text>No.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_8121">
+		<text>Then get them, and quick! I cannot calibrate the prototype properly without them.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_91">
+		<text>You did an excellent job. If the measurements are correct, the prototype should provide you with maximum protection from emission. </text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_911">
+		<text>Can you be a little more clear?</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_9111">
+		<text>Stalker, now you will be able to break through to the laboratory, but unless you turn off the emitter, you won't last long even with the psi-protection on. We've estimated an approximate location of the emitter; it is located in an underground facility. I have marked the spot on your map.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_9112">
+		<text>How do I get inside X16? Where exactly is the entrance?</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_9113">
+		<text>Vasiliev was working on the lab issue. About a week ago he and a stalker called Ghost tried to get inside. A couple of hours later we felt a major tremor, and after another hour we picked up a signal from Vasiliev coming from the swamp, but it died away. And Vasiliev died away with it, it would seem. Try to find his corpse. He had the exact information on the lab and the way to get into it. There may even be info on deactivating that source of the emission. I've uploaded you all the data we have.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_9114">
+		<text>Ahem...It would be very interesting to take a look at these documents. So, you think Vasiliev has them?</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_9115">
+		<text>Perhaps. At any rate, you must start by finding Vasiliev's body - that is the only chance of obtaining accurate information about the lab's location. The body of your colleague, Ghost, must be somewhere there as well. You know, it seemed to me like he knew a lot more about X16 than he admitted to us. Had he somehow survived... Well, it's no use holding on to that hope, of course.</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_9116">
+		<text>OK, I'll try.</text>
+	</string>
+	<string id="yantar_help_scientist_101">
+		<text>There's no time...</text>
+	</string>
+	<string id="yantar_help_scientist_11">
+		<text>Yes, Marked One?</text>
+	</string>
+	<string id="yantar_help_scientist_111">
+		<text>The professor asked me to take a trip to the measurement site.</text>
+	</string>
+	<string id="yantar_help_scientist_1111">
+		<text>Now you're talking business! Let's move out immediately. It was no use getting there alone, but with you it's different... I think we'll manage quickly - just make sure not to let those cadavers get too close. So, you ready?</text>
+	</string>
+	<string id="yantar_help_scientist_11111">
+		<text>Yeah.</text>
+	</string>
+	<string id="yantar_help_scientist_111111">
+		<text>You know what... Why don't you go first. You've got a whole lot of experience, unlike me. And those cadavers are starting to move again...</text>
+	</string>
+	<string id="yantar_help_scientist_1111111">
+		<text>OK.</text>
+	</string>
+	<string id="yantar_help_scientist_31">
+		<text>Later, later!</text>
+	</string>
+	<string id="yantar_help_scientist_41">
+		<text>Hey, Marked One! How are things going?</text>
+	</string>
+	<string id="yantar_help_scientist_51">
+		<text>Yes, Marked One?</text>
+	</string>
+	<string id="yantar_help_scientist_511">
+		<text>Professor asked me to take a trip to the measurement site.</text>
+	</string>
+	<string id="yantar_help_scientist_512">
+		<text>Now you're talking business! Let's move out immediately. It was no use getting there alone, but with you it's different... I think we'll manage quickly - just make sure not to let those cadavers too close to you. So, you ready?</text>
+	</string>
+	<string id="yantar_help_scientist_513">
+		<text>Yeah.</text>
+	</string>
+	<string id="yantar_help_scientist_514">
+		<text>You know what... Why don't you go first. You've got a whole lot of experience, unlike me. And those cadavers are starting to move again...</text>
+	</string>
+	<string id="yantar_help_scientist_515">
+		<text>Okay.</text>
+	</string>
+	<string id="yantar_help_scientist_61">
+		<text>I'm sorry, I have no time for this right now.</text>
+	</string>
+	<string id="yantar_help_scientist_71">
+		<text>Hey, Marked One! How's life?</text>
+	</string>
+	<string id="yantar_help_scientist_81">
+		<text>Wait a little bit... We need to finish talking.</text>
+	</string>
+	<string id="yantar_help_scientist_91">
+		<text>Wait! I'm not done taking measurements!</text>
+	</string>
+	<string id="yantar_wounded_scientist_11">
+		<text>Yipe!. Ouch... Argh..</text>
+	</string>
+	<string id="yantar_wounded_scientist_111">
+		<text>You alive? C'mon, get up... Get up slowly. It's all over. It's behind us now.</text>
+	</string>
+	<string id="yantar_wounded_scientist_21">
+		<text>Hey, Marked One. How are you?</text>
+	</string>
+	<string id="yantar_wounded_scientist_211">
+		<text>Done! Pack the camera, time to get going!</text>
+	</string>
+	<string id="yantar_wounded_scientist_31">
+		<text>Hey, Marked One! How's life?</text>
+	</string>
+	<string id="yantar_general_ucheniy_talk_start_231">
+		<text>You did a splendid job, Marked One! Now that the emissions are turned off, we will be able to order new expeditions and explore previously inaccessible territories. And also... From now on we will conduct a most favourable "pricing policy" toward you. Oh, and I almost forgot... Check your PDA, I've uploaded some info about "artefact modificates". I hope you find it useful.</text>
+	 </string>
+	 <string id = "yantar_help_scientist_21">
+		 <text>Wow! Marked One here on a personal visit! Finally you've made it to our parts. Talk to the Professor - he wants to thank you for rescuing me. And, also, check your PDA. I've uploaded some useful info for you. </text>
+	 </string>
+        <string id = "yantar_general_ucheniy_story_0"><text>I've just heard about a foreign expedition which was lost in the Zone...</text>
+        </string>
+        <string id = "yantar_general_ucheniy_story_1"><text>Everyone has heard about it. Did Sidorovich tell you?</text>
+        </string>
+        <string id = "yantar_general_ucheniy_story_2"> <text>Yes.</text>
+        </string>
+        <string id = "yantar_general_ucheniy_story_22"> <text>So what do you wan't to know?</text>
+        </string>
+        <string id = "yantar_general_ucheniy_story_23"> <text>Did you participate in that expedition? </text>
+        </string>
+        <string id = "yantar_general_ucheniy_story_24"> <text>I should have, but I didn't... It is difficult for me to speak about this awful tragedy. Many of my friends and colleagues died... On the other hand, two years have passed since... But if it interests you so much, then perhaps, I shall tell the story. As I already said, it was two years ago. And it all began with the scientific congress in Berlin of which the main study was, in fact, the Zone and its influence on the environment. It has been as a result decided to equip scientific expedition to the Zone, headed by leading scientific experts, with the purpose of gathering information and studying of the nature of the Zone. Soon, sponsors appeared, the Ukrainian government has agreed with everything and after three months of preparation on a military base on the edge of Chernobyl, the expedition had begun. All the leading scientists of all the world have gathered then: physicists, chemists, biologists and others.</text>
+        </string>
+        <string id = "yantar_general_ucheniy_story_25"> <text>Go on.</text>
+        </string>
+        <string id = "yantar_general_ucheniy_story_26"> <text>A lot of equipment had been bought for that expedition: Various devices, mobile laboratories, protective suits and a much more. Regards to the protection, the government had sent two troops of Spetsnaz and special ATCs with the expedition team. there were also a few stalkers that had conducted the expedition, interpreters and even journalists. So, after two weeks of instructions and preparations the expedition had been sent into the Zone, to Town-32. And imagine what happened! Literally one day before the expedition I became ill and had to spend four days in a hospital, which had actually saved my life. You wouldn't know how sad I was then, how jealous I was of my colleagues... I was promised that as soon as I'd recover I would be sent to the scientific camp in a helicopter. Meanwhile, the expedition has reached Town-32. A mobile laboratory, similar to the one we're in now, had been carried there with a helicopter, the connection with the base was set up and the research had begun. At first, all went as planned. They started to measure the level of radiation, to investigate features of different anomalies, and chemical compounds of artefacts. Every day we received regular messages from camp about new finds and explorations - nobody doubted the success of the expedition. And I in the meantime laid on a cot in an infirmary... </text>
+        </string>
+        <string id = "yantar_general_ucheniy_story_27"> <text> Then what happened? </text>
+        </string>
+        <string id = "yantar_general_ucheniy_story_28"> <text> But soon in camp strange things started happening. At first they noticed excessive aggression and irritability from members of the team, everyone just assumed it was from the constant work. After that, two Soldiers had dissapeared. In three days after the beginning of expedition, we had received a message that one of scientists, Professor Rosenberg, being in excessively excited condition, had committed suicide, put a pistol to his mouth. This news shocked us beyond belief! And in two days the radio-message with camp has broken. We stayed in full bewilderment, soon though, we decided to send a helicopter to the camp, but because of bad weather it was not possible. We had to wait only. In a few days we received the message from two Stalkers who claim to of saw a group of people on an ATC at the Rotten Wood, at night, and they got into an ambush of gangsters. Militarians immediately sent there Spetznaz troops. Other then this I can add only one more thing: The ambush was done by three participants of expedition, they hid in the woods and jumped them. When we found them, they were more similar to animals, than to people - wild, intimidated, torn off from reality. They were reminescent of patients at a psychiatric hospital... It was hard to believe that one week ago they were normal people. It took little over a month, just to get them to stop jabbering. biting, and partially restore some of their mind. </text>
+        </string>
+        <string id = "yantar_general_ucheniy_story_29"> <text> And what was the result? </text>
+        </string>
+        <string id = "yantar_general_ucheniy_story_291"> <text> Having analysed an event and the stories  of the survivors, the commission has come to a conclusion, the reason for the destruction of the expedition team was deemed from "Psychotropic radiation" of unprecedented power which, in the Zone, has been nicknamed "выжигателeм brains". As a result of exposure to this phenomenon, the teams mentality had started to collapse: There was a unprecedented aggression, furiousness and wildness. One could not cope with such mental loading and a few had killed themselves, as poor professor Rosenberg had done. Some people gave vent to the aggression on others, attacked them and killed them, like mad animals. Mutants have appeared there in time, having taken advantage of the absence of protection. Those who didn't go completely gone mad, tried to return on ATCs, but halfway got caught up in an ambush of gangsters and were killed in the firing. And so, the expedition in City-32 was lost... Since then I have sworn to not leave the Zone, yet I shall not investigate this fucked up radiation, even though I doubt I'll find some protection against it... So, Marked One, I'm spending my work-time on your discussions. </text>
+        </string>
+        <string id = "yantar_general_ucheniy_story_292"> <text> Yes-yes, I wont bug you for long, professor... </text>
+        </string>
+        <string id = "yantar_general_ucheniy_story_3"> <text> Is not present. </text>
+        </string>
+        <string id = "yantar_general_ucheniy_story_33"> <text> Well then ask better him, I now do not have time for stories. </text>
+        </string>
+        <string id = "yantar_general_ucheniy_story2_0"> <text> Professor, do you have any useful info on mutants? </text>
+        </string>
+        <string id = "yantar_general_ucheniy_story2_1"> <text> Yes, certainly - here Kruglov's last report on poltergeists. </text>
+        </string>
+        <string id = "yantar_general_ucheniy_story2_2"> <text> Its very interesting, I heard about them earlier. </text>
+        </string>
+        <string id = "yantar_general_ucheniy_story2_3"> <text> So. Heres what we know about poltergeists: \n1. Presumably they are Stalkers who were exposed to high levels of some sort of Emmisions. They have an extreme mastery at telepathy, you know what I mean? They can take control over, animals, mutants, its a scary business. \n2. Unfortunately they are invisible to the naked eye, According to witnesses, they usually have an auro of sparks or fiery formations. It is not known if it is possible to survive the process of being taken over by one, as well as, if it is evem possible to kill them. \n3. Telekinetic abilities vary. They're known to throw subjects, from small things up to solid iron doors. \n4. Oddly enough, Controllers can form other mutants telepathically in some way. For example take a Poltergeist.  After the telepathy takes place, a controller can be formed, Supposedly the person was under influence of the poltergeist for a long time where the reason of the poltergeist and the person are weaved, and during any moment, the controller throws out the poltergeist from the consciousness. Then the controller resides as a burer. Information was received from scientists in the center of a zone, a connection which was gone 2 years ago. \n5. Presumably, live in vaults though influence is revealed on all Zone.\n6. Analysis of controller's energy has found out energy connection with the supreme reason. Presumably, the poltergeist. Means, the poltergeist can be killed having disturbed a power balance of his essence... </text>
+        </string>
+        <string id = "yantar_general_ucheniy_story2_4"> <text> Can you be more clear? </text>
+        </string>
+        <string id = "yantar_general_ucheniy_story2_5"> <text> You have to shoot them, Marked One, and quite a bit, I might add. </text>
+        </string>
+        <string id = "yantar_general_ucheniy_story2_6"> <text> Got it, thanks for the info. </text>
+        </string>
+
+</string_table>

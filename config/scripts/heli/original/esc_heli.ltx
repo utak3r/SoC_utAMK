@@ -1,0 +1,42 @@
+[logic]
+active = heli_move@idle
+
+[heli_move@idle]
+path_move = heli_idle_move
+engine_sound = false
+on_info = {+esc_heli_go} heli_move@fly
+on_info2 = {+esc_raid1_start} heli_move@blockpost_assist
+combat_safe_altitude = -50
+
+[heli_move@fly]
+path_move = heli_fly
+on_signal = heli_radio| %+esc_heli_direct%
+on_signal2 = fly_end| heli_move@patrol
+combat_safe_altitude = -50
+
+[heli_move@patrol]
+path_move = heli_sleep
+on_signal = heli_sig| heli_move@sleep
+combat_safe_altitude = -50
+on_info = {+esc_raid1_start !gulag_empty(esc_blokpost)} heli_move@wait
+invulnerable = true
+mute = true
+
+[heli_move@sleep]
+path_move = heli_sleep2
+engine_sound = false
+on_info = {+esc_raid1_start !gulag_empty(esc_blokpost)} heli_move@wait
+combat_safe_altitude = -50
+
+[heli_move@wait]
+path_move = heli_sleep2
+engine_sound = false
+on_game_timer = 900 | heli_move@blockpost_assist
+combat_safe_altitude = -50
+
+[heli_move@blockpost_assist]
+path_move = esc_heli_blockpost_assist
+combat_enemy = area(-155,-350,170)
+on_game_timer = 3600 | {!gulag_empty(esc_blokpost)} heli_move@sleep
+combat_safe_altitude = -50
+

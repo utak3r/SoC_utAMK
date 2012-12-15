@@ -1,0 +1,46 @@
+	<game_task id="flamethrower_quest_task">
+		<title>Find tools to fix the flamethrower.</title>
+		<objective>
+			<text>Find tools to fix the flamethrower</text>
+			<icon>amk_ui_flame_quest</icon>
+			<article>mil_screw_flamethrower_descr</article>
+		</objective>
+
+		<objective>
+			<text>Find the 'Fireball' artefact</text>
+			<infoportion_complete>flamethrower_quest_fireball</infoportion_complete>
+		</objective>
+
+		<objective>
+			<text>Find the pipes</text>
+			<infoportion_complete>flamethrower_quest_trubki</infoportion_complete>
+		</objective>
+
+		<objective>
+			<text>Find the manometer (pressure measurer)</text>
+			<infoportion_complete>flamethrower_quest_manometr</infoportion_complete>
+		</objective>
+
+
+		<objective>
+			<text>Find the burner</text>
+			<infoportion_complete>flamethrower_quest_gorelka</infoportion_complete>
+		</objective>
+
+
+
+		<objective>
+			<text>Find 10 bottles of vodka</text>
+			<infoportion_complete>flamethrower_quest_vodka</infoportion_complete>
+		</objective>
+
+
+
+		<objective>
+                    <map_location_type hint="mil_Svoboda_engineer">blue_location</map_location_type>
+                    <object_story_id>mil_Svoboda_engineer</object_story_id>
+			<text>Bring all parts to Screw.</text>
+			<infoportion_complete>game_over</infoportion_complete>
+<!--			<infoportion_complete>flamethrower_quest_complete_parts</infoportion_complete> -->
+		</objective>
+	</game_task>

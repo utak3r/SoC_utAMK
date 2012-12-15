@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="windows-1250" ?>
+<string_table>
+
+	<string id="storyline_info_amk_01_name">
+		<text>Data from a psycho's memory stick (1)</text>
+	</string>
+	<string id="storyline_info_amk_02_name">
+		<text>Data from a psycho's memory stick (2)</text>
+	</string>
+
+	<string id="storyline_info_amk_03_name">
+		<text>Data from a psycho's PDA (1)</text>
+	</string>
+	<string id="storyline_info_amk_04_name">
+		<text>Data from a psycho's PDA (2)</text>
+	</string>
+
+	<string id="storyline_info_amk_05_name">
+		<text>Reward for the gun</text>
+	</string>
+	<string id="storyline_info_amk_06_name">
+		<text>Note from the mercenary's PDA</text>
+	</string>
+
+	<string id="storyline_info_amk_07_name">
+		<text>Data from Kruglov</text>
+	</string>
+	<string id="storyline_info_amk_08_name">
+		<text>Data from Monolith memeber's PDA</text>
+	</string>
+
+	<string id="storyline_info_amk_09_name">
+		<text>Cook's Report (1)</text>
+	</string>
+	<string id="storyline_info_amk_10_name">
+		<text>Cook's Report (2)</text>
+	</string>
+
+	<string id="storyline_info_amk_11_name">
+		<text>Sakharov's Data (1)</text>
+	</string>
+	<string id="storyline_info_amk_12_name">
+		<text>Sakharov's Data (2)</text>
+	</string>
+
+	<string id="storyline_info_amk_13_name">
+		<text>Sakharov's Data (3)</text>
+	</string>
+	<string id="storyline_info_amk_14_name">
+		<text>Duty's Data</text>
+	</string>
+
+	<string id="storyline_info_amk_15_name">
+		<text>Sidorovitch's Data</text>
+	</string>
+	<string id="storyline_info_amk_16_name">
+		<text>A conversation with a deserter</text>
+	</string>
+
+	<string id="storyline_info_amk_17_name">
+		<text>Informator's Data</text>
+	</string>
+	<string id="storyline_info_amk_18_name">
+		<text>Screw's Data</text>
+	</string>
+
+	<string id="storyline_info_amk_19_name">
+		<text>Wounded man's data</text>
+	</string>
+	<string id="storyline_info_amk_20_name">
+		<text>Data from the Barrier commander</text>
+	</string>
+
+	<string id="storyline_info_amk_21_name">
+		<text>Document's from the Outpost</text>
+	</string>
+	<string id="storyline_info_amk_22_name">
+		<text>Voronin's Data</text>
+	</string>
+
+	<string id="storyline_info_amk_23_name">
+		<text>Data found in Yantar</text>
+	</string>
+	<string id="storyline_info_amk_24_name">
+		<text>Data found in X18</text>
+	</string>
+
+	<string id="storyline_info_amk_25_name">
+		<text>Data found in X16</text>
+	</string>
+	<string id="storyline_info_amk_26_name">
+		<text>Informator's Data 2</text>
+	</string>
+
+	<string id="dialog_amk_00_recipt">
+		<text>Now I ask...</text>
+	</string>
+
+	<string id="dialog_amk_02_recipt">
+                <text>Do you have transmutation receipts?</text>
+	</string>
+
+	<string id="dialog_amk_03_recipt">
+                <text>Of course. Do you need one? This is a very valuable information...</text>
+	</string>
+
+	<string id="dialog_amk_41_recipt">
+                <text>Perhaps not.</text>
+	</string>
+
+	<string id="dialog_amk_42_recipt">
+                <text>How much is it?</text>
+	</string>
+
+	<string id="dialog_amk_05_recipt">
+                <text>I think this is not too much for such valuable information - a total of 30.000ru. Okay?</text>
+	</string>
+
+	<string id="dialog_amk_61_recipt">
+                <text>Sorry but no, that's too much for me.</text>
+	</string>
+
+	<string id="dialog_amk_07_recipt">
+                <text>Right choice.</text>
+	</string>
+
+	<string id="dialog_amk_08_recipt">
+                <text>I hope.</text>
+	</string>
+
+	<string id="dialog_amk_01_recipt">
+                <text>Do you interested?</text>
+	</string>
+
+	<string id="dialog_amk_10_recipt">
+                <text>Do you have other recipes??</text>
+	</string>
+
+	<string id="dialog_amk_11_recipt">
+                <text>Will. Price question - 30.000ru. Agree?</text>
+	</string>
+
+	<string id="dialog_amk_12_recipt">
+                <text>No, it does not needed.</text>
+	</string>
+
+	<string id="dialog_amk_142_recipt">
+                <text>No.</text>
+	</string>
+
+	<string id="dialog_amk_15_recipt">
+                <text>I uploaded the data to your PDA.</text>
+	</string>
+
+	<string id="dialog_amk_16_recipt">
+                <text>Excellent.</text>
+	</string>
+
+</string_table>
+

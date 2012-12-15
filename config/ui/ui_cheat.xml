@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="windows-1250" ?>
+
+<window>
+	<texture>ui_menu_options_dlg</texture>
+
+	<background x="0" y="0" width="400" height="340" stretch="1">
+		<texture x="0" y="0" width="350" height="460">ui\ui_dg_inventory</texture>
+	</background>
+
+	<caption x="65" y="10" width="500" height="25" complex_mode="0">
+		<text font="graffiti22" r="184" g="168" b="131">utAMK cheater</text>
+	</caption>
+
+	<edit_box x="50" y="40" width="300" height="24">
+		<text font="letterica18" r="235" g="219" b="185"/>
+		<texture>ui_linetextSmall_e</texture>
+	</edit_box>
+
+	<btn_ok x="50" y="80" width="117" height="29">
+		<texture_e>ui_button_ordinary_e</texture_e>
+		<texture_t>ui_button_ordinary_t</texture_t>
+		<texture_h>ui_button_ordinary_h</texture_h>
+		<text r="235" g="219" b="185">ui_inv_ok</text>
+	</btn_ok>
+	
+	<btn_cancel x="170" y="80" width="117" height="29">
+		<texture_e>ui_button_ordinary_e</texture_e>
+		<texture_t>ui_button_ordinary_t</texture_t>
+		<texture_h>ui_button_ordinary_h</texture_h>
+		<text r="235" g="219" b="185">ui_inv_cancel</text>
+	</btn_cancel>
+</window>

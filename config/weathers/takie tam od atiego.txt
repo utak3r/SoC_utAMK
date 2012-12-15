@@ -1,0 +1,24 @@
+[default_cloudy_08_00]
+	flares         = flares_cloudy
+	sky_texture    = sky\af_la_cloudy\08-00
+	sky_rotation   = 0.000000
+	sky_color      = 0.660156, 0.660156, 0.660156
+	clouds_texture = sky\sky_oblaka
+	clouds_color   = 0.800781, 0.800781, 0.800781, 0.4, 1.0
+	far_plane      = 380.000000
+	fog_distance   = 350.000000
+	fog_color      = 0.234375, 0.222656, 0.203125
+	fog_density    = 1.000000
+	rain_color     = 0.343750, 0.308594, 0.261719
+	rain_density   = 0.000000
+	thunderbolt    = 
+	bolt_duration  = 0.000000
+	bolt_period    = 0.000000
+	wind_direction = 0.000000
+	wind_velocity  = 0.000000
+	ambient        = 0.039063, 0.039063, 0.042969
+	lmap_color     = 1.000000, 1.000000, 1.000000
+	hemi_color     = 0.503906, 0.503906, 0.503906, 1.000000
+	sun_color      = 0.074219, 0.074219, 0.074219
+	sun_dir        = -27.010000, 94.854010
+	env_ambient    = ambient_env_tuman

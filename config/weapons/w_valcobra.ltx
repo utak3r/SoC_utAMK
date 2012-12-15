@@ -1,0 +1,186 @@
+[wpn_valcobra]:identity_immunities
+GroupControlSection			= spawn_group
+discovery_dependency 		= 
+$spawn                  	= "weapons\val"					; option for Level Editor
+$npc			 			= on				; option for Level Editor
+$prefetch 					= 8
+scheduled            		= off              ; option for ALife Simulator
+cform                		= skeleton
+class                		= WP_VAL
+min_radius					= 30
+max_radius					= 100
+description					= enc_weapons1_wpn-val
+
+ef_main_weapon_type			= 2
+ef_weapon_type				= 6
+
+;-----------------------------------------------------------------------------------
+holder_range_modifier	= 1.0		       ; во сколько раз увеличивается eye_range 
+holder_fov_modifier		= 0.7              ; во сколько раз увеличивается eye_fov
+;-----------------------------------------------------------------------------------
+
+cost		 	 			= 9000	;4800
+weapon_class				= assault_rifle
+
+ammo_limit					= 210
+ammo_current				= 180
+ammo_elapsed				= 20
+	
+ammo_mag_size				= 20
+ammo_class		 			= ammo_9x39_sp5,ammo_9x39_ap,ammo_9x39_pab9  
+fire_modes					= 1, -1
+f_mode				= 2
+
+hand_dependence		 		= 1
+single_handed				= 0
+	
+slot 				 		= 2		; // secondary
+animation_slot		 		= 2		; type of the animation that will be used
+
+inv_name	         		= "AS Val with Cobra collimator"
+inv_name_short		 		= "AS Val w.Cobra"
+inv_weight		 			= 2.5
+
+inv_grid_width				= 4
+inv_grid_height				= 2
+inv_grid_x					= 20
+inv_grid_y					= 7
+
+kill_msg_x			= 0
+kill_msg_y			= 154
+kill_msg_width		= 78
+kill_msg_height		= 21
+
+;-----------------------------------------------------------------------------------
+; base dispersion
+;
+; === Setting of the weapon shooting dispersal parameter ===
+;Dispersal consists from to basic constituents - dispersal of the weapon (relatively small). In fact, this is a dispersal of a weapon griped in a vice; - dispersal of the weapon behavior in the hands of the host (if he running, or walking or shoots in single shots or in a burst) is another, more significant factor of dispersal. 
+;Dispersal of the weapon depends only from basic dispersal, basket case factor ant time of the ammo.
+;Dispersal of the way the host shooting (standing, running and etc.)
+;Two types of shooting modes can be defined: - usual mode and zoomed mode.  
+;Usual mode: - depends from the position of the player while shooting (standing, sitting, walking and running)
+;Zoomed mode - depends from the dispersal of the weapon and do NOT depends from the position of the shooter. In that mode, dispersal of the weapon &laquo switches to;&raquo;  sight swinging (created be effector). 
+;Weapon recoil in the game also created by recoil effector. 
+;
+;-----------------------------------------------------------------------------------
+fire_dispersion_base		= 0.12	;угол (в градусах) базовой дисперсии оружия (оружия зажатого в тисках)
+control_inertion_factor		= 1.04f
+disp_rate = 1.75
+
+;отдача
+cam_relax_speed        		 	= 5	;скорость возврата в исходное положение
+cam_dispersion        		= 0.28	;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc			= 0.11	;увеличениe cam_dispersion с каждым выстрелом
+cam_dispertion_frac			= 0.9 ;1.0	;ствол будет подыматься на cam_dispersion*cam_dispertion_frac +- cam_dispersion*(1-cam_dispertion_frac)
+cam_max_angle					= 8.0	;максимальный угол отдачи
+cam_max_angle_horz				= 10.0	;(degree) maximum shot horizontal degree 
+cam_step_angle_horz				= 2.1	;(degree) size of step camera moved in horizontal position while shooting
+
+fire_dispersion_condition_factor 	= 2
+misfire_probability 	= 0.0005
+misfire_condition_k 	= 0.06
+condition_shot_dec 		= 0.00002
+;-----------------------------------------------------------------------------------
+
+
+direction            	    = 0, 0, 1
+
+fire_point           	    = 0.0, 0.174, 0.562
+
+smoke_particles				= weapons\generic_shoot_00
+
+shell_point		 			= 0.0, 0.174, 0.078
+shell_dir		 			= 0.0, 1.0, 0.0
+shell_particles	 			= weapons\generic_shells
+
+rpm_empty_click 			= 200
+
+PDM_disp_base 			= 6.0
+PDM_disp_vel_factor 		= 1.5
+PDM_disp_accel_factor 		= 1.2
+PDM_crouch	 		= 1.0
+PDM_crouch_no_acc 		= 1.0
+
+; ttc
+hit_power        	= 0.79		;0.21 	;0.56, 0.57, 0.58
+hit_impulse		 	= 60
+hit_type 			= fire_wound
+hit_rate	= 1.95
+
+fire_distance   	    = 200 ;1000
+bullet_speed			= 300	;начальная скорость пули
+rpm             		= 800
+; end ttc
+
+use_aim_bullet				= false	;true		;Поддерживается ли первая суппер пуля
+time_to_aim					= 1.0	
+
+hud             	        = wpn_valcobra_hud
+normal          	        = 0, 1, 0
+
+;----------------------------------------------------------
+position        	        = -0.026, -0.131, 0.0
+orientation     	        = 0, 0, 0
+
+;--STRAP PARAMETERS-----------------------------------------------------------------
+;под мишкой
+strap_position         		= -0.26,-0.11,0.25			; position (offset) and orientation of the weapon when it is strapped
+strap_orientation      		= -15,-9,110				; (3rd person view in degrees)
+strap_bone0					= bip01_spine2
+strap_bone1					= bip01_spine1
+
+startup_ammo    	        = 90
+visual          	        = weapons\valcobra\wpn_valcobra.ogf
+
+light_disabled				= true
+
+ph_mass			 			= 5
+;cost			 			= 2100
+
+;addons
+scope_status				= 0
+silencer_status				= 1
+grenade_launcher_status		= 0
+
+zoom_enabled				= true
+scope_zoom_factor		    = 23
+scope_name 					= wpn_addon_scope
+scope_texture				= wpn\wpn_crosshair
+scope_x 					= 37						; offset in inventory icon
+scope_y 					= 0
+;звуки
+snd_draw					= weapons\generic_draw
+snd_holster					= weapons\generic_holster
+snd_shoot					= weapons\tm_val_shot_0      ; t_val_shot     ;silencer4a
+snd_shoot1					= weapons\tm_val_shot_1
+snd_shoot2					= weapons\tm_val_shot_2
+snd_shoot3					= weapons\tm_val_shot_3
+snd_empty					= weapons\gen_empty, 0.5
+snd_reload					= weapons\val_reload, 0.7, 0.5
+snd_close					= weapons\generic_close
+
+ 
+[wpn_valcobra_hud]
+shell_point			= -0.030000,-0.020000,0.050000
+shell_dir		 			= 0.0, 1.0, 0.0
+
+fire_point       	        = 0.200000,0.020000,0.060000
+fire_bone        	        = connect_wpn_body
+orientation      	        = 0, 0, 0
+position         	        = 0, 0, 0
+visual           	        = weapons\valcobra\wpn_valcobra_hud.ogf
+
+anim_idle			= idle
+anim_reload			= reload
+anim_draw			= draw
+anim_holster		= holster
+anim_shoot			= shoot
+anim_idle_aim		= idle_aim
+anim_idle_sprint	= idle_sprint
+
+;HUD offset in zoom mode (to all)
+zoom_offset			= -0.13, 0.043, -0.0807
+zoom_rotate_x		= 0.024500
+zoom_rotate_y		= 0.017200
+
