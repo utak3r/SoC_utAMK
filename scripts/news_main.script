@@ -29,7 +29,63 @@ function get_npc_name(obj)
 	return m_s_name
 end
 
-function get_npc_community(obj) local m_s_c = "" if (obj) then if(_g.IsMonster(obj)) then m_s_c = get_monster_name(obj, 1) else if (obj.character_community) then m_s_c = obj:character_community() elseif (obj.community) then m_s_c = obj:community() end end end if (m_s_c == nil) then m_s_c = "" end if (obj and obj.name and m_s_c == "") then trace("get_npc_community returns '' for "..obj:name()) end return m_s_c end function get_object_position(obj) local pos = nil if (obj) then if (isGameObject(obj) and obj.position) then pos = obj:position() else pos = obj.position end end return pos end function get_object_name(obj) local s_name = "" local value = "" if (isGameObject(obj) and obj.section) then value = utils.cfg_get_string(system_ini(), obj:section(), "inv_name", obj, false, "", "") s_name = value s_name = game.translate_string(s_name) if string.find(obj:section(),"^af_") then s_name = "Artefact "..s_name end elseif (obj.section_name) then value = utils.cfg_get_string(system_ini(), obj:section_name(), "inv_name", obj, false, "", "") s_name = value s_name = game.translate_string(s_name) if string.find(obj:section_name(),"^af_") then s_name = "artefact "..s_name end end if (s_name == nil) then s_name = "" end return s_name end 
+function get_npc_community(obj) 
+	local m_s_c = "" 
+	if (obj) then 
+		if(_g.IsMonster(obj)) then 
+			m_s_c = get_monster_name(obj, 1) 
+		else 
+			if (obj.character_community) then 
+				m_s_c = obj:character_community() 
+			elseif (obj.community) then 
+				m_s_c = obj:community() 
+			end 
+		end 
+	end 
+	if (m_s_c == nil) then 
+		m_s_c = "" 
+	end 
+	if (obj and obj.name and m_s_c == "") then 
+		trace("get_npc_community returns '' for "..obj:name()) 
+	end 
+	return m_s_c 
+end 
+
+function get_object_position(obj) 
+	local pos = nil 
+	if (obj) then 
+		if (isGameObject(obj) and obj.position) then 
+			pos = obj:position() 
+		else 
+			pos = obj.position 
+		end 
+	end 
+	return pos 
+end 
+
+function get_object_name(obj) 
+	local s_name = "" 
+	local value = "" 
+	if (isGameObject(obj) and obj.section) then 
+		value = utils.cfg_get_string(system_ini(), obj:section(), "inv_name", obj, false, "", "") 
+		s_name = value 
+		s_name = game.translate_string(s_name) 
+		if string.find(obj:section(),"^af_") then 
+			s_name = "Artefact "..s_name 
+		end 
+	elseif (obj.section_name) then 
+		value = utils.cfg_get_string(system_ini(), obj:section_name(), "inv_name", obj, false, "", "") 
+		s_name = value 
+		s_name = game.translate_string(s_name) 
+		if string.find(obj:section_name(),"^af_") then 
+			s_name = "artefact "..s_name 
+		end 
+	end 
+	if (s_name == nil) then 
+		s_name = "" 
+	end 
+	return s_name 
+end 
 
 function get_weapon_type(weapon) 
 	if(weapon and _g.isWeapon(weapon)) then 
