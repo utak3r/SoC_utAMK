@@ -1,17 +1,17 @@
 
 <window>
 	<minimap>
-		<level_frame x="019" y="590" width="123" height="161"/>
+		<level_frame x="15" y="590" width="123" height="161"/>
 		
-		<background x="011" y="576" width="138" height="189" stretch="1"> 
+		<background x="7" y="576" width="138" height="189" stretch="1"> 
 			<texture>ui_hud_map</texture>
 			
-			<dist_text x="023" y="003" width="113" height="20">
+			<dist_text x="23" y="3" width="113" height="20">
 				<text align="l" font="letterica16" color="ui_clr_1"/>
 			</dist_text>
 		</background>
 		
-		<compass x="117" y="716" width="24" height="32" heading="1" stretch="1">
+		<compass x="113" y="716" width="24" height="32" heading="1" stretch="1">
 			<texture>ui\ui_hud_map_arrow</texture>
 		</compass>
 		
