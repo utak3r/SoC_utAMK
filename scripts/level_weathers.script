@@ -295,7 +295,7 @@ function WeatherManager:select_weather(force)
         level.set_weather_fx("amk_surge_day")
     end
 
-    u3_utils.printf("weather:%s,cycle_time:%d", level.get_weather(), self.cycle_time)
+    if amk.is_debug then u3_utils.printf("weather:%s,cycle_time:%d", level.get_weather(), self.cycle_time) end
      
 end
 
