@@ -180,19 +180,21 @@ function test_for_need_sleep()
 end 
 
 function test_sleep_pp()
+	-[[
 	u3_utils.printf("Running test_sleep_pp()")
---	local tmp=amk.load_variable("gg_need_sleep",0) 
---	if tmp>360 then 
---		sleep_manager.main(5+amk.load_variable("gg_need_sleep_nrg",0)) 
---	end 
---	if tmp>300 then 
---		level.add_pp_effector("yantar_underground_psi.ppe", 999, true) 
---		level.set_pp_effector_factor(999, 5.0) 
---	end 
---	if tmp<=999 then 
-		--u3_utils.remove_all_effectors()
-		--level.remove_pp_effector(999) 
---	end 
+	local tmp=amk.load_variable("gg_need_sleep",0) 
+	if tmp>360 then 
+		sleep_manager.main(5+amk.load_variable("gg_need_sleep_nrg",0)) 
+	end 
+	if tmp>300 then 
+		level.add_pp_effector("yantar_underground_psi.ppe", 999, true) 
+		level.set_pp_effector_factor(999, 5.0) 
+	end 
+	if tmp<=999 then 
+		u3_utils.remove_all_effectors()
+		level.remove_pp_effector(999) 
+	end
+	]]
 end 
 
 function check_sleep_item(obj) 
