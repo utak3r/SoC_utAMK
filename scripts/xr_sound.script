@@ -368,7 +368,7 @@ function get_sound_object(theme, t_type)
 		end		
 	end
 
-	printf("SOUND_OBJECT: selected id [%s] for theme [%s], type [%s], size [%s]", tostring(play_id), tostring(theme), tostring(type), table_size)
+	u3_utils.printf("SOUND_OBJECT: selected id [%s] for theme [%s], type [%s], size [%s]", tostring(play_id), tostring(theme), tostring(type), table_size)
 
 	if play_id == -1 then
 		return
