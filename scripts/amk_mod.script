@@ -180,7 +180,7 @@ function test_for_need_sleep()
 end 
 
 function test_sleep_pp()
-	-[[
+	--[[
 	u3_utils.printf("Running test_sleep_pp()")
 	local tmp=amk.load_variable("gg_need_sleep",0) 
 	if tmp>360 then 
