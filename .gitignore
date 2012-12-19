@@ -1,6 +1,7 @@
 *.bak
 *.BACKUP.*
 patches/
+anims/
 levels/
 meshes/
 shaders*/
