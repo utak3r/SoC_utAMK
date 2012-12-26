@@ -86,7 +86,7 @@ function send_tip(news_text, header, timeout, showtime, sender, sound)
   if news_text==nil then return end
   if header==nil then header=game.translate_string("st_tip") end
   if timeout == nil then timeout = 0 end
-  if showtime == nil then showtime = 5 end
+  if showtime == nil then showtime = 3 end
   
   local player
   if sound=="news" then
