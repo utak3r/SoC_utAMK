@@ -1,11 +1,12 @@
---/amk_rel_1/
+--/utamk_2_0/
 -- File:        UI_MAIN_MENU.SCRIPT
 -- Description: Load Dialog for STALKER
 -- Created:     28.10.2004
--- Lasd edit:	18.01.2006
+-- Lasd edit:	26.12.2012
 -- Copyright:   2004 GSC Game World
 -- Author:      Serhiy Vynnychenko (narrator@gsc-game.kiev.ua)
--- Version:     0.9
+-- Modified by: utak3r
+-- Version:     0.10
 
 -- barin start
 local priboy_debug_menu = true
@@ -37,14 +38,7 @@ function main_menu:InitControls()
 	
 	local _ver = xml:InitStatic		("static_version",self)
 	local mm						= _G.main_menu.get_main_menu()
-	--_ver:SetText					("ver. " .. mm:GetGSVer())
-	local amk_title 		= amk_ver.amk_title
-	local amk_version    	= amk_ver.amk_version
-	local amk_revision	= amk_ver.amk_revision
-	local amk_en_title	= amk_ver.amk_en_title
-	local amk_en_version	= amk_ver.amk_en_version
-	local debug_mode = ""
-	_ver:SetText("Game version - " .. mm:GetGSVer() .. "  " .. amk_title .. " " .. amk_version .. "" .. amk_revision .. " " .. amk_en_title .. " " .. amk_en_version)
+	_ver:SetText("Game version - " .. mm:GetGSVer() .. "  utAMK 2.0")
 end
 
 function main_menu:Show(f)
