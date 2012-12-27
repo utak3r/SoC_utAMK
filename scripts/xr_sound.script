@@ -368,7 +368,7 @@ function get_sound_object(theme, t_type)
 		end		
 	end
 
-	u3_utils.printf("SOUND_OBJECT: selected id [%s] for theme [%s], type [%s], size [%s]", tostring(play_id), tostring(theme), tostring(type), table_size)
+	if amk.is_debug then u3_utils.printf("SOUND_OBJECT: selected id [%s] for theme [%s], type [%s], size [%s]", tostring(play_id), tostring(theme), tostring(type), table_size) end
 
 	if play_id == -1 then
 		return
