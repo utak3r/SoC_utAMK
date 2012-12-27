@@ -155,11 +155,44 @@ function check_spawn()
 	end 
 end 
 
-function restore_sun() if amk.load_variable("blowout",0)==0 then level.set_weather(w,true) end local lname = level.name() local sname = amk.load_variable("level_on_save","") amk.save_variable("level_on_save",lname) if sname=="l12_stancia_2" and lname=="l11_pripyat" then sleep_manager.main(1) end if amk.load_variable("blow_started",0)==0 then start_blow_timer() amk.save_variable("blow_started",1) end if tmp_intro then amk.send_tip(game.translate_string("amk_welcome_msg"),game.translate_string("amk_welcome_title"),nil,35,"monolith") tmp_intro=false end sync_done=true end 
+function restore_sun() 
+	if amk.load_variable("blowout",0)==0 then 
+		level.set_weather(w,true) 
+	end 
+	local lname = level.name() 
+	local sname = amk.load_variable("level_on_save","") 
+	amk.save_variable("level_on_save",lname) 
+	if sname=="l12_stancia_2" and lname=="l11_pripyat" then 
+		sleep_manager.main(1) 
+	end 
+	if amk.load_variable("blow_started",0)==0 then 
+		start_blow_timer() 
+		amk.save_variable("blow_started",1) 
+	end 
+	if tmp_intro then 
+		amk.send_tip(game.translate_string("amk_welcome_msg"),game.translate_string("amk_welcome_title"),nil,35,"monolith") 
+		tmp_intro=false 
+	end 
+	sync_done=true 
+end 
 
-function freeplay() amk.save_variable("freeplay",1) local obj = alife():story_object(6001) if not obj then alife():create(1) end for a=1,5 do amk_anoms.after_blow_on() end end 
+function freeplay()
+	amk.save_variable("freeplay",1)
+	local obj = alife():story_object(6001)
+	if not obj then
+		alife():create(1)
+	end
+	for a=1,5 do
+		amk_anoms.after_blow_on()
+	end 
+end 
 
-function show_news() if (news_main and news_main.on_news) then news_main.on_news() end amk.g_start_timer("show_news",0,0,math.random(40,80)) end 
+function show_news()
+	if (news_main and news_main.on_news) then
+		news_main.on_news()
+	end
+	amk.g_start_timer("show_news", 0, 0, math.random(40,80))
+end 
 
 function reduce_need_sleep(time)
 	local tmp=amk.load_variable("gg_need_sleep",0)
@@ -253,10 +286,10 @@ function test_for_need_sleep_matras(oid)
 			end 
 		end 
 		if enemy==true then 
-			amk.send_tip(game.translate_string("not_need_sleep_enemy"),nil,nil,5) 
+			amk.send_tip(game.translate_string("not_need_sleep_enemy"),nil,nil,3) 
 		else 
 			if amk.load_variable("blowout",-1)>-1 and amk.load_variable("blowout",-1)<5 then 
-				amk.send_tip(game.translate_string("blowout_not_sleep"),nil,nil,5) 
+				amk.send_tip(game.translate_string("blowout_not_sleep"),nil,nil,3) 
 			else 
 				local spwn=ui_cheat.cheat(get_hud()) 
 				level.start_stop_menu(spwn,true) 
@@ -920,7 +953,7 @@ function firebated(obj, amount, local_direction, who, bone_index) if bone_index>
 
 function zomby_blow(obj) if obj:object("wpn_flame") then amk_particle.amk_particle({ particle="explosions\\explosion_fuelcan", pos=obj:position(), sound=[[weapons\t_rgd5_explosion]] }) local dist = db.actor:position():distance_to(obj:position()) if dist < 10 and db.actor:see(obj) then local h = hit() h.impulse = 0 h.draftsman = db.actor h.direction = vector():set(0,0,0) h:bone("bip01_spine") h.power = 1/dist h.type = hit.strike db.actor:hit(h) h.power = 15/dist h.type = hit.chemical_burn db.actor:hit(h) end alife():release(alife():object(obj:id())) return end if obj:section()=="zombie_blow" then amk_particle.amk_particle({ particle="amk\\zomb_explode", pos=obj:position(), sound=[[anomaly\anomaly_body_tear_1]] }) local dist = db.actor:position():distance_to(obj:position()) if dist < 30 and db.actor:see(obj) then local h = hit() h.impulse = 0 h.draftsman = db.actor h.direction = vector():set(0,0,0) h:bone("bip01_spine") h.power = 1/dist h.type = hit.strike db.actor:hit(h) h.power = 15/dist h.type = hit.chemical_burn db.actor:hit(h) end local skel = amk.spawn_item("breakable_object",obj:position(),obj:game_vertex_id(),obj:level_vertex_id()) local t = amk.get_breakable_data(skel) t.visual = zombi_skeletons[math.random(table.getn(zombi_skeletons))] t.mass = 1.0 t.physic_type = 3 t.skeleton_flags = 1 amk.set_breakable_data(t,skel) alife():release(alife():object(obj:id())) end end 
 
-function repair_weapon (st) local arr = amk.unpack_array_from_string(st) local oid = arr[1] local repbox_health = arr[2] local slot = arr[3] if alife():object(oid)==nil then local repair_coef = 0 local item_in_slot = db.actor:item_in_slot(slot) if repbox_health==1 then repair_coef=0.25 elseif repbox_health<1 then repair_coef=0.2 elseif repbox_health<0.8 then repair_coef=0.15 elseif repbox_health<0.6 then repair_coef=0.1 elseif repbox_health<0.4 then repair_coef=0.05 end local rem if item_in_slot == nil then amk.send_tip(game.translate_string("rep_no_weapon_in_slot"),nil,nil,5) rem = amk.spawn_item_in_inv("repbox_s"..slot) amk.start_timer("repbox_cond",0.1,amk.pack_array_to_string( {rem.id, repbox_health} )) else if item_in_slot:condition()>0.95 then amk.send_tip(game.translate_string("rep_not_need"),nil,nil,5) rem = amk.spawn_item_in_inv("repbox_s"..slot) amk.start_timer("repbox_cond",0.1,amk.pack_array_to_string( {rem.id, repbox_health} )) else if item_in_slot:condition()>=0.7 then item_in_slot:set_condition(item_in_slot:condition() + repair_coef) if repbox_health>0.3 then rem = amk.spawn_item_in_inv("repbox_s"..slot) amk.start_timer("repbox_cond",0.1,amk.pack_array_to_string( {rem.id, repbox_health-0.2} )) end else amk.send_tip(game.translate_string("rep_need_big"),nil,nil,5) rem = amk.spawn_item_in_inv("repbox_s"..slot) amk.start_timer("repbox_cond",0.1,amk.pack_array_to_string( {rem.id, repbox_health} )) end end end end end 
+function repair_weapon (st) local arr = amk.unpack_array_from_string(st) local oid = arr[1] local repbox_health = arr[2] local slot = arr[3] if alife():object(oid)==nil then local repair_coef = 0 local item_in_slot = db.actor:item_in_slot(slot) if repbox_health==1 then repair_coef=0.25 elseif repbox_health<1 then repair_coef=0.2 elseif repbox_health<0.8 then repair_coef=0.15 elseif repbox_health<0.6 then repair_coef=0.1 elseif repbox_health<0.4 then repair_coef=0.05 end local rem if item_in_slot == nil then amk.send_tip(game.translate_string("rep_no_weapon_in_slot"),nil,nil,3) rem = amk.spawn_item_in_inv("repbox_s"..slot) amk.start_timer("repbox_cond",0.1,amk.pack_array_to_string( {rem.id, repbox_health} )) else if item_in_slot:condition()>0.95 then amk.send_tip(game.translate_string("rep_not_need"),nil,nil,3) rem = amk.spawn_item_in_inv("repbox_s"..slot) amk.start_timer("repbox_cond",0.1,amk.pack_array_to_string( {rem.id, repbox_health} )) else if item_in_slot:condition()>=0.7 then item_in_slot:set_condition(item_in_slot:condition() + repair_coef) if repbox_health>0.3 then rem = amk.spawn_item_in_inv("repbox_s"..slot) amk.start_timer("repbox_cond",0.1,amk.pack_array_to_string( {rem.id, repbox_health-0.2} )) end else amk.send_tip(game.translate_string("rep_need_big"),nil,nil,3) rem = amk.spawn_item_in_inv("repbox_s"..slot) amk.start_timer("repbox_cond",0.1,amk.pack_array_to_string( {rem.id, repbox_health} )) end end end end end 
 
 function after_repair_weapon (st) local arr = amk.unpack_array_from_string(st) local oid = arr[1] local repbox_health = arr[2] local lobj = level.object_by_id(oid) if lobj then lobj:set_condition(repbox_health) end end 
 

@@ -55,7 +55,7 @@
 		<crouch_type>1</crouch_type>
 		<supplies>
 			[spawn] \n
-			w_beretta918 \n
+			wpn_beretta918 \n
 			ammo_9x18_fmj \n
 			kruglov_flash \n			
 		</supplies>
@@ -86,7 +86,7 @@
 		<crouch_type>1</crouch_type>
 		<supplies>
 			[spawn] \n
-			w_beretta918 \n
+			wpn_beretta918 \n
 			ammo_9x18_fmj \n
 			kruglov_flash \n			
 		</supplies>
@@ -115,7 +115,7 @@
 		<crouch_type>1</crouch_type>
 		<supplies>
 			[spawn] \n
-			w_beretta918 \n
+			wpn_beretta918 \n
 			ammo_9x18_fmj \n
 		</supplies>
 		
@@ -145,7 +145,7 @@
 		<crouch_type>1</crouch_type>
 		<supplies>
 			[spawn] \n
-			w_beretta918 \n
+			wpn_beretta918 \n
 			ammo_9x18_fmj \n
 			lab_x16_documents \n
 			outfit_stalker_m1 \n
@@ -171,7 +171,7 @@
 		<crouch_type>1</crouch_type>
 		<supplies>
 			[spawn] \n
-			w_beretta918 \n
+			wpn_beretta918 \n
 			ammo_9x18_fmj = 3 \n
 			wpn_lr300 \n
 			ammo_5.56x45_ss190 = 5 \n
@@ -199,7 +199,7 @@
 		<crouch_type>1</crouch_type>
 		<supplies>
 			[spawn] \n
-			w_beretta918 \n
+			wpn_beretta918 \n
 			ammo_9x18_fmj = 3 \n
 			wpn_lr300 \n
 			ammo_5.56x45_ss190 = 5 \n
