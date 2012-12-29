@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <window x="000" y="000" w="640" h="480" r="227" g="121" b="222" texture="1">
 
-	<background  x="196" y="99988" width="125" height="125">
+	<background  x="6" y="99988" width="125" height="125">
 		<texture>ui_hud_stamina_full</texture>
 	</background>
 	
