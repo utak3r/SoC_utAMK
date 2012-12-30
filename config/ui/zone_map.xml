@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <window>
 	<minimap>
-		<level_frame x="024" y="590" width="163" height="161"/>
+		<level_frame x="20" y="99988" width="163" height="161"/>
 		
-		<background x="013" y="576" width="177" height="185"> 
+		<background x="9" y="99944" width="177" height="185"> 
 			<texture>ui_hud_map</texture>
 			
 			<dist_text x="030" y="003" width="150" height="020">
@@ -11,7 +11,7 @@
 			</dist_text>
 		</background>
 		
-		<compass x="154" y="716" width="032" height="032" heading="1">
+		<compass x="150" y="99944" width="032" height="032" heading="1">
 			<texture>ui\ui_hud_map_arrow</texture>
 		</compass>
 		
