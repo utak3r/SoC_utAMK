@@ -48,7 +48,45 @@ end
 
 local tmp_intro=false 
 
-function first_run() if amk.load_variable("x_first_run",true) then amk.g_start_timer("gg_need_sleep",0,0,6) amk.g_start_timer("show_news",0,0,10) amk.spawn_item_in_inv("matras") amk.save_variable("x_first_run",false) end if amk.load_variable("amk_12",0)==0 then amk.spawn_item("amk_zapiska",vector():set(-126.96,-28.41,-379.12),27,125181) amk.spawn_item("amk_zapiska",vector():set(21.6,-3.94,-18.28),1140,5991) amk.spawn_item("amk_zapiska",vector():set(-126.92,23.27,-36.98),1543,7083) amk.save_variable("amk_12",1) end if amk.load_variable("amk_13",0)==0 then local obj = alife():story_object(830) if obj then alife():release(obj) alife():create(7373) end amk.save_variable("amk_13",1) end if amk.load_variable("amk_13",0)==0 then local obj = alife():story_object(830) if obj then alife():release(obj) alife():create(7373) end amk.save_variable("amk_13",1) end if amk.load_variable("amk_version",0)<1400 then tmp_intro=true amk.save_variable("amk_version",1400) amk_anoms.pre_blow_off() amk_anoms.after_blow_on() spawn_military_btr() spawn_fuel() end end 
+function first_run() 
+	if amk.load_variable("x_first_run",true) then 
+		amk.g_start_timer("gg_need_sleep",0,0,6) 
+		amk.g_start_timer("show_news",0,0,10) 
+		amk.spawn_item_in_inv("matras") 
+		amk.save_variable("freeplay",0)
+		amk.save_variable("x_first_run",false) 
+	end 
+	if amk.load_variable("amk_12",0)==0 then 
+		amk.spawn_item("amk_zapiska",vector():set(-126.96,-28.41,-379.12),27,125181) 
+		amk.spawn_item("amk_zapiska",vector():set(21.6,-3.94,-18.28),1140,5991) 
+		amk.spawn_item("amk_zapiska",vector():set(-126.92,23.27,-36.98),1543,7083) 
+		amk.save_variable("amk_12",1) 
+	end 
+	if amk.load_variable("amk_13",0)==0 then 
+		local obj = alife():story_object(830) 
+		if obj then 
+			alife():release(obj) 
+			alife():create(7373) 
+		end 
+		amk.save_variable("amk_13",1) 
+	end 
+	if amk.load_variable("amk_13",0)==0 then 
+		local obj = alife():story_object(830) 
+		if obj then 
+			alife():release(obj) 
+			alife():create(7373) 
+		end 
+		amk.save_variable("amk_13",1) 
+	end 
+	if amk.load_variable("amk_version",0)<1400 then 
+		tmp_intro=true 
+		amk.save_variable("amk_version",1400) 
+		amk_anoms.pre_blow_off() 
+		amk_anoms.after_blow_on() 
+		spawn_military_btr() 
+		spawn_fuel() 
+	end 
+end 
 
 function check_spawn() 
 	amk_anoms.init() 

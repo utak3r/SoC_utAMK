@@ -1171,12 +1171,21 @@ end
 function sixbit(char) local byte = string.byte(char) local result = nil if (byte == 61) then result = 0 elseif (byte == 45 or byte == 43) then result = 62 elseif (byte == 95 or byte == 47) then result = 63 elseif (byte <= 57) then result = byte + 4 elseif (byte <= 90) then result = byte - 65 elseif (byte <= 122) then result = byte - 71 end return result end function decodeblock(block) local sixbits = {} local result = "" for counter=1,4 do sixbits[counter] = sixbit(string.sub(block,counter,counter)) end result = string.char(sixbits[1]*4 + math.floor(sixbits[2] / 16)) if (string.sub(block,3,3) ~= "=") then result = result .. string.char((sixbits[2] % 16)*16 + math.floor(sixbits[3] / 4)) end if (string.sub(block,4,4) ~= "=") then result = result .. string.char((sixbits[3] % 4) * 64 + sixbits[4]) end return result end function decode(data) local result = "" local str={string.byte("CheckForCheat",1,1000)} local strl=table.getn(str) for c=1,string.len(data),4 do result=result..decodeblock(string.sub(data,c,c+3)) end local result1="" for c=1,string.len(result),1 do local sl=string.byte(string.sub(result,c)) sl=bit_xor(sl,str[1+(c-1)%strl]) result1 = result1 .. string.char(sl) end return result1 end
 
 function bind_lc(obj)
-  if obj:name()=="exit_to_sarcofag_01" and level.name()=="l12_stancia" and amk.load_variable("freeplay",0)>0 then
-    local sobj=alife():object(obj:id())
-    if sobj then
-      alife():release(sobj,true)
-    end
-  end
+	if obj:name()=="exit_to_sarcofag_01" and level.name()=="l12_stancia" then
+		local freeplay = amk.load_variable("freeplay", 0)
+		if freeplay then
+			u3_utils.printf("Binding exit_to_sarcofag_01 level_changer on l12_stancia level. Freeplay variable == %d.", freeplay)
+			if freeplay > 0 then
+				local sobj = alife():object(obj:id())
+				if sobj then
+					u3_utils.printf("It's freeplay, removing the level changer from stancia to sarcofag.")
+					alife():release(sobj, true)
+				end
+			end
+		else
+			u3_utils.printf("Variable freeplay is null, while binding exit_to_sarcofag_01 level_changer on l12_stancia level!")
+		end
+	end
 end
 
 function readvu32u8(packet)
