@@ -207,7 +207,8 @@ end
 
 function motivator_binder:hit_callback(obj, amount, local_direction, who, bone_index)
 	if self.object == nil then
-		abort("Nil self.object in motivator_binder")
+		u3_utils.printf("Nil self.object in motivator_binder:hit_callback")
+		return
 	end
 	-- w zasadzie callbacki powinny byc trzymane w general store... tymczasem je wywolujemy po kolei
 	if self.st.active_section then
@@ -236,7 +237,10 @@ function motivator_binder:hit_callback(obj, amount, local_direction, who, bone_i
 end
 
 function motivator_binder:death_callback(victim, who)
-	if self.object == nil then return end
+	if self.object == nil then 
+		u3_utils.printf("motivator_binder:death_callback self.object=nil")
+		return 
+	end
 	if mon_ai then mon_ai.npc_death(self.object,who) end
 	if rx_ai then rx_ai.npc_death(self.object,who) end
 	if xrs_ai then xrs_ai.npc_death_callback(self.object) end
@@ -292,7 +296,10 @@ function motivator_binder:death_callback(victim, who)
 end
 
 function motivator_binder:use_callback(obj, who)
-	if self.object == nil then return end
+	if self.object == nil then 
+		u3_utils.printf("motivator_binder:use_callback self.object=nil")
+		return 
+	end
 	if self.object:alive() then
 		xr_use.notify_on_use(obj, who)
 		if self.st.active_section then
@@ -313,7 +320,10 @@ function motivator_binder:update(delta)
 	if amk.oau_watchdog~=0 then
 		abort("Watchdog "..amk.oau_watchdog..".Reason "..amk.oau_reason)
 	end
-	if self.object == nil then return end
+	if self.object == nil then 
+		u3_utils.printf("motivator_binder:update self.object=nil")
+		return 
+	end
 	object_binder.update(self, delta)
 
 		if particles[self.object:id()] and table.getn(particles[self.object:id()])>0 then
@@ -455,6 +465,11 @@ function motivator_binder:save(packet)
 end
 
 function motivator_binder:load(reader)
+	if self.object == nil then
+		u3_utils.printf("motivator_binder:load self.object=nil")	
+		return
+	end
+
 	self.loaded = true
 
 	printf("motivator_binder:load(): self.object:name()='%s'", self.object:name())
@@ -469,14 +484,13 @@ function motivator_binder:load(reader)
 	self.treasure_processed = reader:r_bool()
 
 	xr_logic.load_obj(self.object, reader)
-	dialog_manager.load(self.object, reader)
+	self.npc_script_version = alife():object(self.object:id()).script_version
+	dialog_manager.load(self.object, reader, self.npc_script_version)
 	trade_manager.load(self.object, reader)
 end
 
-function motivator_binder:hear_callback(self, who, sound_type, sound_position, sound_power)
-	if who:id() == self:id() then
-		return
-	end
+function motivator_binder:hear_callback(victim, who, sound_type, sound_position, sound_power)
+
 	local type = "NIL"
 	if bit_and(sound_type, snd_type.weapon) == snd_type.weapon then
 		type = "WPN"
@@ -519,12 +533,16 @@ function motivator_binder:hear_callback(self, who, sound_type, sound_position, s
 		end
 	end
 	if type ~= "NIL" then
-		printf("SND *%s* dist: %d [%f], %s -> %s", type, self:position():distance_to(who:position()), sound_power, who:name(), self:name())
+		printf("SND *%s* dist: %d [%f], %s -> %s", type, victim:position():distance_to(who:position()), sound_power, who:name(), victim:name())
 	end
 end
 
 function AddToMotivator(npc)
 	if alife() then
+	if npc == nil then
+		u3_utils.printf("AddToMotivator(npc=nil)")
+		return
+	end
 		npc:bind_object(this.motivator_binder(npc))
 	end
 end
